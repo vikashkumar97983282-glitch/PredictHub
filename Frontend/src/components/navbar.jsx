@@ -1,72 +1,165 @@
-
 import React from "react";
-import { Search, Bell, ChevronDown,} from "lucide-react";
+import {
+  Menu,
+  Search,
+  Bell,
+  ChevronDown,
+} from "lucide-react";
 
-import Content from "./content";
-
-function Navbar() {
+function Navbar({ onMenuClick }) {
   return (
-    <main className="flex min-w-0 flex-1 flex-col bg-[#030712]">
+    <header
+      className="
+        flex h-13.75 w-full shrink-0
+        items-center justify-between
+        border-b border-[#263244]
+        bg-[#0d1626]
+        px-4
+        sm:px-6
+        lg:px-7
+      "
+    >
 
-      {/* Top Header */}
-      <header className="flex h-14.75 items-center justify-between border-b border-[#263244] px-7">
+      {/* ================= LEFT ================= */}
+      <div className="flex min-w-0 items-center gap-3">
+
+        {/* Mobile Menu */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open sidebar"
+          className="
+            flex shrink-0
+            items-center justify-center
+            rounded-md
+            p-1.5
+            text-[#9aa8bd]
+            transition
+            hover:bg-[#172235]
+            hover:text-white
+            lg:hidden
+          "
+        >
+          <Menu size={21} />
+        </button>
 
         {/* Search */}
-        <div className="flex items-center gap-3 text-[#718096]">
+        <div
+          className="
+            flex min-w-0
+            items-center gap-2.5
+            text-[#718096]
+            sm:gap-3
+          "
+        >
+
           <Search
             size={18}
             strokeWidth={1.5}
+            className="shrink-0"
           />
 
           <input
             type="text"
             placeholder="Search"
-            className="w-40 bg-transparent text-sm text-[#334155] outline-none placeholder:text-[#718096]"
+            className="
+              w-24
+              bg-transparent
+              text-sm
+              text-white
+              outline-none
+              placeholder:text-[#718096]
+
+              focus:w-32
+
+              sm:w-40
+              sm:focus:w-48
+
+              md:w-56
+            "
           />
+
         </div>
 
-        {/* Right Side */}
-        <div className="flex items-center">
+      </div>
 
-          {/* Notification */}
-          <button className="mr-5 text-[#718096] hover:text-[#111827]">
-            <Bell
-              size={18}
-              strokeWidth={1.5}
-            />
-          </button>
+      {/* ================= RIGHT ================= */}
+      <div className="flex shrink-0 items-center">
 
-          {/* Divider */}
-          <div className="h-6 w-px bg-[#263244]" />
+        {/* Notification */}
+        <button
+          type="button"
+          aria-label="Notifications"
+          className="
+            mr-3
+            rounded-md
+            p-1.5
+            text-[#718096]
+            transition
+            hover:bg-[#172235]
+            hover:text-white
+            sm:mr-5
+          "
+        >
+          <Bell
+            size={18}
+            strokeWidth={1.5}
+          />
+        </button>
 
-          {/* Profile */}
-          <button className="ml-5 flex items-center gap-3">
+        {/* Divider */}
+        <div className="h-6 w-px bg-[#263244]" />
 
-            <img
-              src="https://i.pravatar.cc/100?img=12"
-              alt="Profile"
-              className="h-7 w-7 rounded-full object-cover"
-            />
+        {/* Profile */}
+        <button
+          type="button"
+          className="
+            ml-3
+            flex items-center gap-2
+            rounded-md
+            p-1
+            transition
+            hover:bg-[#172235]
 
-            <span className="text-sm font-semibold text-[#111827]">
-              Tom Cook
-            </span>
+            sm:ml-5
+            sm:gap-3
+          "
+        >
 
-            <ChevronDown
-              size={15}
-              className="text-[#718096]"
-            />
+          <img
+            src="https://i.pravatar.cc/100?img=12"
+            alt="Profile"
+            className="
+              h-7 w-7
+              shrink-0
+              rounded-full
+              object-cover
+            "
+          />
 
-          </button>
-        </div>
+          <span
+            className="
+              hidden
+              text-sm
+              font-semibold
+              text-white
+              md:block
+            "
+          >
+            Tom Cook
+          </span>
 
-      </header>
+          <ChevronDown
+            size={15}
+            className="shrink-0 text-[#718096]"
+          />
 
-      <Content/>
+        </button>
 
-    </main>
+      </div>
+
+    </header>
   );
 }
 
 export default Navbar;
-
