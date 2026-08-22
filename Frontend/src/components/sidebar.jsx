@@ -2,17 +2,20 @@ import React from "react";
 import {
   Home,
   Info,
-  SquareText,
   TrendingUpDown,
+  SquareText,
   FileText,
   PieChart,
   Settings,
-  Search,
-  Bell,
-  ChevronDown,
+  Menu ,
 } from "lucide-react";
 
-function Sidebar() {
+function Sidebar({
+  isOpen,
+  isCollapsed,
+  onClose,
+  onToggleCollapse,
+}) {
   const navItems = [
     { name: "Dashboard", icon: Home },
     { name: "About", icon: Info },
@@ -25,80 +28,262 @@ function Sidebar() {
   const teams = [
     { name: "Placement Prediction", letter: "P" },
     { name: "Home Price", letter: "H" },
-    { name: "Study hours", letter: "S" },
+    { name: "Study Hours", letter: "S" },
   ];
 
   return (
-    <div className="min-h-screen bg-[#030712] p-0 text-white">
-      <div className="flex h-screen overflow-hidden  border border-[#263244] bg-[#0d1626]">
+    <>
+      {/* ================= MOBILE BACKDROP ================= */}
 
-        {/* Sidebar */}
-        <aside className="flex w-57.5 flex-col border-r border-[#263244]">
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* ================= SIDEBAR ================= */}
+
+      <aside
+        className={`
+          fixed left-0 top-0 z-50
+          flex h-screen
+          flex-col
+          border-r border-[#263244]
+          bg-[#0d1626]
+          shadow-2xl
+          transition-all duration-300 ease-in-out
+
+          lg:static
+          lg:z-auto
+          lg:translate-x-0
+
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+
+          ${isCollapsed ? "w-16" : "w-57.5"}
+        `}
+      >
+
+        {/* ================= HEADER ================= */}
+
+        <div
+          className={`
+            flex
+            h-14.75
+            shrink-0
+            items-center
+
+            ${
+              isCollapsed
+                ? "justify-center px-2"
+                : "justify-between px-5"
+            }
+          `}
+        >
 
           {/* Logo */}
-          <div className="flex h-16.75 items-center px-5">
-            <div className="text-3xl font-bold text-indigo-500">
+
+          {!isCollapsed && (
+            <div className="text-2xl font-bold text-indigo-500">
               PredictHub
             </div>
-          </div>
+          )}
 
-          {/* Navigation */}
-          <nav className="px-3">
+          {/* Three Dot */}
 
-            {navItems.map((item, index) => {
-              const Icon = item.icon;
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            className="
+              flex
+              h-8
+              w-8
+              shrink-0
+              items-center
+              justify-center
+              rounded-md
+              text-[#718096]
+              transition
+              hover:bg-[#172235]
+              hover:text-white
+            "
+            aria-label={
+              isCollapsed
+                ? "Show sidebar"
+                : "Hide sidebar"
+            }
+            title={
+              isCollapsed
+                ? "Show sidebar"
+                : "Hide sidebar"
+            }
+          >
+            <Menu 
+              size={20}
+              strokeWidth={2}
+            />
+          </button>
 
-              return (
-                <button
-                  key={item.name}
-                  className={`mb-1 flex h-8 w-full items-center gap-3 rounded-md px-2 text-left text-sm ${
+        </div>
+
+        {/* ================= NAVIGATION ================= */}
+
+        <nav className="px-3 pt-4">
+
+          {navItems.map((item, index) => {
+            const Icon = item.icon;
+
+            return (
+              <button
+                key={item.name}
+                type="button"
+                title={isCollapsed ? item.name : ""}
+                className={`
+                  mb-1
+                  flex
+                  h-10
+                  w-full
+                  items-center
+                  rounded-md
+                  text-left
+                  text-sm
+                  transition
+
+                  ${
+                    isCollapsed
+                      ? "justify-center px-0"
+                      : "gap-3 px-3"
+                  }
+
+                  ${
                     index === 0
                       ? "bg-[#1b2637] text-white"
                       : "text-[#9aa8bd] hover:bg-[#172235] hover:text-white"
-                  }`}
-                >
-                  <Icon size={18} strokeWidth={1.6} />
-                  <span>{item.name}</span>
-                </button>
-              );
-            })}
+                  }
+                `}
+              >
 
-          </nav>
+                <Icon
+                  size={18}
+                  strokeWidth={1.8}
+                  className="shrink-0"
+                />
 
-          {/* Teams */}
+                {!isCollapsed && (
+                  <span>
+                    {item.name}
+                  </span>
+                )}
+
+              </button>
+            );
+          })}
+
+        </nav>
+
+        {/* ================= MY ACTIVITY ================= */}
+
+        {!isCollapsed && (
           <div className="mt-7 px-5">
-            <p className="mb-3 text-[11px] font-medium text-[#8b9ab1]">
-              My Acitvity
+
+            <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-[#8b9ab1]">
+              My Activity
             </p>
 
             <div className="space-y-3">
+
               {teams.map((team) => (
                 <button
                   key={team.name}
-                  className="flex items-center gap-3 text-sm text-[#aebbd0] hover:text-white"
+                  type="button"
+                  className="
+                    flex
+                    w-full
+                    items-center
+                    gap-3
+                    text-left
+                    text-sm
+                    text-[#aebbd0]
+                    transition
+                    hover:text-white
+                  "
                 >
-                  <span className="flex h-5 w-5 items-center justify-center rounded-md border border-[#334155] bg-[#172235] text-[10px]">
+
+                  <span
+                    className="
+                      flex
+                      h-5
+                      w-5
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-md
+                      border
+                      border-[#334155]
+                      bg-[#172235]
+                      text-[10px]
+                    "
+                  >
                     {team.letter}
                   </span>
 
-                  <span>{team.name}</span>
+                  <span className="truncate">
+                    {team.name}
+                  </span>
+
                 </button>
               ))}
+
             </div>
-          </div>
 
-          {/* Settings */}
-          <div className="mt-auto px-3 pb-4">
-            <button className="flex h-8 w-full items-center gap-3 px-2 text-sm text-[#aebbd0] hover:text-white">
-              <Settings size={18} strokeWidth={1.6} />
-              <span>Settings</span>
-            </button>
           </div>
-        </aside>
+        )}
 
-        
-      </div>
-    </div>
+        {/* ================= SETTINGS ================= */}
+
+        <div className="mt-auto px-3 pb-4">
+
+          <button
+            type="button"
+            title={isCollapsed ? "Settings" : ""}
+            className={`
+              flex
+              h-10
+              w-full
+              items-center
+              rounded-md
+              text-sm
+              text-[#aebbd0]
+              transition
+              hover:bg-[#172235]
+              hover:text-white
+
+              ${
+                isCollapsed
+                  ? "justify-center px-0"
+                  : "gap-3 px-3"
+              }
+            `}
+          >
+
+            <Settings
+              size={18}
+              strokeWidth={1.8}
+              className="shrink-0"
+            />
+
+            {!isCollapsed && (
+              <span>
+                Settings
+              </span>
+            )}
+
+          </button>
+
+        </div>
+
+      </aside>
+    </>
   );
 }
 
