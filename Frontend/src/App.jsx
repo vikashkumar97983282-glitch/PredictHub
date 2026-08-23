@@ -1,23 +1,17 @@
-
 import React from "react";
 import "./App.css";
+import { Routes, Route } from "react-router-dom";
 
-import Sidebar from "./components/sidebar";
-import Navbar from "./components/navbar";
+import Home from "./pages/home";
+import About from "./pages/about";
 
 function App() {
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-white">
-      
-      {/* Sidebar */}
-      <Sidebar />
-
-      {/* Right side */}
-      <Navbar />
-
-    </div>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
+    </Routes>
   );
 }
 
 export default App;
-

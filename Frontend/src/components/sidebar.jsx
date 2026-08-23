@@ -7,8 +7,10 @@ import {
   FileText,
   PieChart,
   Settings,
-  Menu ,
+  Menu,
+  Zap ,
 } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 function Sidebar({
   isOpen,
@@ -16,13 +18,15 @@ function Sidebar({
   onClose,
   onToggleCollapse,
 }) {
+  const location = useLocation();
+
   const navItems = [
-    { name: "Dashboard", icon: Home },
-    { name: "About", icon: Info },
-    { name: "Prediction", icon: TrendingUpDown },
-    { name: "Analytics", icon: SquareText },
-    { name: "Trending", icon: FileText },
-    { name: "Community", icon: PieChart },
+    { name: "Dashboard", icon: Home, path: "/" },
+    { name: "About", icon: Info, path: "/about" },
+    { name: "Prediction", icon: TrendingUpDown, path: "/prediction" },
+    { name: "Analytics", icon: SquareText, path: "/analytics" },
+    { name: "Trending", icon: FileText, path: "/trending" },
+    { name: "Community", icon: PieChart, path: "/community" },
   ];
 
   const teams = [
@@ -84,12 +88,20 @@ function Sidebar({
           {/* Logo */}
 
           {!isCollapsed && (
-            <div className="text-2xl font-bold text-indigo-500">
-              PredictHub
+            <div className="flex items-center gap-1.2">
+              <Zap
+                size={25}
+                strokeWidth={2.5}
+                className="shrink-0 text-indigo-500"
+              />
+
+              <span className="text-[25px] font-bold leading-none text-indigo-500">
+                PredictHub
+              </span>
             </div>
           )}
 
-          {/* Three Dot */}
+          {/* Menu */}
 
           <button
             type="button"
@@ -98,6 +110,7 @@ function Sidebar({
               flex
               h-8
               w-8
+              ml-2
               shrink-0
               items-center
               justify-center
@@ -118,10 +131,7 @@ function Sidebar({
                 : "Hide sidebar"
             }
           >
-            <Menu 
-              size={20}
-              strokeWidth={2}
-            />
+            <Menu size={20} strokeWidth={3} />
           </button>
 
         </div>
@@ -130,13 +140,21 @@ function Sidebar({
 
         <nav className="px-3 pt-4">
 
-          {navItems.map((item, index) => {
+          {navItems.map((item) => {
             const Icon = item.icon;
 
+            // Check current page
+            const isActive = location.pathname === item.path;
+
             return (
-              <button
+              <Link
                 key={item.name}
-                type="button"
+                to={item.path}
+                onClick={() => {
+                  if (window.innerWidth < 1024) {
+                    onClose();
+                  }
+                }}
                 title={isCollapsed ? item.name : ""}
                 className={`
                   mb-1
@@ -156,7 +174,7 @@ function Sidebar({
                   }
 
                   ${
-                    index === 0
+                    isActive
                       ? "bg-[#1b2637] text-white"
                       : "text-[#9aa8bd] hover:bg-[#172235] hover:text-white"
                   }
@@ -175,7 +193,7 @@ function Sidebar({
                   </span>
                 )}
 
-              </button>
+              </Link>
             );
           })}
 
@@ -243,8 +261,9 @@ function Sidebar({
 
         <div className="mt-auto px-3 pb-4">
 
-          <button
+          <Link
             type="button"
+            to="/profile"
             title={isCollapsed ? "Settings" : ""}
             className={`
               flex
@@ -278,7 +297,7 @@ function Sidebar({
               </span>
             )}
 
-          </button>
+          </Link>
 
         </div>
 
