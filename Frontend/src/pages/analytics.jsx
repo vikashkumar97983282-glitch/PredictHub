@@ -13,6 +13,7 @@ import {
 
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
+import Footer from "../components/footer";
 
 /* ============================================================
    DATA
@@ -786,6 +787,8 @@ function Analytics() {
             </div>
 
           </div>
+
+          <Footer/>
 
         </main>
 

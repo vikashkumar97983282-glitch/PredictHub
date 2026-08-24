@@ -5,6 +5,8 @@ import { Routes, Route } from "react-router-dom";
 import Home from "./pages/home";
 import About from "./pages/about";
 import Analytics from "./pages/analytics";
+import Trending from "./pages/trending";
+import Community from "./pages/community";
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/analytics" element={<Analytics />} />
+      <Route path="/trending" element={<Trending />} />
+      <Route path="/community" element={<Community />} />
     </Routes>
   );
 }
