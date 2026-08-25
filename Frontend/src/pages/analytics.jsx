@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   BarChart3,
   TrendingUp,
@@ -9,6 +10,9 @@ import {
   CheckCircle2,
   AlertCircle,
   ArrowUpRight,
+  CalendarDays,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 
 import Sidebar from "../components/sidebar";
@@ -78,10 +82,97 @@ const recentActivity = [
 ];
 
 const chartData = [
-  35, 48, 42, 58, 51, 65, 72, 60, 75, 68,
-  82, 73, 88, 79, 92, 84, 76, 90, 95, 87,
-  98, 91, 84, 96, 89, 94, 86, 92, 97, 100,
+  35, 48, 42, 58, 51,
+  65, 72, 60, 75, 68,
+  82, 73, 88, 79, 92,
+  84, 76, 90, 95, 87,
+  98, 91, 84, 96, 89,
+  94, 86, 92, 97, 100,
 ];
+
+/* ============================================================
+   STAT CARD
+============================================================ */
+
+function StatCard({
+  title,
+  value,
+  subtitle,
+  icon,
+  iconClass,
+}) {
+  return (
+    <div
+      className="
+        group
+        relative
+        overflow-hidden
+        rounded-2xl
+        border
+        border-slate-700/50
+        bg-[#121b2b]/80
+        p-5
+        shadow-xl
+        backdrop-blur-xl
+        transition-all
+        duration-300
+        hover:-translate-y-1
+        hover:border-blue-500/50
+      "
+    >
+      {/* Background Glow */}
+
+      <div
+        className="
+          absolute
+          -right-10
+          -top-10
+          h-24
+          w-24
+          rounded-full
+          bg-blue-500/10
+          blur-2xl
+          transition
+          group-hover:bg-blue-500/20
+        "
+      />
+
+      <div className="relative flex items-start justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-400">
+            {title}
+          </p>
+
+          <h2 className="mt-3 text-3xl font-bold tracking-tight text-white">
+            {value}
+          </h2>
+
+          <div className="mt-3 flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-emerald-400" />
+
+            <span className="text-sm font-semibold text-emerald-400">
+              {subtitle}
+            </span>
+          </div>
+        </div>
+
+        <div
+          className={`
+            flex
+            h-12
+            w-12
+            items-center
+            justify-center
+            rounded-xl
+            ${iconClass}
+          `}
+        >
+          {icon}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 /* ============================================================
    ANALYTICS
@@ -89,10 +180,46 @@ const chartData = [
 
 function Analytics() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] =
+    useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="relative flex h-screen overflow-hidden bg-[#080f22] text-white">
+
+      {/* ======================================================
+          BACKGROUND GLOW
+      ====================================================== */}
+
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+
+        <div
+          className="
+            absolute
+            left-[20%]
+            top-[-200px]
+            h-[500px]
+            w-[500px]
+            rounded-full
+            bg-blue-600/10
+            blur-[150px]
+          "
+        />
+
+        <div
+          className="
+            absolute
+            right-[-150px]
+            top-[200px]
+            h-[600px]
+            w-[600px]
+            rounded-full
+            bg-purple-600/10
+            blur-[180px]
+          "
+        />
+
+      </div>
+
 
       {/* ======================================================
           SIDEBAR
@@ -107,11 +234,12 @@ function Analytics() {
         }
       />
 
+
       {/* ======================================================
-          MAIN APPLICATION AREA
+          MAIN APPLICATION
       ====================================================== */}
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
 
         {/* ====================================================
             NAVBAR
@@ -123,50 +251,124 @@ function Analytics() {
           }
         />
 
+
         {/* ====================================================
-            SCROLLABLE CONTENT
+            MAIN CONTENT
         ==================================================== */}
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <main
+          className="
+            min-h-0
+            flex-1
+            overflow-x-hidden
+            overflow-y-auto
+          "
+        >
 
-          <div className="px-4 py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
 
             <div className="mx-auto w-full max-w-7xl">
 
+
               {/* =================================================
                   PAGE HEADER
-              ================================================== */}
+              ================================================= */}
 
-              <div className="mb-8">
+              <div className="mb-10">
 
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div
+                  className="
+                    flex
+                    flex-col
+                    gap-6
+                    lg:flex-row
+                    lg:items-end
+                    lg:justify-between
+                  "
+                >
 
-                  {/* Heading */}
+                  {/* LEFT */}
 
                   <div>
 
-                    <div className="mb-2 flex items-center gap-2">
+                    {/* Badge */}
 
-                      <BarChart3 className="h-6 w-6 text-indigo-600" />
+                    <div
+                      className="
+                        inline-flex
+                        items-center
+                        gap-2
+                        rounded-full
+                        border
+                        border-blue-500/30
+                        bg-blue-500/10
+                        px-4
+                        py-2
+                        text-xs
+                        font-bold
+                        tracking-wider
+                        text-blue-300
+                      "
+                    >
+                      <span className="h-2 w-2 rounded-full bg-blue-400" />
 
-                      <span className="text-sm font-semibold text-indigo-600">
-                        Analytics
-                      </span>
+                      ANALYTICS · AI INSIGHTS
 
                     </div>
 
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                      Prediction Analytics
+
+                    {/* Title */}
+
+                    <h1
+                      className="
+                        mt-5
+                        text-3xl
+                        font-bold
+                        tracking-tight
+                        text-white
+                        sm:text-4xl
+                        lg:text-5xl
+                      "
+                    >
+                      Prediction{" "}
+
+                      <span
+                        className="
+                          bg-gradient-to-r
+                          from-blue-400
+                          via-indigo-400
+                          to-purple-400
+                          bg-clip-text
+                          text-transparent
+                        "
+                      >
+                        Analytics
+                      </span>
+
                     </h1>
 
-                    <p className="mt-2 max-w-2xl text-sm text-slate-500 sm:text-base">
-                      Monitor your prediction performance, model
-                      accuracy, and activity from one place.
+
+                    {/* Description */}
+
+                    <p
+                      className="
+                        mt-4
+                        max-w-2xl
+                        text-sm
+                        leading-7
+                        text-slate-400
+                        sm:text-base
+                      "
+                    >
+                      Monitor your prediction performance,
+                      model accuracy, and activity from one
+                      intelligent analytics dashboard.
                     </p>
 
                   </div>
 
-                  {/* Date Button */}
+
+                  {/* DATE BUTTON */}
 
                   <button
                     type="button"
@@ -175,320 +377,457 @@ function Analytics() {
                       items-center
                       justify-center
                       gap-2
+                      self-start
                       rounded-xl
                       border
-                      border-slate-200
-                      bg-white
-                      px-4
-                      py-2.5
+                      border-slate-700
+                      bg-[#121b2b]/80
+                      px-5
+                      py-3
                       text-sm
                       font-semibold
-                      text-slate-700
-                      shadow-sm
+                      text-slate-300
+                      shadow-lg
+                      backdrop-blur-xl
                       transition
-                      hover:bg-slate-50
+                      hover:border-blue-500/50
+                      hover:bg-[#172238]
+                      lg:self-auto
                     "
                   >
-
-                    <Clock3 className="h-4 w-4" />
+                    <CalendarDays className="h-4 w-4 text-blue-400" />
 
                     Last 30 Days
 
+                    <Clock3 className="h-4 w-4 text-slate-500" />
                   </button>
 
                 </div>
 
               </div>
 
+
               {/* =================================================
                   STATISTICS CARDS
-              ================================================== */}
-
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-                {/* Card 1 */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Total Predictions
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        3,620
-                      </h2>
-
-                      <div className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +14.8%
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
-
-                      <Activity className="h-5 w-5 text-indigo-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Card 2 */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Average Accuracy
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        93.4%
-                      </h2>
-
-                      <div className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +6.2%
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
-
-                      <Target className="h-5 w-5 text-emerald-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Card 3 */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Active Models
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        12
-                      </h2>
-
-                      <div className="mt-3 flex items-center gap-1 text-sm font-medium text-slate-500">
-
-                        <Brain className="h-4 w-4" />
-
-                        4 categories
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50">
-
-                      <Brain className="h-5 w-5 text-purple-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Card 4 */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Success Rate
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        98.2%
-                      </h2>
-
-                      <div className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +3.4%
-
-                      </div>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
-
-                      <CheckCircle2 className="h-5 w-5 text-blue-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
+              ================================================= */}
+
+              <div
+                className="
+                  grid
+                  gap-5
+                  sm:grid-cols-2
+                  xl:grid-cols-4
+                "
+              >
+
+                <StatCard
+                  title="Total Predictions"
+                  value="3,620"
+                  subtitle="+14.8%"
+                  icon={
+                    <Activity className="h-5 w-5 text-blue-400" />
+                  }
+                  iconClass="bg-blue-500/10"
+                />
+
+
+                <StatCard
+                  title="Average Accuracy"
+                  value="93.4%"
+                  subtitle="+6.2%"
+                  icon={
+                    <Target className="h-5 w-5 text-emerald-400" />
+                  }
+                  iconClass="bg-emerald-500/10"
+                />
+
+
+                <StatCard
+                  title="Active Models"
+                  value="12"
+                  subtitle="4 categories"
+                  icon={
+                    <Brain className="h-5 w-5 text-purple-400" />
+                  }
+                  iconClass="bg-purple-500/10"
+                />
+
+
+                <StatCard
+                  title="Success Rate"
+                  value="98.2%"
+                  subtitle="+3.4%"
+                  icon={
+                    <CheckCircle2 className="h-5 w-5 text-cyan-400" />
+                  }
+                  iconClass="bg-cyan-500/10"
+                />
 
               </div>
+
 
               {/* =================================================
                   CHART SECTION
-              ================================================== */}
+              ================================================= */}
 
-              <div className="mt-6 grid gap-6 lg:grid-cols-3">
+              <div
+                className="
+                  mt-6
+                  grid
+                  gap-6
+                  lg:grid-cols-3
+                "
+              >
 
-                {/* Prediction Overview */}
 
-                <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm lg:col-span-2">
+                {/* =============================================
+                    PREDICTION OVERVIEW
+                ============================================== */}
 
-                  <div className="flex items-center justify-between">
+                <div
+                  className="
+                    relative
+                    min-w-0
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    border-slate-700/50
+                    bg-[#121b2b]/80
+                    p-5
+                    shadow-xl
+                    backdrop-blur-xl
+                    sm:p-6
+                    lg:col-span-2
+                  "
+                >
 
-                    <div>
+                  {/* Glow */}
 
-                      <h2 className="text-lg font-bold text-slate-900">
-                        Prediction Overview
-                      </h2>
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      right-0
+                      top-0
+                      h-40
+                      w-40
+                      rounded-full
+                      bg-blue-600/10
+                      blur-3xl
+                    "
+                  />
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        Prediction activity over the last 30 days
-                      </p>
+                  <div className="relative">
 
-                    </div>
+                    {/* HEADER */}
 
-                    <BarChart3 className="h-5 w-5 text-slate-400" />
+                    <div className="flex items-start justify-between">
 
-                  </div>
+                      <div>
 
-                  {/* Bars */}
-
-                  <div className="mt-8 h-64 w-full overflow-hidden">
-
-                    <div className="flex h-full items-end gap-1 sm:gap-2">
-
-                      {chartData.map((height, index) => (
-
-                        <div
-                          key={index}
-                          className="group flex h-full min-w-0 flex-1 items-end"
-                        >
+                        <div className="flex items-center gap-2">
 
                           <div
-                            style={{
-                              height: `${height}%`,
-                            }}
                             className="
-                              w-full
-                              rounded-t-md
-                              bg-indigo-500
-                              opacity-80
-                              transition-all
-                              duration-200
-                              group-hover:bg-indigo-600
-                              group-hover:opacity-100
+                              flex
+                              h-9
+                              w-9
+                              items-center
+                              justify-center
+                              rounded-xl
+                              bg-blue-500/10
                             "
-                          />
+                          >
+                            <BarChart3 className="h-5 w-5 text-blue-400" />
+                          </div>
 
-                        </div>
+                          <div>
 
-                      ))}
+                            <h2 className="text-lg font-bold text-white">
+                              Prediction Overview
+                            </h2>
 
-                    </div>
+                            <p className="mt-1 text-sm text-slate-400">
+                              Prediction activity over the last 30 days
+                            </p>
 
-                  </div>
-
-                  {/* Dates */}
-
-                  <div className="mt-4 flex justify-between text-xs text-slate-400">
-
-                    <span>1 Aug</span>
-                    <span>8 Aug</span>
-                    <span>15 Aug</span>
-                    <span>22 Aug</span>
-                    <span>30 Aug</span>
-
-                  </div>
-
-                </div>
-
-                {/* =================================================
-                    OVERALL ACCURACY
-                ================================================== */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Overall Accuracy
-                  </h2>
-
-                  <p className="mt-1 text-sm text-slate-500">
-                    Performance across all models
-                  </p>
-
-                  <div className="flex flex-col items-center py-8">
-
-                    {/* Circle */}
-
-                    <div className="relative h-44 w-44">
-
-                      <div className="absolute inset-0 rounded-full border-[18px] border-indigo-100" />
-
-                      <div
-                        className="
-                          absolute
-                          inset-0
-                          rounded-full
-                          border-[18px]
-                          border-indigo-600
-                          border-b-transparent
-                          border-l-transparent
-                          rotate-[-35deg]
-                        "
-                      />
-
-                      <div className="absolute inset-[18px] flex items-center justify-center rounded-full bg-white">
-
-                        <div className="text-center">
-
-                          <p className="text-3xl font-bold text-slate-900">
-                            93.4%
-                          </p>
-
-                          <p className="mt-1 text-xs text-slate-500">
-                            Accuracy
-                          </p>
+                          </div>
 
                         </div>
 
                       </div>
 
+
+                      <div
+                        className="
+                          hidden
+                          rounded-full
+                          bg-emerald-500/10
+                          px-3
+                          py-1.5
+                          text-xs
+                          font-semibold
+                          text-emerald-400
+                          sm:block
+                        "
+                      >
+                        +14.8% Growth
+                      </div>
+
                     </div>
 
-                    <div className="mt-6 flex items-center gap-2 text-sm font-medium text-emerald-600">
 
-                      <TrendingUp className="h-4 w-4" />
+                    {/* CHART */}
 
-                      6.2% improvement
+                    <div
+                      className="
+                        mt-8
+                        h-64
+                        w-full
+                        overflow-hidden
+                        rounded-xl
+                        border
+                        border-slate-800
+                        bg-[#080e1c]/80
+                        p-4
+                      "
+                    >
+
+                      <div
+                        className="
+                          flex
+                          h-full
+                          items-end
+                          gap-1
+                          sm:gap-2
+                        "
+                      >
+
+                        {chartData.map((height, index) => (
+
+                          <div
+                            key={index}
+                            className="
+                              group
+                              flex
+                              h-full
+                              min-w-0
+                              flex-1
+                              items-end
+                            "
+                          >
+
+                            <div
+                              style={{
+                                height: `${height}%`,
+                              }}
+                              className="
+                                relative
+                                w-full
+                                rounded-t-md
+                                bg-gradient-to-t
+                                from-blue-700
+                                via-blue-500
+                                to-indigo-400
+                                opacity-75
+                                transition-all
+                                duration-300
+                                group-hover:opacity-100
+                                group-hover:brightness-125
+                              "
+                            >
+
+                              <div
+                                className="
+                                  absolute
+                                  left-0
+                                  right-0
+                                  top-0
+                                  h-px
+                                  bg-white/30
+                                "
+                              />
+
+                            </div>
+
+                          </div>
+
+                        ))}
+
+                      </div>
+
+                    </div>
+
+
+                    {/* DATES */}
+
+                    <div
+                      className="
+                        mt-4
+                        flex
+                        justify-between
+                        text-xs
+                        text-slate-500
+                      "
+                    >
+                      <span>1 Aug</span>
+
+                      <span>8 Aug</span>
+
+                      <span>15 Aug</span>
+
+                      <span>22 Aug</span>
+
+                      <span>30 Aug</span>
+                    </div>
+
+                  </div>
+
+                </div>
+
+
+                {/* =============================================
+                    OVERALL ACCURACY
+                ============================================== */}
+
+                <div
+                  className="
+                    relative
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    border-slate-700/50
+                    bg-[#121b2b]/80
+                    p-6
+                    shadow-xl
+                    backdrop-blur-xl
+                  "
+                >
+
+                  {/* Background Glow */}
+
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute
+                      left-1/2
+                      top-1/2
+                      h-40
+                      w-40
+                      -translate-x-1/2
+                      -translate-y-1/2
+                      rounded-full
+                      bg-purple-500/10
+                      blur-3xl
+                    "
+                  />
+
+                  <div className="relative">
+
+                    <div className="flex items-center gap-3">
+
+                      <div
+                        className="
+                          flex
+                          h-10
+                          w-10
+                          items-center
+                          justify-center
+                          rounded-xl
+                          bg-purple-500/10
+                        "
+                      >
+                        <Target className="h-5 w-5 text-purple-400" />
+                      </div>
+
+                      <div>
+
+                        <h2 className="text-lg font-bold text-white">
+                          Overall Accuracy
+                        </h2>
+
+                        <p className="mt-1 text-sm text-slate-400">
+                          Performance across all models
+                        </p>
+
+                      </div>
+
+                    </div>
+
+
+                    {/* CIRCLE */}
+
+                    <div className="flex flex-col items-center py-9">
+
+                      <div
+                        className="
+                          relative
+                          flex
+                          h-48
+                          w-48
+                          items-center
+                          justify-center
+                          rounded-full
+                        "
+                        style={{
+                          background:
+                            "conic-gradient(#6366f1 0deg 336deg, rgba(51,65,85,0.5) 336deg 360deg)",
+                        }}
+                      >
+
+                        <div
+                          className="
+                            flex
+                            h-[160px]
+                            w-[160px]
+                            items-center
+                            justify-center
+                            rounded-full
+                            border
+                            border-slate-700/50
+                            bg-[#101827]
+                          "
+                        >
+
+                          <div className="text-center">
+
+                            <p className="text-4xl font-bold text-white">
+                              93.4%
+                            </p>
+
+                            <p className="mt-2 text-sm text-slate-400">
+                              Accuracy
+                            </p>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+
+                      <div
+                        className="
+                          mt-7
+                          flex
+                          items-center
+                          gap-2
+                          rounded-full
+                          border
+                          border-emerald-500/20
+                          bg-emerald-500/10
+                          px-4
+                          py-2
+                          text-sm
+                          font-semibold
+                          text-emerald-400
+                        "
+                      >
+                        <TrendingUp className="h-4 w-4" />
+
+                        6.2% improvement
+
+                      </div>
 
                     </div>
 
@@ -498,55 +837,189 @@ function Analytics() {
 
               </div>
 
+
               {/* =================================================
                   MODEL PERFORMANCE
-              ================================================== */}
+              ================================================= */}
 
-              <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div
+                className="
+                  mt-6
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-slate-700/50
+                  bg-[#121b2b]/80
+                  shadow-xl
+                  backdrop-blur-xl
+                "
+              >
 
-                <div className="border-b border-slate-100 p-6">
+                {/* HEADER */}
 
-                  <h2 className="text-lg font-bold text-slate-900">
-                    Model Performance
-                  </h2>
+                <div
+                  className="
+                    flex
+                    flex-col
+                    gap-4
+                    border-b
+                    border-slate-700/50
+                    p-6
+                    sm:flex-row
+                    sm:items-center
+                    sm:justify-between
+                  "
+                >
 
-                  <p className="mt-1 text-sm text-slate-500">
-                    Compare prediction models and their performance.
-                  </p>
+                  <div>
+
+                    <div className="flex items-center gap-3">
+
+                      <div
+                        className="
+                          flex
+                          h-10
+                          w-10
+                          items-center
+                          justify-center
+                          rounded-xl
+                          bg-blue-500/10
+                        "
+                      >
+                        <Brain className="h-5 w-5 text-blue-400" />
+                      </div>
+
+                      <div>
+
+                        <h2 className="text-lg font-bold text-white">
+                          Model Performance
+                        </h2>
+
+                        <p className="mt-1 text-sm text-slate-400">
+                          Compare prediction models and their performance.
+                        </p>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+
+
+                  <div
+                    className="
+                      inline-flex
+                      items-center
+                      gap-2
+                      rounded-full
+                      bg-blue-500/10
+                      px-4
+                      py-2
+                      text-xs
+                      font-semibold
+                      text-blue-400
+                    "
+                  >
+                    <Sparkles className="h-4 w-4" />
+
+                    AI Powered
+
+                  </div>
 
                 </div>
 
+
+                {/* TABLE */}
+
                 <div className="overflow-x-auto">
 
-                  <table className="w-full min-w-[700px]">
+                  <table className="w-full min-w-[750px]">
 
                     <thead>
 
-                      <tr className="border-b border-slate-100 text-left">
+                      <tr
+                        className="
+                          border-b
+                          border-slate-700/50
+                          bg-[#0d1525]/60
+                          text-left
+                        "
+                      >
 
-                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th
+                          className="
+                            px-6
+                            py-4
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                          "
+                        >
                           Model
                         </th>
 
-                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th
+                          className="
+                            px-6
+                            py-4
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                          "
+                        >
                           Accuracy
                         </th>
 
-                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th
+                          className="
+                            px-6
+                            py-4
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                          "
+                        >
                           Predictions
                         </th>
 
-                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th
+                          className="
+                            px-6
+                            py-4
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                          "
+                        >
                           Trend
                         </th>
 
-                        <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                        <th
+                          className="
+                            px-6
+                            py-4
+                            text-xs
+                            font-semibold
+                            uppercase
+                            tracking-wider
+                            text-slate-500
+                          "
+                        >
                           Status
                         </th>
 
                       </tr>
 
                     </thead>
+
 
                     <tbody>
 
@@ -556,23 +1029,34 @@ function Analytics() {
                           key={model.name}
                           className="
                             border-b
-                            border-slate-100
+                            border-slate-700/30
+                            transition
                             last:border-0
-                            hover:bg-slate-50
+                            hover:bg-slate-800/40
                           "
                         >
+
+                          {/* MODEL */}
 
                           <td className="px-6 py-5">
 
                             <div className="flex items-center gap-3">
 
-                              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-50">
-
-                                <Brain className="h-4 w-4 text-indigo-600" />
-
+                              <div
+                                className="
+                                  flex
+                                  h-10
+                                  w-10
+                                  items-center
+                                  justify-center
+                                  rounded-xl
+                                  bg-blue-500/10
+                                "
+                              >
+                                <Brain className="h-5 w-5 text-blue-400" />
                               </div>
 
-                              <span className="font-semibold text-slate-800">
+                              <span className="font-semibold text-slate-200">
                                 {model.name}
                               </span>
 
@@ -580,22 +1064,39 @@ function Analytics() {
 
                           </td>
 
+
+                          {/* ACCURACY */}
+
                           <td className="px-6 py-5">
 
                             <div className="flex items-center gap-3">
 
-                              <div className="h-2 w-24 overflow-hidden rounded-full bg-slate-100">
+                              <div
+                                className="
+                                  h-2
+                                  w-28
+                                  overflow-hidden
+                                  rounded-full
+                                  bg-slate-800
+                                "
+                              >
 
                                 <div
                                   style={{
                                     width: `${model.accuracy}%`,
                                   }}
-                                  className="h-full rounded-full bg-indigo-500"
+                                  className="
+                                    h-full
+                                    rounded-full
+                                    bg-gradient-to-r
+                                    from-blue-600
+                                    to-indigo-400
+                                  "
                                 />
 
                               </div>
 
-                              <span className="text-sm font-semibold text-slate-700">
+                              <span className="text-sm font-semibold text-slate-300">
                                 {model.accuracy}%
                               </span>
 
@@ -603,16 +1104,40 @@ function Analytics() {
 
                           </td>
 
-                          <td className="px-6 py-5 text-sm font-medium text-slate-700">
 
+                          {/* PREDICTIONS */}
+
+                          <td
+                            className="
+                              px-6
+                              py-5
+                              text-sm
+                              font-medium
+                              text-slate-300
+                            "
+                          >
                             {model.predictions.toLocaleString()}
-
                           </td>
+
+
+                          {/* TREND */}
 
                           <td className="px-6 py-5">
 
-                            <span className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600">
-
+                            <span
+                              className="
+                                inline-flex
+                                items-center
+                                gap-1
+                                rounded-full
+                                bg-emerald-500/10
+                                px-3
+                                py-1.5
+                                text-sm
+                                font-semibold
+                                text-emerald-400
+                              "
+                            >
                               <ArrowUpRight className="h-4 w-4" />
 
                               {model.trend}
@@ -621,11 +1146,28 @@ function Analytics() {
 
                           </td>
 
+
+                          {/* STATUS */}
+
                           <td className="px-6 py-5">
 
-                            <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-
-                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            <span
+                              className="
+                                inline-flex
+                                items-center
+                                gap-2
+                                rounded-full
+                                border
+                                border-emerald-500/20
+                                bg-emerald-500/10
+                                px-3
+                                py-1.5
+                                text-xs
+                                font-semibold
+                                text-emerald-400
+                              "
+                            >
+                              <span className="h-2 w-2 rounded-full bg-emerald-400" />
 
                               Active
 
@@ -645,36 +1187,73 @@ function Analytics() {
 
               </div>
 
+
               {/* =================================================
                   RECENT PREDICTIONS
-              ================================================== */}
+              ================================================= */}
 
-              <div className="mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+              <div
+                className="
+                  mt-6
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-slate-700/50
+                  bg-[#121b2b]/80
+                  shadow-xl
+                  backdrop-blur-xl
+                "
+              >
 
-                <div className="flex items-center justify-between border-b border-slate-100 p-6">
+                {/* HEADER */}
+
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-between
+                    border-b
+                    border-slate-700/50
+                    p-6
+                  "
+                >
 
                   <div>
 
-                    <h2 className="text-lg font-bold text-slate-900">
+                    <h2 className="text-lg font-bold text-white">
                       Recent Predictions
                     </h2>
 
-                    <p className="mt-1 text-sm text-slate-500">
+                    <p className="mt-1 text-sm text-slate-400">
                       Latest prediction activity from your models.
                     </p>
 
                   </div>
 
+
                   <button
                     type="button"
-                    className="text-sm font-semibold text-indigo-600 transition hover:text-indigo-700"
+                    className="
+                      rounded-lg
+                      px-3
+                      py-2
+                      text-sm
+                      font-semibold
+                      text-blue-400
+                      transition
+                      hover:bg-blue-500/10
+                      hover:text-blue-300
+                    "
                   >
                     View All
                   </button>
 
                 </div>
 
-                <div className="divide-y divide-slate-100">
+
+                {/* ACTIVITY */}
+
+                <div className="divide-y divide-slate-700/40">
 
                   {recentActivity.map((activity, index) => (
 
@@ -683,55 +1262,89 @@ function Analytics() {
                       className="
                         flex
                         flex-col
-                        gap-4
+                        gap-5
                         p-5
                         transition
-                        hover:bg-slate-50
+                        hover:bg-slate-800/30
                         sm:flex-row
                         sm:items-center
                         sm:justify-between
                       "
                     >
 
+                      {/* LEFT */}
+
                       <div className="flex items-center gap-4">
 
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50">
-
-                          <Activity className="h-5 w-5 text-indigo-600" />
-
+                        <div
+                          className="
+                            flex
+                            h-11
+                            w-11
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-blue-500/10
+                          "
+                        >
+                          <Activity className="h-5 w-5 text-blue-400" />
                         </div>
+
 
                         <div>
 
-                          <h3 className="text-sm font-semibold text-slate-800">
+                          <h3 className="font-semibold text-slate-200">
                             {activity.title}
                           </h3>
 
-                          <p className="mt-1 text-xs text-slate-500">
-                            {activity.model} • {activity.time}
+                          <p className="mt-1 text-sm text-slate-500">
+                            {activity.model}
+
+                            <span className="mx-2">•</span>
+
+                            {activity.time}
                           </p>
 
                         </div>
 
                       </div>
 
+
+                      {/* RIGHT */}
+
                       <div className="flex items-center gap-6">
 
                         <div>
 
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-500">
                             Result
                           </p>
 
-                          <p className="mt-1 text-sm font-bold text-slate-800">
+                          <p className="mt-1 text-lg font-bold text-white">
                             {activity.result}
                           </p>
 
                         </div>
 
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
 
-                          <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span
+                          className="
+                            inline-flex
+                            items-center
+                            gap-2
+                            rounded-full
+                            border
+                            border-emerald-500/20
+                            bg-emerald-500/10
+                            px-4
+                            py-2
+                            text-xs
+                            font-semibold
+                            text-emerald-400
+                          "
+                        >
+                          <CheckCircle2 className="h-4 w-4" />
 
                           {activity.status}
 
@@ -747,31 +1360,111 @@ function Analytics() {
 
               </div>
 
+
               {/* =================================================
-                  INSIGHT
-              ================================================== */}
+                  ANALYTICS INSIGHT
+              ================================================= */}
 
-              <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-6">
+              <div
+                className="
+                  relative
+                  mt-6
+                  overflow-hidden
+                  rounded-2xl
+                  border
+                  border-indigo-500/20
+                  bg-gradient-to-r
+                  from-indigo-500/10
+                  via-blue-500/5
+                  to-purple-500/10
+                  p-6
+                  backdrop-blur-xl
+                "
+              >
 
-                <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                <div
+                  className="
+                    absolute
+                    right-[-50px]
+                    top-[-50px]
+                    h-40
+                    w-40
+                    rounded-full
+                    bg-purple-500/10
+                    blur-3xl
+                  "
+                />
 
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
+                <div
+                  className="
+                    relative
+                    flex
+                    flex-col
+                    gap-5
+                    sm:flex-row
+                    sm:items-start
+                  "
+                >
 
-                    <AlertCircle className="h-5 w-5 text-indigo-600" />
-
+                  <div
+                    className="
+                      flex
+                      h-12
+                      w-12
+                      shrink-0
+                      items-center
+                      justify-center
+                      rounded-xl
+                      border
+                      border-indigo-500/20
+                      bg-indigo-500/10
+                    "
+                  >
+                    <Zap className="h-6 w-6 text-indigo-400" />
                   </div>
+
 
                   <div>
 
-                    <h2 className="font-bold text-slate-900">
-                      Analytics Insight
-                    </h2>
+                    <div className="flex items-center gap-2">
 
-                    <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-                      Your prediction accuracy has improved by 6.2%
-                      over the previous period. Deep Learning is
-                      currently your best performing model with an
-                      accuracy of 96.3%.
+                      <AlertCircle className="h-5 w-5 text-blue-400" />
+
+                      <h2 className="font-bold text-white">
+                        Analytics Insight
+                      </h2>
+
+                    </div>
+
+
+                    <p
+                      className="
+                        mt-3
+                        max-w-3xl
+                        text-sm
+                        leading-7
+                        text-slate-400
+                      "
+                    >
+                      Your prediction accuracy has improved by{" "}
+
+                      <span className="font-semibold text-emerald-400">
+                        6.2%
+                      </span>
+
+                      {" "}over the previous period.{" "}
+
+                      <span className="font-semibold text-purple-300">
+                        Deep Learning
+                      </span>
+
+                      {" "}is currently your best performing model with an
+                      accuracy of{" "}
+
+                      <span className="font-semibold text-blue-400">
+                        96.3%.
+                      </span>
+
                     </p>
 
                   </div>
@@ -780,7 +1473,8 @@ function Analytics() {
 
               </div>
 
-              {/* Bottom spacing */}
+
+              {/* BOTTOM SPACING */}
 
               <div className="h-10" />
 
@@ -788,7 +1482,10 @@ function Analytics() {
 
           </div>
 
-          <Footer/>
+
+          {/* FOOTER */}
+
+          <Footer />
 
         </main>
 
