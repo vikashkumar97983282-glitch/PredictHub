@@ -1,20 +1,13 @@
 import React, { useState } from "react";
 import {
+  Flame,
   Users,
-  MessageCircle,
-  Heart,
-  MessageSquare,
-  Share2,
-  Search,
-  Plus,
-  TrendingUp,
-  Award,
   Brain,
-  Code2,
+  TrendingUp,
   ChevronRight,
-  MoreHorizontal,
-  Clock3,
-  UserPlus,
+  ArrowUpRight,
+  CalendarDays,
+  Trophy,
 } from "lucide-react";
 
 import Sidebar from "../components/sidebar";
@@ -22,165 +15,83 @@ import Navbar from "../components/header";
 import Footer from "../components/footer";
 
 /* ============================================================
-   COMMUNITY POSTS
+   TRENDING MODELS DATA
 ============================================================ */
 
-const communityPosts = [
+const trendingModels = [
   {
     id: 1,
-    name: "Alex Johnson",
-    username: "@alexjohnson",
-    avatar: "AJ",
-    time: "12 min ago",
-    category: "Machine Learning",
-    title: "Just improved my placement prediction model!",
-    description:
-      "After tuning the Random Forest hyperparameters, I managed to improve the model accuracy from 89.6% to 94.8%. Feature engineering made a huge difference.",
-    likes: 128,
-    comments: 24,
-    shares: 12,
-    liked: false,
+    name: "Deep Learning",
+    category: "Neural Networks",
+    accuracy: "96.3%",
+    predictions: "986",
+    users: "2.4K",
+    growth: "+23.7%",
+    icon: Brain,
+    iconColor: "text-blue-400",
+    iconBg: "bg-blue-500/10",
   },
   {
     id: 2,
-    name: "Sarah Williams",
-    username: "@sarahw",
-    avatar: "SW",
-    time: "34 min ago",
-    category: "Deep Learning",
-    title: "What is your favorite neural network architecture?",
-    description:
-      "I have been experimenting with CNNs and Transformers recently. Curious to know what architectures everyone in the community is currently using for their projects.",
-    likes: 96,
-    comments: 31,
-    shares: 8,
-    liked: false,
+    name: "Random Forest",
+    category: "Ensemble Learning",
+    accuracy: "94.8%",
+    predictions: "842",
+    users: "1.9K",
+    growth: "+18.4%",
+    icon: TrendingUp,
+    iconColor: "text-cyan-400",
+    iconBg: "bg-cyan-500/10",
   },
   {
     id: 3,
-    name: "Michael Chen",
-    username: "@michaelchen",
-    avatar: "MC",
-    time: "1 hour ago",
-    category: "Data Science",
-    title: "Looking for feedback on my prediction project",
-    description:
-      "I built a house price prediction model using Python and scikit-learn. Currently achieving 91.6% accuracy. Would love to hear suggestions for improving the model.",
-    likes: 74,
-    comments: 18,
-    shares: 5,
-    liked: false,
+    name: "XGBoost",
+    category: "Gradient Boosting",
+    accuracy: "95.6%",
+    predictions: "764",
+    users: "1.6K",
+    growth: "+15.2%",
+    icon: Trophy,
+    iconColor: "text-purple-400",
+    iconBg: "bg-purple-500/10",
+  },
+  {
+    id: 4,
+    name: "Support Vector Machine",
+    category: "Classification",
+    accuracy: "92.1%",
+    predictions: "621",
+    users: "1.2K",
+    growth: "+10.6%",
+    icon: Brain,
+    iconColor: "text-orange-400",
+    iconBg: "bg-orange-500/10",
+  },
+  {
+    id: 5,
+    name: "Linear Regression",
+    category: "Regression",
+    accuracy: "89.4%",
+    predictions: "518",
+    users: "980",
+    growth: "+7.8%",
+    icon: TrendingUp,
+    iconColor: "text-emerald-400",
+    iconBg: "bg-emerald-500/10",
   },
 ];
 
 /* ============================================================
-   COMMUNITY MEMBERS
+   TRENDING PAGE
 ============================================================ */
 
-const activeMembers = [
-  {
-    name: "Alex Johnson",
-    username: "@alexjohnson",
-    avatar: "AJ",
-    role: "ML Engineer",
-  },
-  {
-    name: "Sarah Williams",
-    username: "@sarahw",
-    avatar: "SW",
-    role: "Data Scientist",
-  },
-  {
-    name: "Michael Chen",
-    username: "@michaelchen",
-    avatar: "MC",
-    role: "AI Developer",
-  },
-  {
-    name: "Emily Davis",
-    username: "@emilydavis",
-    avatar: "ED",
-    role: "ML Researcher",
-  },
-];
-
-/* ============================================================
-   TOP CONTRIBUTORS
-============================================================ */
-
-const contributors = [
-  {
-    rank: 1,
-    name: "Alex Johnson",
-    avatar: "AJ",
-    points: "12,840",
-    posts: 86,
-  },
-  {
-    rank: 2,
-    name: "Sarah Williams",
-    avatar: "SW",
-    points: "10,420",
-    posts: 72,
-  },
-  {
-    rank: 3,
-    name: "Michael Chen",
-    avatar: "MC",
-    points: "9,860",
-    posts: 64,
-  },
-];
-
-/* ============================================================
-   COMMUNITY PAGE
-============================================================ */
-
-function Community() {
+function Trending() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-
-  const [posts, setPosts] = useState(communityPosts);
-  const [search, setSearch] = useState("");
-
-  /* ============================================================
-     LIKE POST
-  ============================================================ */
-
-  const handleLike = (id) => {
-    setPosts((currentPosts) =>
-      currentPosts.map((post) =>
-        post.id === id
-          ? {
-              ...post,
-              liked: !post.liked,
-              likes: post.liked
-                ? post.likes - 1
-                : post.likes + 1,
-            }
-          : post
-      )
-    );
-  };
-
-  /* ============================================================
-     FILTER POSTS
-  ============================================================ */
-
-  const filteredPosts = posts.filter((post) => {
-    const value = search.toLowerCase();
-
-    return (
-      post.title.toLowerCase().includes(value) ||
-      post.description.toLowerCase().includes(value) ||
-      post.category.toLowerCase().includes(value) ||
-      post.name.toLowerCase().includes(value)
-    );
-  });
+  const [period, setPeriod] = useState("This Month");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
-
+    <div className="flex h-screen overflow-hidden bg-[#0d1422] text-white">
       {/* ======================================================
           SIDEBAR
       ====================================================== */}
@@ -195,11 +106,10 @@ function Community() {
       />
 
       {/* ======================================================
-          MAIN APPLICATION AREA
+          MAIN AREA
       ====================================================== */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-
         {/* ====================================================
             NAVBAR
         ==================================================== */}
@@ -214,860 +124,497 @@ function Community() {
             SCROLLABLE CONTENT
         ==================================================== */}
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
-
-          <div className="px-4 py-6 sm:px-6 lg:px-8">
-
-            <div className="mx-auto w-full max-w-7xl">
-
-              {/* =================================================
-                  PAGE HEADER
-              ================================================== */}
-
-              <div className="mb-8">
-
-                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-
-                  <div>
-
-                    <div className="mb-2 flex items-center gap-2">
-
-                      <Users className="h-6 w-6 text-indigo-600" />
-
-                      <span className="text-sm font-semibold text-indigo-600">
-                        Community
-                      </span>
-
-                    </div>
-
-                    <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                      PredictHub Community
-                    </h1>
-
-                    <p className="mt-2 max-w-2xl text-sm text-slate-500 sm:text-base">
-                      Connect with developers, data scientists,
-                      and AI enthusiasts from around the world.
-                    </p>
-
-                  </div>
-
-                  {/* Create Post */}
-
-                  <button
-                    type="button"
-                    className="
-                      inline-flex
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      bg-indigo-600
-                      px-5
-                      py-3
-                      text-sm
-                      font-semibold
-                      text-white
-                      shadow-sm
-                      transition
-                      hover:bg-indigo-700
-                      focus:outline-none
-                      focus:ring-2
-                      focus:ring-indigo-500
-                      focus:ring-offset-2
-                    "
-                  >
-
-                    <Plus className="h-4 w-4" />
-
-                    Create Post
-
-                  </button>
-
-                </div>
-
-              </div>
-
-              {/* =================================================
-                  COMMUNITY STATISTICS
-              ================================================== */}
-
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-
-                {/* Members */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Community Members
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        24.8K
-                      </h2>
-
-                      <p className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +12.6%
-
-                      </p>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50">
-
-                      <Users className="h-5 w-5 text-indigo-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Posts */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Total Posts
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        8,642
-                      </h2>
-
-                      <p className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +18.4%
-
-                      </p>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50">
-
-                      <MessageCircle className="h-5 w-5 text-blue-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Active Today */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Active Today
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        3,482
-                      </h2>
-
-                      <p className="mt-3 text-sm font-medium text-slate-500">
-                        14% of members
-                      </p>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
-
-                      <ActivityIcon />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* Discussions */}
-
-                <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                  <div className="flex items-start justify-between">
-
-                    <div>
-
-                      <p className="text-sm font-medium text-slate-500">
-                        Discussions
-                      </p>
-
-                      <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                        1,284
-                      </h2>
-
-                      <p className="mt-3 flex items-center gap-1 text-sm font-medium text-emerald-600">
-
-                        <TrendingUp className="h-4 w-4" />
-
-                        +9.8%
-
-                      </p>
-
-                    </div>
-
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-purple-50">
-
-                      <MessageSquare className="h-5 w-5 text-purple-600" />
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* =================================================
-                  MAIN COMMUNITY GRID
-              ================================================== */}
-
-              <div className="mt-6 grid gap-6 lg:grid-cols-3">
-
+        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-[#0f1726]">
+          {/* Background Glow */}
+
+          <div className="min-h-full bg-[radial-gradient(circle_at_70%_5%,rgba(120,70,200,0.16),transparent_28%)]">
+            <div className="px-4 py-7 sm:px-6 lg:px-8 xl:px-12">
+              <div className="mx-auto w-full max-w-7xl">
                 {/* =================================================
-                    COMMUNITY FEED
+                    PAGE HEADER
                 ================================================== */}
 
-                <div className="min-w-0 lg:col-span-2">
+                <div className="mb-10">
+                  {/* Trending Badge */}
 
-                  {/* Search */}
+                  <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/5 px-4 py-2">
+                    <span className="h-2 w-2 rounded-full bg-orange-400" />
 
-                  <div className="mb-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-
-                    <div className="relative">
-
-                      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-
-                      <input
-                        type="text"
-                        value={search}
-                        onChange={(event) =>
-                          setSearch(event.target.value)
-                        }
-                        placeholder="Search community posts..."
-                        className="
-                          w-full
-                          rounded-xl
-                          border
-                          border-slate-200
-                          bg-slate-50
-                          py-3
-                          pl-10
-                          pr-4
-                          text-sm
-                          text-slate-700
-                          outline-none
-                          transition
-                          placeholder:text-slate-400
-                          focus:border-indigo-400
-                          focus:bg-white
-                          focus:ring-2
-                          focus:ring-indigo-100
-                        "
-                      />
-
-                    </div>
-
+                    <span className="text-xs font-bold tracking-wider text-orange-300">
+                      TRENDING · COMMUNITY INSIGHTS
+                    </span>
                   </div>
 
-                  {/* Feed Header */}
-
-                  <div className="mb-4 flex items-center justify-between">
+                  <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    {/* Title */}
 
                     <div>
+                      <h1 className="text-4xl font-extrabold tracking-tight text-slate-100 sm:text-5xl lg:text-6xl">
+                        Trending{" "}
 
-                      <h2 className="text-lg font-bold text-slate-900">
-                        Community Feed
-                      </h2>
+                        <span className="bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                          Predictions
+                        </span>
+                      </h1>
 
-                      <p className="mt-1 text-sm text-slate-500">
-                        Latest discussions and updates.
+                      <p className="mt-4 max-w-3xl text-sm leading-6 text-slate-400 sm:text-base">
+                        Discover the most popular models, predictions,
+                        and technologies trending on PredictHub.
                       </p>
+                    </div>
 
+                    {/* Period Button */}
+
+                    <button
+                      onClick={() =>
+                        setPeriod(
+                          period === "This Month"
+                            ? "This Week"
+                            : "This Month"
+                        )
+                      }
+                      className="
+                        inline-flex
+                        w-fit
+                        items-center
+                        gap-2
+                        rounded-xl
+                        border
+                        border-slate-700
+                        bg-slate-800/80
+                        px-5
+                        py-3.5
+                        text-sm
+                        font-semibold
+                        text-slate-300
+                        shadow-lg
+                        shadow-black/20
+                        transition
+                        hover:border-slate-600
+                        hover:bg-slate-700
+                      "
+                    >
+                      <CalendarDays className="h-4 w-4 text-orange-400" />
+
+                      {period}
+                    </button>
+                  </div>
+                </div>
+
+                {/* =================================================
+                    STATISTICS CARDS
+                ================================================== */}
+
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                  {/* Trending Predictions */}
+
+                  <StatCard
+                    title="Trending Predictions"
+                    value="12.8K"
+                    change="+24.8%"
+                    icon={Flame}
+                    iconClassName="text-orange-400"
+                    iconBackground="bg-orange-500/10"
+                    borderClassName="border-orange-500/30"
+                  />
+
+                  {/* Active Users */}
+
+                  <StatCard
+                    title="Active Users"
+                    value="8.6K"
+                    change="+18.2%"
+                    icon={Users}
+                    iconClassName="text-blue-400"
+                    iconBackground="bg-blue-500/10"
+                  />
+
+                  {/* Popular Model */}
+
+                  <StatCard
+                    title="Popular Model"
+                    value="Deep Learning"
+                    change="96.3% accuracy"
+                    icon={Brain}
+                    iconClassName="text-purple-400"
+                    iconBackground="bg-purple-500/10"
+                    changeColor="text-purple-300"
+                    isAccuracy
+                  />
+
+                  {/* Overall Growth */}
+
+                  <StatCard
+                    title="Overall Growth"
+                    value="+27.4%"
+                    change="Increasing"
+                    icon={TrendingUp}
+                    iconClassName="text-emerald-400"
+                    iconBackground="bg-emerald-500/10"
+                  />
+                </div>
+
+                {/* =================================================
+                    TRENDING MODELS
+                ================================================== */}
+
+                <section
+                  className="
+                    mt-7
+                    overflow-hidden
+                    rounded-2xl
+                    border
+                    border-slate-700/80
+                    bg-slate-800/60
+                    shadow-xl
+                    shadow-black/20
+                    backdrop-blur-sm
+                  "
+                >
+                  {/* Section Header */}
+
+                  <div className="flex items-center justify-between border-b border-slate-700/80 px-5 py-6 sm:px-7">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-500/10">
+                        <Flame className="h-5 w-5 text-orange-400" />
+                      </div>
+
+                      <div>
+                        <h2 className="text-lg font-bold text-slate-100">
+                          Trending Models
+                        </h2>
+
+                        <p className="mt-1 text-sm text-slate-400">
+                          Models receiving the most attention from
+                          the community.
+                        </p>
+                      </div>
                     </div>
 
                     <button
-                      type="button"
                       className="
                         hidden
                         items-center
                         gap-1
                         text-sm
                         font-semibold
-                        text-indigo-600
-                        hover:text-indigo-700
+                        text-blue-400
+                        transition
+                        hover:text-blue-300
                         sm:flex
                       "
                     >
-                      Latest
+                      View All
 
                       <ChevronRight className="h-4 w-4" />
-
                     </button>
-
                   </div>
 
-                  {/* Posts */}
+                  {/* Table Header */}
 
-                  <div className="space-y-5">
-
-                    {filteredPosts.length > 0 ? (
-                      filteredPosts.map((post) => (
-
-                        <article
-                          key={post.id}
-                          className="
-                            rounded-2xl
-                            border
-                            border-slate-200
-                            bg-white
-                            p-5
-                            shadow-sm
-                            transition
-                            hover:shadow-md
-                          "
-                        >
-
-                          {/* User Header */}
-
-                          <div className="flex items-start justify-between">
-
-                            <div className="flex items-center gap-3">
-
-                              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
-
-                                {post.avatar}
-
-                              </div>
-
-                              <div>
-
-                                <h3 className="text-sm font-bold text-slate-900">
-                                  {post.name}
-                                </h3>
-
-                                <div className="mt-1 flex items-center gap-2">
-
-                                  <span className="text-xs text-slate-400">
-                                    {post.username}
-                                  </span>
-
-                                  <span className="text-xs text-slate-300">
-                                    •
-                                  </span>
-
-                                  <span className="text-xs text-slate-400">
-                                    {post.time}
-                                  </span>
-
-                                </div>
-
-                              </div>
-
-                            </div>
-
-                            <button
-                              type="button"
-                              className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600"
-                            >
-
-                              <MoreHorizontal className="h-5 w-5" />
-
-                            </button>
-
-                          </div>
-
-                          {/* Category */}
-
-                          <div className="mt-4">
-
-                            <span className="inline-flex rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
-                              {post.category}
-                            </span>
-
-                          </div>
-
-                          {/* Content */}
-
-                          <div className="mt-4">
-
-                            <h2 className="text-base font-bold text-slate-900">
-                              {post.title}
-                            </h2>
-
-                            <p className="mt-2 text-sm leading-6 text-slate-600">
-                              {post.description}
-                            </p>
-
-                          </div>
-
-                          {/* Actions */}
-
-                          <div className="mt-5 flex items-center gap-2 border-t border-slate-100 pt-4">
-
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleLike(post.id)
-                              }
-                              className={`
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-lg
-                                px-3
-                                py-2
-                                text-sm
-                                font-medium
-                                transition
-                                ${
-                                  post.liked
-                                    ? "bg-red-50 text-red-600"
-                                    : "text-slate-500 hover:bg-slate-50 hover:text-red-500"
-                                }
-                              `}
-                            >
-
-                              <Heart
-                                className="h-4 w-4"
-                                fill={
-                                  post.liked
-                                    ? "currentColor"
-                                    : "none"
-                                }
-                              />
-
-                              {post.likes}
-
-                            </button>
-
-                            <button
-                              type="button"
-                              className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-lg
-                                px-3
-                                py-2
-                                text-sm
-                                font-medium
-                                text-slate-500
-                                transition
-                                hover:bg-slate-50
-                                hover:text-indigo-600
-                              "
-                            >
-
-                              <MessageSquare className="h-4 w-4" />
-
-                              {post.comments}
-
-                            </button>
-
-                            <button
-                              type="button"
-                              className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-lg
-                                px-3
-                                py-2
-                                text-sm
-                                font-medium
-                                text-slate-500
-                                transition
-                                hover:bg-slate-50
-                                hover:text-indigo-600
-                              "
-                            >
-
-                              <Share2 className="h-4 w-4" />
-
-                              {post.shares}
-
-                            </button>
-
-                          </div>
-
-                        </article>
-
-                      ))
-                    ) : (
-
-                      <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
-
-                        <Search className="mx-auto h-8 w-8 text-slate-300" />
-
-                        <h3 className="mt-3 font-semibold text-slate-800">
-                          No posts found
-                        </h3>
-
-                        <p className="mt-1 text-sm text-slate-500">
-                          Try searching with a different keyword.
-                        </p>
-
-                      </div>
-
-                    )}
-
-                  </div>
-
-                </div>
-
-                {/* =================================================
-                    RIGHT SIDEBAR
-                ================================================== */}
-
-                <div className="space-y-6">
-
-                  {/* =================================================
-                      ACTIVE MEMBERS
-                  ================================================== */}
-
-                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-                    <div className="flex items-center justify-between border-b border-slate-100 p-5">
-
-                      <div>
-
-                        <h2 className="text-base font-bold text-slate-900">
-                          Active Members
-                        </h2>
-
-                        <p className="mt-1 text-xs text-slate-500">
-                          People active right now.
-                        </p>
-
-                      </div>
-
-                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-
-                    </div>
-
-                    <div className="divide-y divide-slate-100">
-
-                      {activeMembers.map((member) => (
-
-                        <div
-                          key={member.username}
-                          className="flex items-center gap-3 p-4"
-                        >
-
-                          <div className="relative">
-
-                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">
-
-                              {member.avatar}
-
-                            </div>
-
-                            <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />
-
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-
-                            <h3 className="truncate text-sm font-semibold text-slate-800">
-                              {member.name}
-                            </h3>
-
-                            <p className="truncate text-xs text-slate-400">
-                              {member.role}
-                            </p>
-
-                          </div>
-
-                          <button
-                            type="button"
-                            className="
-                              rounded-lg
-                              p-2
-                              text-slate-400
-                              transition
-                              hover:bg-indigo-50
-                              hover:text-indigo-600
-                            "
-                          >
-
-                            <UserPlus className="h-4 w-4" />
-
-                          </button>
-
-                        </div>
-
-                      ))}
-
-                    </div>
-
-                  </div>
-
-                  {/* =================================================
-                      TOP CONTRIBUTORS
-                  ================================================== */}
-
-                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-
-                    <div className="border-b border-slate-100 p-5">
-
-                      <div className="flex items-center gap-2">
-
-                        <Award className="h-5 w-5 text-amber-500" />
-
-                        <h2 className="text-base font-bold text-slate-900">
-                          Top Contributors
-                        </h2>
-
-                      </div>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        Community leaders this month.
-                      </p>
-
-                    </div>
-
-                    <div className="divide-y divide-slate-100">
-
-                      {contributors.map((contributor) => (
-
-                        <div
-                          key={contributor.rank}
-                          className="flex items-center gap-3 p-4"
-                        >
-
-                          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-100 text-xs font-bold text-slate-600">
-
-                            {contributor.rank}
-
-                          </div>
-
-                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
-
-                            {contributor.avatar}
-
-                          </div>
-
-                          <div className="min-w-0 flex-1">
-
-                            <h3 className="truncate text-sm font-semibold text-slate-800">
-                              {contributor.name}
-                            </h3>
-
-                            <p className="mt-0.5 text-xs text-slate-400">
-                              {contributor.posts} posts
-                            </p>
-
-                          </div>
-
-                          <div className="text-right">
-
-                            <p className="text-xs font-bold text-indigo-600">
-                              {contributor.points}
-                            </p>
-
-                            <p className="text-[10px] text-slate-400">
-                              points
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      ))}
-
-                    </div>
-
-                    <button
-                      type="button"
-                      className="
-                        flex
-                        w-full
-                        items-center
-                        justify-center
-                        gap-1
-                        border-t
-                        border-slate-100
-                        p-4
-                        text-sm
-                        font-semibold
-                        text-indigo-600
-                        transition
-                        hover:bg-slate-50
-                      "
-                    >
-
-                      View Leaderboard
-
-                      <ChevronRight className="h-4 w-4" />
-
-                    </button>
-
-                  </div>
-
-                  {/* =================================================
-                      COMMUNITY TOPICS
-                  ================================================== */}
-
-                  <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-
-                    <h2 className="text-base font-bold text-slate-900">
-                      Popular Topics
-                    </h2>
-
-                    <div className="mt-4 flex flex-wrap gap-2">
-
-                      {[
-                        "Machine Learning",
-                        "Deep Learning",
-                        "Python",
-                        "AI",
-                        "Data Science",
-                        "React",
-                        "FastAPI",
-                        "Computer Vision",
-                      ].map((topic) => (
-
-                        <button
-                          type="button"
-                          key={topic}
-                          className="
-                            rounded-full
-                            border
-                            border-slate-200
-                            bg-slate-50
-                            px-3
-                            py-1.5
-                            text-xs
-                            font-medium
-                            text-slate-600
-                            transition
-                            hover:border-indigo-200
-                            hover:bg-indigo-50
-                            hover:text-indigo-600
-                          "
-                        >
-                          #{topic}
-                        </button>
-
-                      ))}
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* =================================================
-                  COMMUNITY CTA
-              ================================================== */}
-
-              <div className="mt-6 overflow-hidden rounded-2xl bg-indigo-600 p-6 shadow-sm sm:p-8">
-
-                <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-
-                  <div>
-
-                    <div className="flex items-center gap-2">
-
-                      <Users className="h-5 w-5 text-indigo-200" />
-
-                      <span className="text-sm font-semibold text-indigo-200">
-                        Join the conversation
-                      </span>
-
-                    </div>
-
-                    <h2 className="mt-2 text-xl font-bold text-white sm:text-2xl">
-                      Share your knowledge with the community.
-                    </h2>
-
-                    <p className="mt-2 max-w-2xl text-sm leading-6 text-indigo-100">
-                      Ask questions, share projects, discuss AI
-                      and machine learning, and connect with other
-                      developers.
-                    </p>
-
-                  </div>
-
-                  <button
-                    type="button"
+                  <div
                     className="
-                      inline-flex
-                      shrink-0
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      bg-white
-                      px-5
-                      py-3
-                      text-sm
-                      font-bold
-                      text-indigo-600
-                      shadow-sm
-                      transition
-                      hover:bg-indigo-50
+                      hidden
+                      border-b
+                      border-slate-700/60
+                      px-6
+                      py-4
+                      text-xs
+                      font-semibold
+                      uppercase
+                      tracking-wider
+                      text-slate-500
+                      md:grid
+                      md:grid-cols-[70px_minmax(180px,1.7fr)_1fr_1fr_1fr_120px]
+                      md:items-center
                     "
                   >
+                    <div>Rank</div>
 
-                    <Plus className="h-4 w-4" />
+                    <div>Model</div>
 
-                    Create a Post
+                    <div>Accuracy</div>
 
-                  </button>
+                    <div>Predictions</div>
 
-                </div>
+                    <div>Users</div>
 
+                    <div>Growth</div>
+                  </div>
+
+                  {/* Model Rows */}
+
+                  <div>
+                    {trendingModels.map((model) => (
+                      <ModelRow
+                        key={model.id}
+                        model={model}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Mobile View All */}
+
+                  <div className="border-t border-slate-700/70 p-4 text-center sm:hidden">
+                    <button className="inline-flex items-center gap-1 text-sm font-semibold text-blue-400">
+                      View All
+
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                </section>
+
+                {/* Bottom Spacing */}
+
+                <div className="h-10" />
               </div>
-
-              {/* Bottom spacing */}
-
-              <div className="h-10" />
-
             </div>
 
+            <Footer />
           </div>
-
-          <Footer/>
-
         </main>
-
       </div>
-
     </div>
   );
 }
 
 /* ============================================================
-   SMALL ACTIVITY ICON COMPONENT
+   STAT CARD COMPONENT
 ============================================================ */
 
-function ActivityIcon() {
+function StatCard({
+  title,
+  value,
+  change,
+  icon: Icon,
+  iconClassName,
+  iconBackground,
+  borderClassName = "border-slate-700/80",
+  changeColor = "text-emerald-400",
+  isAccuracy = false,
+}) {
   return (
-    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50">
-      <TrendingUp className="h-5 w-5 text-emerald-600" />
+    <div
+      className={`
+        min-h-[170px]
+        rounded-2xl
+        border
+        ${borderClassName}
+        bg-slate-800/70
+        p-5
+        shadow-lg
+        shadow-black/10
+        transition
+        duration-300
+        hover:-translate-y-1
+        hover:border-slate-600
+      `}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-400">
+            {title}
+          </p>
+
+          <h3
+            className={`
+              mt-4
+              font-bold
+              text-slate-100
+              ${
+                value === "Deep Learning"
+                  ? "text-2xl sm:text-3xl"
+                  : "text-3xl"
+              }
+            `}
+          >
+            {value}
+          </h3>
+        </div>
+
+        <div
+          className={`
+            flex
+            h-12
+            w-12
+            shrink-0
+            items-center
+            justify-center
+            rounded-xl
+            ${iconBackground}
+          `}
+        >
+          <Icon
+            className={`h-5 w-5 ${iconClassName}`}
+          />
+        </div>
+      </div>
+
+      <div
+        className={`
+          mt-5
+          flex
+          items-center
+          gap-1.5
+          text-sm
+          font-semibold
+          ${changeColor}
+        `}
+      >
+        {isAccuracy ? (
+          <span className="text-base">☆</span>
+        ) : (
+          <ArrowUpRight className="h-4 w-4" />
+        )}
+
+        {change}
+      </div>
     </div>
   );
 }
 
-export default Community;
+/* ============================================================
+   MODEL ROW COMPONENT
+============================================================ */
+
+function ModelRow({ model }) {
+  const Icon = model.icon;
+
+  return (
+    <div
+      className="
+        border-b
+        border-slate-700/60
+        px-5
+        py-5
+        transition
+        duration-200
+        hover:bg-slate-700/20
+        md:grid
+        md:grid-cols-[70px_minmax(180px,1.7fr)_1fr_1fr_1fr_120px]
+        md:items-center
+        md:gap-4
+      "
+    >
+      {/* Mobile Layout */}
+
+      <div className="flex items-start gap-4 md:contents">
+        {/* Rank */}
+
+        <div className="flex md:block">
+          <div
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              bg-orange-500/15
+              text-sm
+              font-bold
+              text-orange-300
+            "
+          >
+            #{model.id}
+          </div>
+        </div>
+
+        {/* Model */}
+
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div
+            className={`
+              flex
+              h-11
+              w-11
+              shrink-0
+              items-center
+              justify-center
+              rounded-xl
+              ${model.iconBg}
+            `}
+          >
+            <Icon
+              className={`h-5 w-5 ${model.iconColor}`}
+            />
+          </div>
+
+          <div className="min-w-0">
+            <h3 className="truncate text-sm font-bold text-slate-100">
+              {model.name}
+            </h3>
+
+            <p className="mt-1 text-xs text-slate-500">
+              {model.category}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+
+      <div className="mt-5 grid grid-cols-3 gap-4 pl-14 md:mt-0 md:contents md:pl-0">
+        <InfoBlock
+          label="Accuracy"
+          value={model.accuracy}
+        />
+
+        <InfoBlock
+          label="Predictions"
+          value={model.predictions}
+        />
+
+        <InfoBlock
+          label="Users"
+          value={model.users}
+        />
+      </div>
+
+      {/* Growth */}
+
+      <div className="mt-5 pl-14 md:mt-0 md:pl-0">
+        <span
+          className="
+            inline-flex
+            items-center
+            gap-1
+            rounded-full
+            border
+            border-emerald-400/20
+            bg-emerald-400/10
+            px-3
+            py-1.5
+            text-xs
+            font-bold
+            text-emerald-400
+          "
+        >
+          <ArrowUpRight className="h-3.5 w-3.5" />
+
+          {model.growth}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   INFO BLOCK COMPONENT
+============================================================ */
+
+function InfoBlock({ label, value }) {
+  return (
+    <div>
+      <p className="text-xs text-slate-500">
+        {label}
+      </p>
+
+      <p className="mt-1 text-sm font-bold text-slate-200">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+export default Trending;
