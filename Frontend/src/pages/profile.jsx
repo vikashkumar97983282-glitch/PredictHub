@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Camera,
   Mail,
@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   Clock,
   BarChart3,
-  Menu,
 } from "lucide-react";
 
 import Sidebar from "../components/sidebar";
