@@ -1,14 +1,17 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 function Footer() {
   return (
     <footer className="bg-slate-900 text-white">
-      <div className="mx-auto max-w-7xl px-6 py-4 lg:px-8">
-        
-        {/* Main Footer */}
+      <div className="mx-auto max-w-7xl px-6 py-8 lg:px-8">
+
+        {/* ================= MAIN FOOTER ================= */}
+
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
-          
-          {/* Logo / About */}
+
+          {/* LOGO / ABOUT */}
+
           <div>
             <h2 className="text-2xl font-bold text-white">
               Predict<span className="text-blue-500">Hub</span>
@@ -20,66 +23,85 @@ function Footer() {
             </p>
           </div>
 
-          {/* Quick Links */}
+
+          {/* QUICK LINKS */}
+
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
               Quick Links
             </h3>
 
             <ul className="mt-4 space-y-3">
+
               <li>
-                <a
-                  href="/"
+                <Link
+                  to="/"
                   className="text-sm text-slate-400 transition hover:text-blue-400"
                 >
                   Home
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="/models"
+                <Link
+                  to="/models"
                   className="text-sm text-slate-400 transition hover:text-blue-400"
                 >
                   Prediction Models
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="/about"
+                <Link
+                  to="/about"
                   className="text-sm text-slate-400 transition hover:text-blue-400"
                 >
                   About
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a
-                  href="/contact"
+                <Link
+                  to="/contact"
                   className="text-sm text-slate-400 transition hover:text-blue-400"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
+
             </ul>
           </div>
 
-          {/* Technologies */}
+
+          {/* TECHNOLOGIES */}
+
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
               Technologies
             </h3>
 
             <ul className="mt-4 space-y-3">
-              <li className="text-sm text-slate-400">Machine Learning</li>
-              <li className="text-sm text-slate-400">Deep Learning</li>
-              <li className="text-sm text-slate-400">Artificial Intelligence</li>
-              <li className="text-sm text-slate-400">Data Science</li>
+              <li className="text-sm text-slate-400">
+                Machine Learning
+              </li>
+
+              <li className="text-sm text-slate-400">
+                Deep Learning
+              </li>
+
+              <li className="text-sm text-slate-400">
+                Artificial Intelligence
+              </li>
+
+              <li className="text-sm text-slate-400">
+                Data Science
+              </li>
             </ul>
           </div>
 
-          {/* Social */}
+
+          {/* CONNECT WITH US */}
+
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-white">
               Connect With Us
@@ -90,58 +112,146 @@ function Footer() {
               projects.
             </p>
 
+
             <div className="mt-5 flex gap-4">
+
+              {/* GITHUB */}
+
               <a
-                href="#"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
+                href="https://github.com/vikashkumar97983282-glitch/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-slate-800
+                  text-slate-400
+                  transition
+                  duration-200
+                  hover:scale-110
+                  hover:bg-blue-600
+                  hover:text-white
+                "
                 aria-label="GitHub"
               >
-                <span className="text-sm font-bold">GH</span>
+                <span className="text-sm font-bold">
+                  GH
+                </span>
               </a>
 
+
+              {/* LINKEDIN */}
+
               <a
-                href="#"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
+                href="https://www.linkedin.com/in/vikash-kumar-sharma-85a34b288/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-slate-800
+                  text-slate-400
+                  transition
+                  duration-200
+                  hover:scale-110
+                  hover:bg-blue-600
+                  hover:text-white
+                "
                 aria-label="LinkedIn"
               >
-                <span className="text-sm font-bold">in</span>
+                <span className="text-sm font-bold">
+                  in
+                </span>
               </a>
+
+
+              {/* TWITTER / X */}
 
               <a
-                href="#"
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-800 text-slate-400 transition hover:bg-blue-600 hover:text-white"
+                href="https://twitter.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="
+                  flex
+                  h-10
+                  w-10
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-slate-800
+                  text-slate-400
+                  transition
+                  duration-200
+                  hover:scale-110
+                  hover:bg-blue-600
+                  hover:text-white
+                "
                 aria-label="Twitter"
               >
-                <span className="text-sm font-bold">X</span>
+                <span className="text-sm font-bold">
+                  X
+                </span>
               </a>
+
             </div>
           </div>
+
         </div>
 
-        {/* Bottom */}
+
+        {/* ================= BOTTOM FOOTER ================= */}
+
         <div className="mt-10 border-t border-slate-800 pt-6">
-          <div className="flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+
+          <div
+            className="
+              flex
+              flex-col
+              items-center
+              justify-between
+              gap-4
+              text-center
+              sm:flex-row
+              sm:text-left
+            "
+          >
+
             <p className="text-sm text-slate-500">
               © {new Date().getFullYear()} PredictHub. All rights reserved.
             </p>
 
+
             <div className="flex gap-6">
-              <a
-                href="#"
+
+              <Link
+                to="/privacy-policy"
                 className="text-sm text-slate-500 transition hover:text-blue-400"
               >
                 Privacy Policy
-              </a>
+              </Link>
 
-              <a
-                href="#"
+
+              <Link
+                to="/terms"
                 className="text-sm text-slate-500 transition hover:text-blue-400"
               >
                 Terms of Service
-              </a>
+              </Link>
+
             </div>
+
           </div>
+
         </div>
+
       </div>
     </footer>
   );
