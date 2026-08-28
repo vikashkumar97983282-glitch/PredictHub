@@ -1,69 +1,662 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  ArrowRight,
+  Brain,
+  Database,
+  Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Cpu,
+  BarChart3,
+  Zap,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
 
+/* =====================================================
+   PREDICTION MODELS
+===================================================== */
+
 const predictionModels = [
   {
-    icon: "🧠",
+    icon: <Brain size={25} />,
     title: "Machine Learning",
     description:
       "Use trained machine learning models to analyze data and generate accurate predictions.",
   },
   {
-    icon: "🤖",
+    icon: <Cpu size={25} />,
     title: "Deep Learning",
     description:
-      "Leverage powerful neural networks for complex prediction and classification tasks.",
+      "Leverage neural networks to solve complex prediction and classification problems.",
   },
   {
-    icon: "📊",
+    icon: <BarChart3 size={25} />,
     title: "Data Prediction",
     description:
-      "Transform your input data into meaningful insights using intelligent prediction models.",
+      "Transform your input data into meaningful insights using intelligent models.",
   },
 ];
+
+/* =====================================================
+   FEATURES
+===================================================== */
 
 const features = [
   {
     number: "01",
     title: "Multiple Models",
     description:
-      "Access different ML and DL models from a single prediction platform.",
+      "Access different machine learning and deep learning models.",
   },
   {
     number: "02",
     title: "Fast Predictions",
     description:
-      "Get prediction results quickly using optimized trained models.",
+      "Get intelligent prediction results quickly and efficiently.",
   },
   {
     number: "03",
     title: "Easy to Use",
     description:
-      "Enter your data and let the model handle the prediction process.",
+      "Provide your data through a simple and user-friendly interface.",
   },
   {
     number: "04",
     title: "Data Driven",
     description:
-      "Make smarter decisions using AI-powered prediction results.",
+      "Make better decisions using AI-powered prediction results.",
   },
 ];
 
-function Home() {
-  // Mobile sidebar
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+/* =====================================================
+   HOW IT WORKS DATA
+===================================================== */
 
-  // Desktop sidebar
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+const howItWorksSteps = [
+  {
+    number: "01",
+    title: "Choose a Model",
+    description:
+      "Select the machine learning or deep learning model that matches your prediction problem.",
+    icon: <Brain size={28} />,
+    color: "blue",
+    points: [
+      "Machine Learning",
+      "Deep Learning",
+      "Classification & Regression",
+    ],
+  },
+  {
+    number: "02",
+    title: "Enter Your Data",
+    description:
+      "Provide the required feature values. PredictHub prepares your input for the selected model.",
+    icon: <Database size={28} />,
+    color: "purple",
+    points: [
+      "Enter Features",
+      "Validate Input",
+      "Prepare Data",
+    ],
+  },
+  {
+    number: "03",
+    title: "Get Prediction",
+    description:
+      "The trained AI model analyzes your data and generates the final prediction result.",
+    icon: <Sparkles size={28} />,
+    color: "cyan",
+    points: [
+      "Process Data",
+      "Analyze Patterns",
+      "Generate Result",
+    ],
+  },
+];
+
+/* =====================================================
+   HOW IT WORKS COMPONENT
+===================================================== */
+
+function HowItWorks() {
+  const [activeStep, setActiveStep] = useState(0);
+  const [progress, setProgress] = useState(0);
+
+  /* AUTO SLIDER */
+
+  useEffect(() => {
+    setProgress(0);
+
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          return 100;
+        }
+
+        return prev + 1;
+      });
+    }, 30);
+
+    const slideTimer = setTimeout(() => {
+      setActiveStep(
+        (prev) => (prev + 1) % howItWorksSteps.length
+      );
+    }, 3000);
+
+    return () => {
+      clearInterval(progressInterval);
+      clearTimeout(slideTimer);
+    };
+  }, [activeStep]);
+
+  const step = howItWorksSteps[activeStep];
+
+  /* COLOR THEMES */
+
+  const themes = {
+    blue: {
+      text: "text-blue-400",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/30",
+      glow: "bg-blue-500/10",
+      gradient: "from-blue-500 via-blue-400 to-cyan-400",
+    },
+
+    purple: {
+      text: "text-purple-400",
+      bg: "bg-purple-500/10",
+      border: "border-purple-500/30",
+      glow: "bg-purple-500/10",
+      gradient: "from-purple-500 via-fuchsia-400 to-pink-400",
+    },
+
+    cyan: {
+      text: "text-cyan-400",
+      bg: "bg-cyan-500/10",
+      border: "border-cyan-500/30",
+      glow: "bg-cyan-500/10",
+      gradient: "from-cyan-500 via-sky-400 to-blue-400",
+    },
+  };
+
+  const theme = themes[step.color];
+
+  const previousStep = () => {
+    setActiveStep(
+      (prev) =>
+        (prev - 1 + howItWorksSteps.length) %
+        howItWorksSteps.length
+    );
+  };
+
+  const nextStep = () => {
+    setActiveStep(
+      (prev) =>
+        (prev + 1) % howItWorksSteps.length
+    );
+  };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#030712] text-white">
+    <section className="relative overflow-hidden border-y border-slate-900 bg-[#0c1424] px-5 py-16 sm:px-8 lg:px-10">
 
-      {/* =====================================================
-          SIDEBAR
-      ====================================================== */}
+      {/* Background Glow */}
+
+      <div className="pointer-events-none absolute inset-0">
+
+        <div className="absolute left-[15%] top-[20%] h-64 w-64 rounded-full bg-blue-600/10 blur-[100px]" />
+
+        <div className="absolute bottom-[10%] right-[15%] h-64 w-64 rounded-full bg-purple-600/10 blur-[100px]" />
+
+      </div>
+
+      <div className="relative mx-auto max-w-6xl">
+
+        {/* =====================================================
+            SECTION HEADER
+        ====================================================== */}
+
+        <div className="text-center">
+
+          <div className="inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/10 px-3 py-1.5">
+
+            <Zap
+              size={13}
+              className="text-purple-400"
+            />
+
+            <span className="text-xs font-semibold tracking-wider text-purple-300">
+              HOW IT WORKS
+            </span>
+
+          </div>
+
+          <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
+
+            Three Steps to
+
+            <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+              Intelligent Prediction
+            </span>
+
+          </h2>
+
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
+
+            Choose your model, provide your data, and let AI generate
+            intelligent predictions.
+
+          </p>
+
+        </div>
+
+        {/* =====================================================
+            STEP NAVIGATION
+        ====================================================== */}
+
+        <div className="mx-auto mt-10 flex max-w-md items-center justify-between">
+
+          {howItWorksSteps.map((item, index) => {
+
+            const isActive = activeStep === index;
+
+            return (
+              <React.Fragment key={item.number}>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(index)}
+                  className="flex flex-col items-center"
+                >
+
+                  <div
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl border text-sm font-bold transition-all duration-300 sm:h-12 sm:w-12 ${
+                      isActive
+                        ? `${theme.bg} ${theme.border} ${theme.text} shadow-lg`
+                        : "border-slate-700 bg-slate-900 text-slate-500"
+                    }`}
+                  >
+
+                    {item.number}
+
+                  </div>
+
+                </button>
+
+                {index !== howItWorksSteps.length - 1 && (
+
+                  <div
+                    className={`mx-2 h-px flex-1 transition-all duration-500 ${
+                      activeStep > index
+                        ? `bg-gradient-to-r ${theme.gradient}`
+                        : "bg-slate-800"
+                    }`}
+                  />
+
+                )}
+
+              </React.Fragment>
+            );
+          })}
+
+        </div>
+
+        {/* =====================================================
+            MAIN SLIDER CARD
+        ====================================================== */}
+
+        <div className="relative mx-auto mt-8 max-w-5xl">
+
+          {/* Glow */}
+
+          <div
+            className={`pointer-events-none absolute -inset-4 rounded-3xl ${theme.glow} blur-3xl`}
+          />
+
+          <div
+            className={`relative overflow-hidden rounded-3xl border ${theme.border} bg-[#121c30]/90 shadow-xl`}
+          >
+
+            {/* Background Number */}
+
+            <div className="pointer-events-none absolute right-3 top-0 select-none text-[120px] font-black leading-none text-white/[0.025] sm:text-[160px]">
+
+              {step.number}
+
+            </div>
+
+            {/* =====================================================
+                CONTENT
+            ====================================================== */}
+
+            <div className="relative grid lg:grid-cols-[1.4fr_0.8fr]">
+
+              {/* LEFT */}
+
+              <div className="p-6 sm:p-8 lg:p-10">
+
+                <div className="flex items-center gap-4">
+
+                  <div
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${theme.bg} ${theme.border} ${theme.text}`}
+                  >
+
+                    {step.icon}
+
+                  </div>
+
+                  <div>
+
+                    <p
+                      className={`text-xs font-bold tracking-[0.2em] ${theme.text}`}
+                    >
+                      STEP {activeStep + 1}
+                    </p>
+
+                    <h3 className="mt-1 text-2xl font-bold sm:text-3xl">
+
+                      {step.title}
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
+                <p className="mt-6 max-w-2xl leading-7 text-slate-400">
+
+                  {step.description}
+
+                </p>
+
+                {/* POINTS */}
+
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+
+                  {step.points.map((point) => (
+
+                    <div
+                      key={point}
+                      className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3"
+                    >
+
+                      <CheckCircle2
+                        size={16}
+                        className={theme.text}
+                      />
+
+                      <span className="text-xs text-slate-300 sm:text-sm">
+                        {point}
+                      </span>
+
+                    </div>
+
+                  ))}
+
+                </div>
+
+              </div>
+
+              {/* =====================================================
+                  RIGHT VISUAL
+              ====================================================== */}
+
+              <div className="relative flex min-h-[240px] items-center justify-center border-t border-slate-800 bg-slate-950/30 p-6 lg:min-h-full lg:border-l lg:border-t-0">
+
+                {/* STEP 01 */}
+
+                {activeStep === 0 && (
+
+                  <div className="grid w-full max-w-[230px] grid-cols-2 gap-3">
+
+                    <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4">
+
+                      <Brain
+                        size={22}
+                        className="text-blue-400"
+                      />
+
+                      <p className="mt-3 text-xs font-semibold">
+                        ML Model
+                      </p>
+
+                    </div>
+
+                    <div className="rounded-xl border border-purple-500/30 bg-purple-500/10 p-4">
+
+                      <Cpu
+                        size={22}
+                        className="text-purple-400"
+                      />
+
+                      <p className="mt-3 text-xs font-semibold">
+                        DL Model
+                      </p>
+
+                    </div>
+
+                    <div className="col-span-2 flex items-center justify-between rounded-xl border border-green-500/20 bg-green-500/5 px-4 py-3">
+
+                      <span className="text-xs text-slate-300">
+                        Model Selected
+                      </span>
+
+                      <CheckCircle2
+                        size={17}
+                        className="text-green-400"
+                      />
+
+                    </div>
+
+                  </div>
+
+                )}
+
+                {/* STEP 02 */}
+
+                {activeStep === 1 && (
+
+                  <div className="w-full max-w-[240px] space-y-3">
+
+                    {[
+                      "Feature 01",
+                      "Feature 02",
+                      "Feature 03",
+                    ].map((feature, index) => (
+
+                      <div
+                        key={feature}
+                        className="rounded-xl border border-slate-700 bg-slate-900 p-3"
+                      >
+
+                        <div className="flex justify-between">
+
+                          <span className="text-xs text-slate-400">
+                            {feature}
+                          </span>
+
+                          <span className="text-xs text-purple-400">
+                            ✓
+                          </span>
+
+                        </div>
+
+                        <div className="mt-2 h-1.5 rounded-full bg-slate-800">
+
+                          <div
+                            className="h-full rounded-full bg-purple-500"
+                            style={{
+                              width: `${
+                                [80, 65, 90][index]
+                              }%`,
+                            }}
+                          />
+
+                        </div>
+
+                      </div>
+
+                    ))}
+
+                    <div className="flex items-center justify-center gap-2 pt-2 text-xs text-purple-400">
+
+                      <Database size={15} />
+
+                      Data Ready
+
+                    </div>
+
+                  </div>
+
+                )}
+
+                {/* STEP 03 */}
+
+                {activeStep === 2 && (
+
+                  <div className="w-full max-w-[240px] rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-5">
+
+                    <div className="flex items-center justify-between">
+
+                      <div>
+
+                        <p className="text-[10px] tracking-wider text-slate-500">
+                          PREDICTION
+                        </p>
+
+                        <h4 className="mt-1 text-xl font-bold">
+                          ₹45,00,000
+                        </h4>
+
+                      </div>
+
+                      <Sparkles
+                        size={24}
+                        className="text-cyan-400"
+                      />
+
+                    </div>
+
+                    <div className="mt-5">
+
+                      <div className="flex justify-between text-xs">
+
+                        <span className="text-slate-400">
+                          Confidence
+                        </span>
+
+                        <span className="text-green-400">
+                          95.8%
+                        </span>
+
+                      </div>
+
+                      <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
+
+                        <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-cyan-500 to-green-400" />
+
+                      </div>
+
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 text-xs text-green-400">
+
+                      <CheckCircle2 size={15} />
+
+                      Prediction Complete
+
+                    </div>
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </div>
+
+            {/* =====================================================
+                BOTTOM CONTROLS
+            ====================================================== */}
+
+            <div className="flex items-center justify-between border-t border-slate-800 px-5 py-4 sm:px-8">
+
+              {/* Progress */}
+
+              <div className="flex flex-1 items-center gap-3">
+
+                <span className="text-xs text-slate-500">
+                  0{activeStep + 1}/03
+                </span>
+
+                <div className="h-1.5 max-w-[180px] flex-1 overflow-hidden rounded-full bg-slate-800">
+
+                  <div
+                    className={`h-full bg-gradient-to-r ${theme.gradient}`}
+                    style={{
+                      width: `${progress}%`,
+                    }}
+                  />
+
+                </div>
+
+              </div>
+
+              {/* Controls */}
+
+              <div className="flex gap-2">
+
+                <button
+                  type="button"
+                  onClick={previousStep}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition hover:border-slate-500 hover:text-white"
+                >
+
+                  <ChevronLeft size={18} />
+
+                </button>
+
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg border ${theme.border} ${theme.bg} ${theme.text} transition hover:scale-105`}
+                >
+
+                  <ChevronRight size={18} />
+
+                </button>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+  );
+}
+
+/* =====================================================
+   HOME PAGE
+===================================================== */
+
+function Home() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] =
+    useState(false);
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-white">
+
+      {/* SIDEBAR */}
 
       <Sidebar
         isOpen={sidebarOpen}
@@ -74,441 +667,303 @@ function Home() {
         }
       />
 
-      {/* =====================================================
-          MAIN AREA
-      ====================================================== */}
+      {/* MAIN AREA */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
-        {/* NAVBAR */}
+        {/* HEADER */}
 
         <Navbar
-          onMenuClick={() => {
-            // Mobile only
-            if (window.innerWidth < 1024) {
-              setSidebarOpen((prev) => !prev);
-            }
-          }}
+          onMenuClick={() =>
+            setSidebarOpen((prev) => !prev)
+          }
         />
 
-        {/* =====================================================
-            CONTENT
-        ====================================================== */}
+        {/* SCROLLABLE PAGE */}
 
         <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 
-          <div className="min-h-full bg-slate-950">
+          {/* =====================================================
+              HERO
+          ====================================================== */}
 
-            {/* =====================================================
-                HERO
-            ====================================================== */}
+          <section className="relative overflow-hidden">
 
-            <section className="relative overflow-hidden">
+            <div className="absolute -left-32 -top-32 h-80 w-80 rounded-full bg-blue-600/20 blur-3xl" />
 
-              {/* Background glow */}
+            <div className="absolute -right-32 top-20 h-80 w-80 rounded-full bg-purple-600/20 blur-3xl" />
 
-              <div className="pointer-events-none absolute -left-32 -top-32 h-64 w-64 rounded-full bg-blue-600/20 blur-3xl sm:h-80 sm:w-80 lg:h-96 lg:w-96" />
+            <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:px-10 lg:py-24">
 
-              <div className="pointer-events-none absolute -right-32 top-20 h-64 w-64 rounded-full bg-purple-600/20 blur-3xl sm:h-80 sm:w-80 lg:h-96 lg:w-96" />
+              <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
 
-              <div className="relative mx-auto w-full max-w-7xl px-5 py-12 sm:px-8 sm:py-16 lg:px-10 lg:py-24">
+                {/* HERO LEFT */}
 
-                <div className="flex flex-col gap-10 lg:flex-row lg:items-center lg:gap-14">
+                <div className="flex-1">
 
-                  {/* LEFT */}
+                  <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-4 py-2 text-xs text-blue-400">
 
-                  <div className="min-w-0 flex-1">
+                    <span className="h-2 w-2 rounded-full bg-blue-400" />
 
-                    <div className="mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-medium text-blue-400 sm:px-4 sm:py-2 sm:text-sm">
-
-                      <span className="h-2 w-2 shrink-0 rounded-full bg-blue-400" />
-
-                      <span>AI • ML • DEEP LEARNING</span>
-
-                    </div>
-
-                    <h1 className="text-4xl font-bold leading-[1.1] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-
-                      Intelligent
-
-                      <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                        Predictions
-                      </span>
-
-                      Powered by AI
-
-                    </h1>
-
-                    <p className="mt-5 max-w-2xl text-base leading-7 text-slate-400 sm:mt-6 sm:text-lg sm:leading-8">
-
-                      PredictHub brings machine learning and deep learning
-                      models together to transform your data into intelligent,
-                      data-driven predictions.
-
-                    </p>
-
-                    {/* Buttons */}
-
-                    <div className="mt-7 flex flex-col gap-3 sm:mt-8 sm:flex-row">
-
-                      <button
-                        type="button"
-                        className="w-full rounded-xl bg-blue-600 px-6 py-3.5 font-semibold transition hover:bg-blue-500 sm:w-auto sm:px-7"
-                      >
-                        Start Predicting →
-                      </button>
-
-                      <button
-                        type="button"
-                        className="w-full rounded-xl border border-slate-700 px-6 py-3.5 font-semibold text-slate-300 transition hover:border-blue-500 hover:text-white sm:w-auto sm:px-7"
-                      >
-                        Explore Models
-                      </button>
-
-                    </div>
-
-                    {/* Stats */}
-
-                    <div className="mt-10 grid grid-cols-2 gap-7 sm:flex sm:flex-wrap sm:gap-x-10 sm:gap-y-6">
-
-                      <div>
-                        <h3 className="text-2xl font-bold sm:text-3xl">
-                          10+
-                        </h3>
-
-                        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                          Prediction Models
-                        </p>
-                      </div>
-
-                      <div>
-                        <h3 className="text-2xl font-bold sm:text-3xl">
-                          95%+
-                        </h3>
-
-                        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                          Model Accuracy
-                        </p>
-                      </div>
-
-                      <div>
-                        <h3 className="text-2xl font-bold sm:text-3xl">
-                          AI
-                        </h3>
-
-                        <p className="mt-1 text-xs text-slate-500 sm:text-sm">
-                          Powered Platform
-                        </p>
-                      </div>
-
-                    </div>
+                    AI • ML • DEEP LEARNING
 
                   </div>
 
-                  {/* =====================================================
-                      PREDICTION CARD
-                  ====================================================== */}
+                  <h1 className="mt-6 text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">
 
-                  <div className="w-full lg:max-w-[430px] lg:flex-none">
+                    Intelligent
 
-                    <div className="rounded-2xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl shadow-blue-900/20 backdrop-blur sm:rounded-3xl sm:p-6">
+                    <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
 
-                      <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
+                      Predictions
 
-                        <div className="min-w-0">
+                    </span>
 
-                          <p className="text-xs text-slate-500 sm:text-sm">
-                            PREDICTION MODEL
-                          </p>
+                    Powered by AI
 
-                          <h3 className="mt-1 truncate text-lg font-bold sm:text-xl">
-                            Random Forest
-                          </h3>
+                  </h1>
 
-                        </div>
+                  <p className="mt-6 max-w-2xl leading-8 text-slate-400">
 
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-lg sm:h-12 sm:w-12 sm:text-xl">
-                          🧠
-                        </div>
-
-                      </div>
-
-                      {/* Chart */}
-
-                      <div className="mb-5 flex h-32 items-end gap-2 overflow-hidden rounded-xl bg-slate-950 p-3 sm:mb-6 sm:h-40 sm:gap-3 sm:rounded-2xl sm:p-5">
-
-                        <div className="h-[35%] flex-1 rounded-t-md bg-blue-500/40" />
-                        <div className="h-[50%] flex-1 rounded-t-md bg-blue-500/50" />
-                        <div className="h-[42%] flex-1 rounded-t-md bg-blue-500/60" />
-                        <div className="h-[70%] flex-1 rounded-t-md bg-blue-500/70" />
-                        <div className="h-[60%] flex-1 rounded-t-md bg-blue-500/80" />
-                        <div className="h-[85%] flex-1 rounded-t-md bg-blue-500" />
-
-                      </div>
-
-                      {/* Confidence */}
-
-                      <div className="flex flex-col gap-3 rounded-xl bg-slate-950 p-4 sm:flex-row sm:items-center sm:justify-between sm:rounded-2xl">
-
-                        <div>
-
-                          <p className="text-xs text-slate-500 sm:text-sm">
-                            Prediction Confidence
-                          </p>
-
-                          <p className="mt-1 text-xl font-bold text-green-400 sm:text-2xl">
-                            95.8%
-                          </p>
-
-                        </div>
-
-                        <div className="w-fit rounded-full bg-green-500/10 px-3 py-1 text-xs font-semibold text-green-400">
-                          High Confidence
-                        </div>
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </section>
-
-            {/* =====================================================
-                MODELS
-            ====================================================== */}
-
-            <section className="border-t border-slate-900 bg-slate-950 px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-
-              <div className="mx-auto w-full max-w-7xl">
-
-                <div className="mx-auto max-w-2xl text-center">
-
-                  <p className="text-xs font-semibold tracking-widest text-blue-400 sm:text-sm">
-                    PREDICTION TECHNOLOGY
-                  </p>
-
-                  <h2 className="mt-3 text-3xl font-bold sm:text-4xl lg:text-5xl">
-                    Explore AI-Powered Predictions
-                  </h2>
-
-                  <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">
-                    Choose from different prediction technologies designed
-                    to solve real-world problems.
-                  </p>
-
-                </div>
-
-                <div className="mt-10 grid gap-5 sm:mt-12 md:grid-cols-2 lg:grid-cols-3">
-
-                  {predictionModels.map((model) => (
-
-                    <div
-                      key={model.title}
-                      className="rounded-2xl border border-slate-800 bg-slate-900/50 p-6 transition hover:-translate-y-1 hover:border-blue-500/50 hover:bg-slate-900 sm:p-7"
-                    >
-
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-xl sm:h-14 sm:w-14 sm:text-2xl">
-                        {model.icon}
-                      </div>
-
-                      <h3 className="mt-5 text-lg font-bold sm:mt-6 sm:text-xl">
-                        {model.title}
-                      </h3>
-
-                      <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-                        {model.description}
-                      </p>
-
-                      <button
-                        type="button"
-                        className="mt-5 font-semibold text-blue-400 hover:text-blue-300"
-                      >
-                        Explore Model →
-                      </button>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
-              </div>
-
-            </section>
-
-            {/* =====================================================
-                HOW IT WORKS
-            ====================================================== */}
-
-            <section className="bg-slate-900/50 px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-
-              <div className="mx-auto w-full max-w-7xl">
-
-                <div className="text-center">
-
-                  <p className="text-xs font-semibold tracking-widest text-purple-400 sm:text-sm">
-                    HOW IT WORKS
-                  </p>
-
-                  <h2 className="mt-3 text-3xl font-bold sm:text-4xl lg:text-5xl">
-                    Predict in Three Simple Steps
-                  </h2>
-
-                </div>
-
-                <div className="mt-12 grid gap-10 sm:mt-14 md:grid-cols-3 md:gap-8">
-
-                  <div>
-
-                    <div className="text-5xl font-black text-blue-500/10 sm:text-6xl">
-                      01
-                    </div>
-
-                    <h3 className="-mt-4 text-lg font-bold sm:text-xl">
-                      Choose a Model
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-                      Select the machine learning or deep learning model
-                      that matches your prediction problem.
-                    </p>
-
-                  </div>
-
-                  <div>
-
-                    <div className="text-5xl font-black text-purple-500/10 sm:text-6xl">
-                      02
-                    </div>
-
-                    <h3 className="-mt-4 text-lg font-bold sm:text-xl">
-                      Enter Your Data
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-                      Provide the required input values through our simple
-                      and user-friendly prediction interface.
-                    </p>
-
-                  </div>
-
-                  <div>
-
-                    <div className="text-5xl font-black text-cyan-500/10 sm:text-6xl">
-                      03
-                    </div>
-
-                    <h3 className="-mt-4 text-lg font-bold sm:text-xl">
-                      Get Your Prediction
-                    </h3>
-
-                    <p className="mt-3 text-sm leading-7 text-slate-400 sm:text-base">
-                      Our trained AI model processes your data and provides
-                      the prediction result instantly.
-                    </p>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-            </section>
-
-            {/* =====================================================
-                FEATURES
-            ====================================================== */}
-
-            <section className="px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
-
-              <div className="mx-auto w-full max-w-7xl">
-
-                <div className="mx-auto max-w-2xl text-center">
-
-                  <p className="text-xs font-semibold tracking-widest text-blue-400 sm:text-sm">
-                    WHY PREDICTHUB
-                  </p>
-
-                  <h2 className="mt-3 text-3xl font-bold sm:text-4xl lg:text-5xl">
-                    Built for Smarter Predictions
-                  </h2>
-
-                </div>
-
-                <div className="mt-10 grid gap-5 sm:mt-12 sm:grid-cols-2 lg:grid-cols-4">
-
-                  {features.map((feature) => (
-
-                    <div
-                      key={feature.number}
-                      className="rounded-2xl border border-slate-800 bg-slate-900 p-6"
-                    >
-
-                      <span className="text-sm font-bold text-blue-400">
-                        {feature.number}
-                      </span>
-
-                      <h3 className="mt-4 text-lg font-bold sm:mt-5 sm:text-xl">
-                        {feature.title}
-                      </h3>
-
-                      <p className="mt-3 text-sm leading-6 text-slate-400">
-                        {feature.description}
-                      </p>
-
-                    </div>
-
-                  ))}
-
-                </div>
-
-              </div>
-
-            </section>
-
-            {/* =====================================================
-                CTA
-            ====================================================== */}
-
-            <section className="px-5 pb-16 sm:px-8 sm:pb-20 lg:px-10 lg:pb-24">
-
-              <div className="relative mx-auto w-full max-w-5xl overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 to-purple-600 px-5 py-12 text-center sm:rounded-3xl sm:px-8 sm:py-16">
-
-                <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-white/10 blur-3xl sm:h-60 sm:w-60" />
-
-                <div className="relative">
-
-                  <h2 className="text-3xl font-bold sm:text-4xl lg:text-5xl">
-                    Ready to Start Predicting?
-                  </h2>
-
-                  <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-blue-100 sm:mt-5 sm:text-base">
-                    Explore powerful machine learning and deep learning
-                    models with PredictHub and turn your data into
+                    PredictHub brings machine learning and deep learning
+                    models together to transform your data into
                     intelligent predictions.
+
                   </p>
 
-                  <button
-                    type="button"
-                    className="mt-7 rounded-xl bg-white px-7 py-3.5 font-semibold text-blue-600 transition hover:bg-slate-100 sm:mt-8 sm:px-8"
-                  >
-                    Start Predicting →
-                  </button>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+
+                    <Link
+                      to="/prediction"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-7 py-3.5 font-semibold transition hover:bg-blue-500"
+                    >
+
+                      Start Predicting
+
+                      <ArrowRight size={18} />
+
+                    </Link>
+
+                    <Link
+                      to="/models"
+                      className="rounded-xl border border-slate-700 px-7 py-3.5 text-center font-semibold text-slate-300 transition hover:border-blue-500"
+                    >
+
+                      Explore Models
+
+                    </Link>
+
+                  </div>
+
+                </div>
+
+                {/* HERO RIGHT */}
+
+                <div className="w-full lg:max-w-[400px]">
+
+                  <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
+
+                    <p className="text-xs text-slate-500">
+                      AI MODEL
+                    </p>
+
+                    <h3 className="mt-2 text-xl font-bold">
+                      Random Forest
+                    </h3>
+
+                    <div className="mt-6 flex h-36 items-end gap-3 rounded-2xl bg-slate-950 p-5">
+
+                      {[40, 60, 45, 75, 65, 90].map(
+                        (height, index) => (
+                          <div
+                            key={index}
+                            className="flex-1 rounded-t bg-blue-500"
+                            style={{
+                              height: `${height}%`,
+                            }}
+                          />
+                        )
+                      )}
+
+                    </div>
+
+                    <div className="mt-5 rounded-2xl bg-slate-950 p-4">
+
+                      <div className="flex justify-between text-sm">
+
+                        <span className="text-slate-500">
+                          Confidence
+                        </span>
+
+                        <span className="font-bold text-green-400">
+                          95.8%
+                        </span>
+
+                      </div>
+
+                      <div className="mt-3 h-2 rounded-full bg-slate-800">
+
+                        <div className="h-full w-[95%] rounded-full bg-green-400" />
+
+                      </div>
+
+                    </div>
+
+                  </div>
 
                 </div>
 
               </div>
 
-            </section>
+            </div>
 
-            <Footer/>
+          </section>
 
-          </div>
+          {/* =====================================================
+              MODELS
+          ====================================================== */}
+
+          <section className="border-t border-slate-900 px-5 py-20 sm:px-8 lg:px-10">
+
+            <div className="mx-auto max-w-7xl">
+
+              <div className="text-center">
+
+                <p className="text-sm font-semibold tracking-widest text-blue-400">
+                  PREDICTION TECHNOLOGY
+                </p>
+
+                <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
+                  Explore AI-Powered Models
+                </h2>
+
+              </div>
+
+              <div className="mt-12 grid gap-6 md:grid-cols-3">
+
+                {predictionModels.map((model) => (
+
+                  <div
+                    key={model.title}
+                    className="rounded-2xl border border-slate-800 bg-slate-900/60 p-7 transition hover:-translate-y-1 hover:border-blue-500/50"
+                  >
+
+                    <div className="text-blue-400">
+
+                      {model.icon}
+
+                    </div>
+
+                    <h3 className="mt-6 text-xl font-bold">
+                      {model.title}
+                    </h3>
+
+                    <p className="mt-3 leading-7 text-slate-400">
+                      {model.description}
+                    </p>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* =====================================================
+              HOW IT WORKS
+          ====================================================== */}
+
+          <HowItWorks />
+
+          {/* =====================================================
+              FEATURES
+          ====================================================== */}
+
+          <section className="px-5 py-20 sm:px-8 lg:px-10">
+
+            <div className="mx-auto max-w-7xl">
+
+              <div className="text-center">
+
+                <p className="text-sm font-semibold tracking-widest text-blue-400">
+                  WHY PREDICTHUB
+                </p>
+
+                <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
+                  Built for Smarter Predictions
+                </h2>
+
+              </div>
+
+              <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+                {features.map((feature) => (
+
+                  <div
+                    key={feature.number}
+                    className="rounded-2xl border border-slate-800 bg-slate-900 p-7"
+                  >
+
+                    <span className="font-bold text-blue-400">
+                      {feature.number}
+                    </span>
+
+                    <h3 className="mt-5 text-xl font-bold">
+                      {feature.title}
+                    </h3>
+
+                    <p className="mt-3 text-sm leading-7 text-slate-400">
+                      {feature.description}
+                    </p>
+
+                  </div>
+
+                ))}
+
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* CTA */}
+
+          <section className="px-5 pb-20 sm:px-8 lg:px-10">
+
+            <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 px-7 py-16 text-center">
+
+              <h2 className="text-3xl font-bold sm:text-4xl">
+                Ready to Start Predicting?
+              </h2>
+
+              <p className="mx-auto mt-5 max-w-2xl leading-7 text-blue-100">
+
+                Transform your data into intelligent predictions using
+                powerful AI and machine learning models.
+
+              </p>
+
+              <Link
+                to="/prediction"
+                className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-semibold text-blue-600 transition hover:bg-slate-100"
+              >
+
+                Start Predicting
+
+                <ArrowRight size={18} />
+
+              </Link>
+
+            </div>
+
+          </section>
+
+          {/* FOOTER */}
+
+          <Footer />
 
         </main>
 
