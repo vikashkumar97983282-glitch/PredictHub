@@ -7,20 +7,86 @@ import {
   User,
   LogIn,
   LogOut,
+  CheckCheck,
+  Brain,
+  Trophy,
+  TrendingUp,
+  X,
 } from "lucide-react";
+
 import { Link, useNavigate } from "react-router-dom";
 
 function Header({ onMenuClick }) {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
 
-  // Temporary login state for testing
-  // Change this to your real authentication state later
+  // Temporary login state
   const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const profileRef = useRef(null);
+  const notificationRef = useRef(null);
+
   const navigate = useNavigate();
 
-  // Close profile dropdown when clicking outside
+  /* =====================================================
+     NOTIFICATIONS DATA
+  ===================================================== */
+
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "Prediction Completed",
+      message: "Your Deep Learning prediction has been completed.",
+      time: "2 minutes ago",
+      read: false,
+      icon: Brain,
+      iconColor: "text-purple-400",
+      iconBg: "bg-purple-500/10",
+    },
+    {
+      id: 2,
+      title: "New Achievement",
+      message: "You unlocked the Prediction Expert achievement.",
+      time: "1 hour ago",
+      read: false,
+      icon: Trophy,
+      iconColor: "text-orange-400",
+      iconBg: "bg-orange-500/10",
+    },
+    {
+      id: 3,
+      title: "Model Performance",
+      message: "Your model accuracy increased to 94.6%.",
+      time: "3 hours ago",
+      read: false,
+      icon: TrendingUp,
+      iconColor: "text-emerald-400",
+      iconBg: "bg-emerald-500/10",
+    },
+    {
+      id: 4,
+      title: "Welcome to PredictHub",
+      message: "Start creating predictions and explore AI models.",
+      time: "Yesterday",
+      read: true,
+      icon: Bell,
+      iconColor: "text-blue-400",
+      iconBg: "bg-blue-500/10",
+    },
+  ]);
+
+  /* =====================================================
+     UNREAD COUNT
+  ===================================================== */
+
+  const unreadCount = notifications.filter(
+    (notification) => !notification.read
+  ).length;
+
+  /* =====================================================
+     CLOSE DROPDOWNS WHEN CLICKING OUTSIDE
+  ===================================================== */
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -29,27 +95,88 @@ function Header({ onMenuClick }) {
       ) {
         setProfileOpen(false);
       }
+
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setNotificationOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside
+      );
     };
   }, []);
 
-  // =========================
-  // SIGN OUT
-  // =========================
+  /* =====================================================
+     TOGGLE NOTIFICATIONS
+  ===================================================== */
+
+  const handleNotificationClick = () => {
+    setNotificationOpen((prev) => !prev);
+
+    // Close profile dropdown
+    setProfileOpen(false);
+  };
+
+  /* =====================================================
+     MARK ALL AS READ
+  ===================================================== */
+
+  const markAllAsRead = () => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) => ({
+        ...notification,
+        read: true,
+      }))
+    );
+  };
+
+  /* =====================================================
+     MARK SINGLE NOTIFICATION AS READ
+  ===================================================== */
+
+  const handleNotificationItem = (id) => {
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === id
+          ? { ...notification, read: true }
+          : notification
+      )
+    );
+  };
+
+  /* =====================================================
+     DELETE NOTIFICATION
+  ===================================================== */
+
+  const deleteNotification = (id, event) => {
+    event.stopPropagation();
+
+    setNotifications((prevNotifications) =>
+      prevNotifications.filter(
+        (notification) => notification.id !== id
+      )
+    );
+  };
+
+  /* =====================================================
+     LOGOUT
+  ===================================================== */
 
   const handleLogout = () => {
-    // Remove authentication data if you have any
     localStorage.removeItem("token");
 
     setIsLoggedIn(false);
     setProfileOpen(false);
+    setNotificationOpen(false);
 
-    // Go to Home after logout
     navigate("/");
   };
 
@@ -57,31 +184,36 @@ function Header({ onMenuClick }) {
     <header
       className="
         relative
-        flex h-13.75 w-full shrink-0
-        items-center justify-between
-        border-b border-[#263244]
+        flex
+        h-[55px]
+        w-full
+        shrink-0
+        items-center
+        justify-between
+        border-b
+        border-[#263244]
         bg-[#0d1626]
         px-4
         sm:px-6
         lg:px-7
       "
     >
-
       {/* =====================================================
           LEFT
       ====================================================== */}
 
       <div className="flex min-w-0 items-center gap-3">
-
-        {/* Mobile Menu */}
+        {/* MOBILE MENU */}
 
         <button
           type="button"
           onClick={onMenuClick}
           aria-label="Open sidebar"
           className="
-            flex shrink-0
-            items-center justify-center
+            flex
+            shrink-0
+            items-center
+            justify-center
             rounded-md
             p-1.5
             text-[#9aa8bd]
@@ -94,12 +226,14 @@ function Header({ onMenuClick }) {
           <Menu size={21} />
         </button>
 
-        {/* Search */}
+        {/* SEARCH */}
 
         <div
           className="
-            flex min-w-0
-            items-center gap-2.5
+            flex
+            min-w-0
+            items-center
+            gap-2.5
             text-[#718096]
             sm:gap-3
           "
@@ -120,17 +254,13 @@ function Header({ onMenuClick }) {
               text-white
               outline-none
               placeholder:text-[#718096]
-
               focus:w-32
-
               sm:w-40
               sm:focus:w-48
-
               md:w-56
             "
           />
         </div>
-
       </div>
 
       {/* =====================================================
@@ -138,49 +268,335 @@ function Header({ onMenuClick }) {
       ====================================================== */}
 
       <div className="flex shrink-0 items-center">
+        {/* =================================================
+            NOTIFICATION
+        ================================================== */}
 
-        {/* Notification */}
-
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="
-            mr-3
-            rounded-md
-            p-1.5
-            text-[#718096]
-            transition
-            hover:bg-[#172235]
-            hover:text-white
-            sm:mr-5
-          "
+        <div
+          ref={notificationRef}
+          className="relative mr-3 sm:mr-5"
         >
-          <Bell
-            size={18}
-            strokeWidth={1.5}
-          />
-        </button>
+          <button
+            type="button"
+            onClick={handleNotificationClick}
+            aria-label="Notifications"
+            aria-expanded={notificationOpen}
+            className="
+              relative
+              rounded-md
+              p-1.5
+              text-[#718096]
+              transition
+              hover:bg-[#172235]
+              hover:text-white
+            "
+          >
+            <Bell
+              size={18}
+              strokeWidth={1.5}
+            />
 
-        {/* Divider */}
+            {/* UNREAD BADGE */}
+
+            {unreadCount > 0 && (
+              <span
+                className="
+                  absolute
+                  -right-1
+                  -top-1
+                  flex
+                  h-4
+                  min-w-4
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-red-500
+                  px-1
+                  text-[9px]
+                  font-bold
+                  text-white
+                "
+              >
+                {unreadCount > 9
+                  ? "9+"
+                  : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* =============================================
+              NOTIFICATION DROPDOWN
+          ============================================== */}
+
+          {notificationOpen && (
+            <div
+              className="
+                absolute
+                right-0
+                top-full
+                z-50
+                mt-3
+                w-[360px]
+                max-w-[calc(100vw-2rem)]
+                overflow-hidden
+                rounded-xl
+                border
+                border-[#263244]
+                bg-[#0d1626]
+                shadow-2xl
+                shadow-black/40
+              "
+            >
+              {/* HEADER */}
+
+              <div
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  border-b
+                  border-[#263244]
+                  px-4
+                  py-4
+                "
+              >
+                <div>
+                  <h3 className="font-semibold text-white">
+                    Notifications
+                  </h3>
+
+                  <p className="mt-1 text-xs text-[#718096]">
+                    {unreadCount > 0
+                      ? `${unreadCount} unread notifications`
+                      : "You're all caught up!"}
+                  </p>
+                </div>
+
+                {unreadCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={markAllAsRead}
+                    className="
+                      flex
+                      items-center
+                      gap-1.5
+                      rounded-lg
+                      px-2
+                      py-1.5
+                      text-xs
+                      font-medium
+                      text-blue-400
+                      transition
+                      hover:bg-blue-500/10
+                      hover:text-blue-300
+                    "
+                  >
+                    <CheckCheck size={15} />
+
+                    Mark all read
+                  </button>
+                )}
+              </div>
+
+              {/* NOTIFICATION LIST */}
+
+              <div className="max-h-[400px] overflow-y-auto">
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => {
+                    const Icon = notification.icon;
+
+                    return (
+                      <div
+                        key={notification.id}
+                        onClick={() =>
+                          handleNotificationItem(
+                            notification.id
+                          )
+                        }
+                        className={`
+                          group
+                          relative
+                          flex
+                          cursor-pointer
+                          gap-3
+                          border-b
+                          border-[#263244]
+                          px-4
+                          py-4
+                          transition
+                          hover:bg-[#172235]
+
+                          ${
+                            !notification.read
+                              ? "bg-[#111d30]"
+                              : ""
+                          }
+                        `}
+                      >
+                        {/* ICON */}
+
+                        <div
+                          className={`
+                            flex
+                            h-10
+                            w-10
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            ${notification.iconBg}
+                          `}
+                        >
+                          <Icon
+                            size={18}
+                            className={
+                              notification.iconColor
+                            }
+                          />
+                        </div>
+
+                        {/* CONTENT */}
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-3">
+                            <p
+                              className={`
+                                text-sm
+                                ${
+                                  notification.read
+                                    ? "font-medium text-[#aebbd0]"
+                                    : "font-semibold text-white"
+                                }
+                              `}
+                            >
+                              {notification.title}
+                            </p>
+
+                            {/* UNREAD DOT */}
+
+                            {!notification.read && (
+                              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                            )}
+                          </div>
+
+                          <p className="mt-1 text-xs leading-5 text-[#718096]">
+                            {notification.message}
+                          </p>
+
+                          <p className="mt-2 text-[11px] text-[#526176]">
+                            {notification.time}
+                          </p>
+                        </div>
+
+                        {/* DELETE BUTTON */}
+
+                        <button
+                          type="button"
+                          onClick={(event) =>
+                            deleteNotification(
+                              notification.id,
+                              event
+                            )
+                          }
+                          className="
+                            absolute
+                            right-2
+                            top-2
+                            hidden
+                            rounded-md
+                            p-1
+                            text-[#718096]
+                            transition
+                            hover:bg-red-500/10
+                            hover:text-red-400
+                            group-hover:block
+                          "
+                          aria-label="Delete notification"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  /* EMPTY STATE */
+
+                  <div className="flex flex-col items-center justify-center px-6 py-14 text-center">
+                    <div
+                      className="
+                        flex
+                        h-12
+                        w-12
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-[#172235]
+                      "
+                    >
+                      <Bell
+                        size={22}
+                        className="text-[#718096]"
+                      />
+                    </div>
+
+                    <h4 className="mt-4 font-medium text-white">
+                      No notifications
+                    </h4>
+
+                    <p className="mt-1 text-sm text-[#718096]">
+                      You have no notifications right now.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* FOOTER */}
+
+              {notifications.length > 0 && (
+                <div className="border-t border-[#263244] p-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNotificationOpen(false)
+                    }
+                    className="
+                      w-full
+                      rounded-lg
+                      py-2
+                      text-sm
+                      font-medium
+                      text-blue-400
+                      transition
+                      hover:bg-blue-500/10
+                      hover:text-blue-300
+                    "
+                  >
+                    View all notifications
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* DIVIDER */}
 
         <div className="h-6 w-px bg-[#263244]" />
 
-        {/* =====================================================
+        {/* =================================================
             PROFILE
-        ====================================================== */}
+        ================================================== */}
 
         <div
           ref={profileRef}
           className="relative ml-3 sm:ml-5"
         >
-
-          {/* Profile Button */}
-
           <button
             type="button"
-            onClick={() =>
-              setProfileOpen((prev) => !prev)
-            }
+            onClick={() => {
+              setProfileOpen((prev) => !prev);
+              setNotificationOpen(false);
+            }}
             aria-expanded={profileOpen}
             className="
               flex
@@ -190,19 +606,16 @@ function Header({ onMenuClick }) {
               p-1
               transition
               hover:bg-[#172235]
-
               sm:gap-3
             "
           >
-
-            {/* Avatar */}
-
             {isLoggedIn ? (
               <img
                 src="https://i.pravatar.cc/100?img=12"
                 alt="Tom Cook"
                 className="
-                  h-7 w-7
+                  h-7
+                  w-7
                   shrink-0
                   rounded-full
                   object-cover
@@ -228,8 +641,6 @@ function Header({ onMenuClick }) {
               </div>
             )}
 
-            {/* Name */}
-
             <span
               className="
                 hidden
@@ -239,10 +650,10 @@ function Header({ onMenuClick }) {
                 md:block
               "
             >
-              {isLoggedIn ? "Tom Cook" : "Guest"}
+              {isLoggedIn
+                ? "Tom Cook"
+                : "Guest"}
             </span>
-
-            {/* Arrow */}
 
             <ChevronDown
               size={15}
@@ -251,15 +662,16 @@ function Header({ onMenuClick }) {
                 text-[#718096]
                 transition-transform
                 duration-200
-                ${profileOpen ? "rotate-180" : ""}
+                ${
+                  profileOpen
+                    ? "rotate-180"
+                    : ""
+                }
               `}
             />
-
           </button>
 
-          {/* =====================================================
-              DROPDOWN
-          ====================================================== */}
+          {/* PROFILE DROPDOWN */}
 
           {profileOpen && (
             <div
@@ -278,9 +690,6 @@ function Header({ onMenuClick }) {
                 shadow-2xl
               "
             >
-
-              {/* User Information */}
-
               <div
                 className="
                   border-b
@@ -289,9 +698,10 @@ function Header({ onMenuClick }) {
                   py-3
                 "
               >
-
                 <p className="text-sm font-semibold text-white">
-                  {isLoggedIn ? "Tom Cook" : "Guest User"}
+                  {isLoggedIn
+                    ? "Tom Cook"
+                    : "Guest User"}
                 </p>
 
                 <p className="mt-1 text-xs text-[#718096]">
@@ -299,14 +709,13 @@ function Header({ onMenuClick }) {
                     ? "tom@example.com"
                     : "You are not logged in"}
                 </p>
-
               </div>
-
-              {/* Profile */}
 
               <Link
                 to="/profile"
-                onClick={() => setProfileOpen(false)}
+                onClick={() =>
+                  setProfileOpen(false)
+                }
                 className="
                   flex
                   items-center
@@ -320,20 +729,15 @@ function Header({ onMenuClick }) {
                   hover:text-white
                 "
               >
-
                 <User
                   size={17}
                   strokeWidth={1.8}
                 />
 
                 <span>Profile</span>
-
               </Link>
 
-              {/* Login / Sign Out */}
-
               {isLoggedIn ? (
-
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -353,21 +757,19 @@ function Header({ onMenuClick }) {
                     hover:text-red-300
                   "
                 >
-
                   <LogOut
                     size={17}
                     strokeWidth={1.8}
                   />
 
                   <span>Sign Out</span>
-
                 </button>
-
               ) : (
-
                 <Link
                   to="/login"
-                  onClick={() => setProfileOpen(false)}
+                  onClick={() =>
+                    setProfileOpen(false)
+                  }
                   className="
                     flex
                     items-center
@@ -383,25 +785,18 @@ function Header({ onMenuClick }) {
                     hover:text-blue-300
                   "
                 >
-
                   <LogIn
                     size={17}
                     strokeWidth={1.8}
                   />
 
                   <span>Login</span>
-
                 </Link>
-
               )}
-
             </div>
           )}
-
         </div>
-
       </div>
-
     </header>
   );
 }
