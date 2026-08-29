@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import {
   Menu,
   Search,
@@ -8,85 +7,76 @@ import {
   User,
   LogIn,
   LogOut,
-  CheckCheck,
-  Brain,
-  Trophy,
-  TrendingUp,
   X,
-  Sparkles,
+  CheckCheck,
 } from "lucide-react";
-
 import { Link, useNavigate } from "react-router-dom";
 
 function Header({ onMenuClick }) {
+  // =========================
+  // LOGIN STATE
+  // =========================
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return Boolean(localStorage.getItem("token"));
+  });
+
+  // =========================
+  // DROPDOWN STATES
+  // =========================
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  // =========================
+  // NOTIFICATIONS
+  // =========================
+
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: "New prediction available",
+      message: "Your latest prediction result is ready.",
+      time: "2 min ago",
+      read: false,
+    },
+    {
+      id: 2,
+      title: "Model updated",
+      message: "A machine learning model has been updated.",
+      time: "1 hour ago",
+      read: false,
+    },
+    {
+      id: 3,
+      title: "Welcome to PredictHub",
+      message:
+        "Explore AI and machine learning prediction models.",
+      time: "Yesterday",
+      read: true,
+    },
+  ]);
+
+  // =========================
+  // REFS
+  // =========================
 
   const profileRef = useRef(null);
   const notificationRef = useRef(null);
 
   const navigate = useNavigate();
 
-  // =========================================
-  // NOTIFICATIONS
-  // =========================================
-
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      title: "Prediction Completed",
-      message: "Your Deep Learning prediction has been completed.",
-      time: "2 minutes ago",
-      read: false,
-      icon: Brain,
-      iconColor: "text-purple-400",
-      iconBg: "bg-purple-500/10",
-    },
-    {
-      id: 2,
-      title: "New Achievement",
-      message: "You unlocked the Prediction Expert achievement.",
-      time: "1 hour ago",
-      read: false,
-      icon: Trophy,
-      iconColor: "text-orange-400",
-      iconBg: "bg-orange-500/10",
-    },
-    {
-      id: 3,
-      title: "Model Performance",
-      message: "Your model accuracy increased to 94.6%.",
-      time: "3 hours ago",
-      read: false,
-      icon: TrendingUp,
-      iconColor: "text-emerald-400",
-      iconBg: "bg-emerald-500/10",
-    },
-    {
-      id: 4,
-      title: "Welcome to PredictHub",
-      message: "Start creating predictions and explore AI models.",
-      time: "Yesterday",
-      read: true,
-      icon: Bell,
-      iconColor: "text-blue-400",
-      iconBg: "bg-blue-500/10",
-    },
-  ]);
-
-  // =========================================
+  // =========================
   // UNREAD COUNT
-  // =========================================
+  // =========================
 
   const unreadCount = notifications.filter(
     (notification) => !notification.read
   ).length;
 
-  // =========================================
-  // CLOSE DROPDOWNS OUTSIDE CLICK
-  // =========================================
+  // =========================
+  // CLOSE DROPDOWNS
+  // =========================
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -115,63 +105,9 @@ function Header({ onMenuClick }) {
     };
   }, []);
 
-  // =========================================
-  // NOTIFICATION TOGGLE
-  // =========================================
-
-  const handleNotificationClick = () => {
-    setNotificationOpen((prev) => !prev);
-    setProfileOpen(false);
-  };
-
-  // =========================================
-  // MARK ALL READ
-  // =========================================
-
-  const markAllAsRead = () => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) => ({
-        ...notification,
-        read: true,
-      }))
-    );
-  };
-
-  // =========================================
-  // MARK SINGLE READ
-  // =========================================
-
-  const handleNotificationItem = (id) => {
-    setNotifications((prevNotifications) =>
-      prevNotifications.map((notification) =>
-        notification.id === id
-          ? {
-              ...notification,
-              read: true,
-            }
-          : notification
-      )
-    );
-  };
-
-  // =========================================
-  // DELETE NOTIFICATION
-  // =========================================
-
-  const deleteNotification = (id, event) => {
-    event.stopPropagation();
-
-    setNotifications((prevNotifications) =>
-      prevNotifications.filter(
-        (notification) =>
-          notification.id !== id
-      )
-    );
-  };
-
-  // =========================================
+  // =========================
   // LOGOUT
-  // =========================================
+  // =========================
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -183,37 +119,54 @@ function Header({ onMenuClick }) {
     navigate("/");
   };
 
+  // =========================
+  // MARK ALL AS READ
+  // =========================
+
+  const markAllAsRead = () => {
+    setNotifications((previous) =>
+      previous.map((notification) => ({
+        ...notification,
+        read: true,
+      }))
+    );
+  };
+
+  // =========================
+  // DELETE NOTIFICATION
+  // =========================
+
+  const removeNotification = (id) => {
+    setNotifications((previous) =>
+      previous.filter(
+        (notification) => notification.id !== id
+      )
+    );
+  };
+
   return (
     <header
       className="
-        sticky
-        top-0
+        relative
         z-40
         flex
-        h-[64px]
+        h-14
         w-full
         shrink-0
         items-center
         justify-between
         border-b
-        border-slate-800/80
-        bg-[#0b1220]/95
-        px-4
-        shadow-lg
-        shadow-black/10
-        backdrop-blur-xl
+        border-[#263244]
+        bg-[#0d1626]
+        px-3
         sm:px-6
-        lg:px-8
+        lg:px-7
       "
     >
+      {/* ================= LEFT ================= */}
 
-      {/* =====================================
-          LEFT SIDE
-      ====================================== */}
-
-      <div className="flex min-w-0 items-center gap-4">
-
-        {/* MOBILE MENU */}
+      <div className="flex min-w-0 items-center gap-3">
+        {/* Mobile Menu */}
 
         <button
           type="button"
@@ -221,174 +174,104 @@ function Header({ onMenuClick }) {
           aria-label="Open sidebar"
           className="
             flex
-            h-10
-            w-10
             shrink-0
             items-center
             justify-center
-            rounded-xl
-            border
-            border-slate-800
-            bg-slate-900/70
-            text-slate-400
-            transition-all
-            duration-200
-            hover:border-blue-500/40
-            hover:bg-blue-500/10
-            hover:text-blue-400
-            active:scale-95
+            rounded-md
+            p-1.5
+            text-[#9aa8bd]
+            transition
+            hover:bg-[#172235]
+            hover:text-white
             lg:hidden
           "
         >
-          <Menu size={20} />
+          <Menu size={21} />
         </button>
 
-
-        {/* PAGE TITLE - DESKTOP */}
-
-        <div className="hidden xl:block">
-          <div className="flex items-center gap-2">
-            <Sparkles
-              size={14}
-              className="text-blue-400"
-            />
-
-            <span className="text-xs font-medium uppercase tracking-[0.18em] text-blue-400">
-              PredictHub
-            </span>
-          </div>
-
-          <p className="mt-1 text-sm font-semibold text-white">
-            AI Prediction Platform
-          </p>
-        </div>
-
-
-        {/* SEARCH */}
+        {/* Search */}
 
         <div
           className="
-            group
             flex
-            h-10
             min-w-0
             items-center
-            gap-3
-            rounded-xl
-            border
-            border-slate-800
-            bg-slate-900/60
-            px-3
-            transition-all
-            duration-200
-            focus-within:border-blue-500/50
-            focus-within:bg-slate-900
-            focus-within:ring-4
-            focus-within:ring-blue-500/5
-            sm:px-4
+            gap-2.5
+            text-[#718096]
+            sm:gap-3
           "
         >
           <Search
             size={18}
-            strokeWidth={1.8}
-            className="
-              shrink-0
-              text-slate-500
-              transition
-              group-focus-within:text-blue-400
-            "
+            strokeWidth={1.5}
+            className="shrink-0"
           />
 
           <input
             type="text"
-            placeholder="Search models, predictions..."
+            placeholder="Search"
             className="
-              w-24
+              w-20
               bg-transparent
               text-sm
               text-white
               outline-none
-              placeholder:text-slate-500
-
-              sm:w-44
+              placeholder:text-[#718096]
+              transition-all
+              focus:w-28
+              sm:w-40
+              sm:focus:w-48
               md:w-56
-              lg:w-64
-
-              focus:w-32
-              sm:focus:w-52
-              md:focus:w-64
             "
           />
-
-          <span
-            className="
-              hidden
-              rounded-md
-              border
-              border-slate-700
-              bg-slate-800
-              px-1.5
-              py-0.5
-              text-[10px]
-              text-slate-500
-              xl:block
-            "
-          >
-            ⌘ K
-          </span>
         </div>
-
       </div>
 
+      {/* ================= RIGHT ================= */}
 
-      {/* =====================================
-          RIGHT SIDE
-      ====================================== */}
-
-      <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-
-
-        {/* =====================================
-            NOTIFICATIONS
-        ====================================== */}
+      <div className="flex shrink-0 items-center">
+        {/* ================= NOTIFICATION ================= */}
 
         <div
           ref={notificationRef}
-          className="relative"
+          className="
+            relative
+            mr-2
+            sm:mr-5
+          "
         >
+          {/* Notification Button */}
 
           <button
             type="button"
-            onClick={handleNotificationClick}
+            onClick={() => {
+              setNotificationOpen(
+                (previous) => !previous
+              );
+              setProfileOpen(false);
+            }}
             aria-label="Notifications"
             aria-expanded={notificationOpen}
             className="
               relative
               flex
-              h-10
-              w-10
               items-center
               justify-center
-              rounded-xl
-              border
-              border-slate-800
-              bg-slate-900/70
-              text-slate-400
-              transition-all
-              duration-200
-              hover:border-blue-500/40
-              hover:bg-blue-500/10
-              hover:text-blue-400
-              active:scale-95
+              rounded-md
+              p-1.5
+              text-[#718096]
+              transition
+              hover:bg-[#172235]
+              hover:text-white
+              active:bg-[#172235]
             "
           >
-
             <Bell
-              size={19}
-              strokeWidth={1.8}
+              size={18}
+              strokeWidth={1.5}
             />
 
-            {/* UNREAD BADGE */}
+            {/* Unread Badge */}
 
             {unreadCount > 0 && (
               <span
@@ -397,22 +280,19 @@ function Header({ onMenuClick }) {
                   -right-1
                   -top-1
                   flex
-                  h-5
-                  min-w-5
+                  h-4
+                  min-w-4
                   items-center
                   justify-center
                   rounded-full
-                  border-2
-                  border-[#0b1220]
-                  bg-gradient-to-br
-                  from-red-400
-                  to-red-600
+                  bg-red-500
                   px-1
                   text-[9px]
                   font-bold
+                  leading-none
                   text-white
-                  shadow-lg
-                  shadow-red-500/30
+                  ring-2
+                  ring-[#0d1626]
                 "
               >
                 {unreadCount > 9
@@ -420,36 +300,35 @@ function Header({ onMenuClick }) {
                   : unreadCount}
               </span>
             )}
-
           </button>
 
-
-          {/* =====================================
-              NOTIFICATION DROPDOWN
-          ====================================== */}
+          {/* ================= NOTIFICATION DROPDOWN ================= */}
 
           {notificationOpen && (
             <div
               className="
-                absolute
-                right-0
-                top-full
+                fixed
+                left-3
+                right-3
+                top-[4.25rem]
                 z-50
-                mt-3
-                w-[380px]
-                max-w-[calc(100vw-1.5rem)]
                 overflow-hidden
-                rounded-2xl
+                rounded-xl
                 border
-                border-slate-700/70
-                bg-[#101827]/98
+                border-[#263244]
+                bg-[#0d1626]
                 shadow-2xl
-                shadow-black/50
-                backdrop-blur-xl
+                shadow-black/40
+
+                sm:absolute
+                sm:left-auto
+                sm:right-0
+                sm:top-full
+                sm:mt-3
+                sm:w-96
               "
             >
-
-              {/* HEADER */}
+              {/* ================= HEADER ================= */}
 
               <div
                 className="
@@ -457,305 +336,253 @@ function Header({ onMenuClick }) {
                   items-center
                   justify-between
                   border-b
-                  border-slate-800
-                  px-5
-                  py-4
+                  border-[#263244]
+                  px-4
+                  py-3
                 "
               >
-
-                <div>
-                  <h3 className="text-base font-bold text-white">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold text-white">
                     Notifications
                   </h3>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-0.5 text-xs text-[#718096]">
                     {unreadCount > 0
                       ? `${unreadCount} unread notifications`
-                      : "You're all caught up!"}
+                      : "You're all caught up"}
                   </p>
                 </div>
 
+                {/* Read All */}
 
                 {unreadCount > 0 && (
                   <button
                     type="button"
                     onClick={markAllAsRead}
                     className="
+                      ml-3
                       flex
+                      shrink-0
                       items-center
-                      gap-2
-                      rounded-lg
-                      border
-                      border-blue-500/10
-                      bg-blue-500/5
-                      px-3
-                      py-2
+                      gap-1.5
+                      rounded-md
+                      px-2
+                      py-1.5
                       text-xs
-                      font-medium
                       text-blue-400
                       transition
-                      hover:bg-blue-500/15
+                      hover:bg-blue-500/10
                       hover:text-blue-300
+                      active:bg-blue-500/20
                     "
                   >
                     <CheckCheck size={15} />
 
                     <span className="hidden sm:inline">
-                      Mark all read
+                      Read all
                     </span>
                   </button>
                 )}
-
               </div>
 
+              {/* ================= NOTIFICATION LIST ================= */}
 
-              {/* NOTIFICATION LIST */}
-
-              <div className="max-h-[420px] overflow-y-auto">
-
+              <div
+                className="
+                  max-h-[60vh]
+                  overflow-y-auto
+                  overscroll-contain
+                  sm:max-h-80
+                "
+              >
                 {notifications.length > 0 ? (
-
-                  notifications.map((notification) => {
-                    const Icon = notification.icon;
-
-                    return (
+                  notifications.map(
+                    (notification) => (
                       <div
                         key={notification.id}
-                        onClick={() =>
-                          handleNotificationItem(
-                            notification.id
-                          )
-                        }
                         className={`
                           group
                           relative
-                          flex
-                          cursor-pointer
-                          gap-3
                           border-b
-                          border-slate-800/80
-                          px-5
-                          py-4
-                          transition-all
-                          duration-200
-                          hover:bg-slate-800/60
-
+                          border-[#1d2939]
+                          px-4
+                          py-3
+                          transition
+                          hover:bg-[#172235]
+                          active:bg-[#172235]
                           ${
                             !notification.read
-                              ? "bg-blue-500/[0.035]"
+                              ? "bg-blue-500/[0.04]"
                               : ""
                           }
                         `}
                       >
+                        <div className="flex gap-3">
+                          {/* Unread Dot */}
 
-                        {/* ICON */}
-
-                        <div
-                          className={`
-                            flex
-                            h-11
-                            w-11
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            border
-                            border-white/5
-                            ${notification.iconBg}
-                          `}
-                        >
-                          <Icon
-                            size={19}
-                            className={
-                              notification.iconColor
-                            }
-                          />
-                        </div>
-
-
-                        {/* CONTENT */}
-
-                        <div className="min-w-0 flex-1">
-
-                          <div className="flex items-start justify-between gap-3">
-
-                            <p
-                              className={`
-                                text-sm
-
-                                ${
-                                  notification.read
-                                    ? "font-medium text-slate-300"
-                                    : "font-semibold text-white"
-                                }
-                              `}
-                            >
-                              {notification.title}
-                            </p>
-
-
+                          <div className="w-2 shrink-0 pt-1.5">
                             {!notification.read && (
                               <span
                                 className="
-                                  mt-1.5
+                                  block
                                   h-2
                                   w-2
-                                  shrink-0
                                   rounded-full
                                   bg-blue-500
-                                  shadow
-                                  shadow-blue-500/70
                                 "
                               />
                             )}
-
                           </div>
 
+                          {/* Content */}
 
-                          <p className="mt-1 text-xs leading-5 text-slate-500">
-                            {notification.message}
-                          </p>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-white">
+                              {notification.title}
+                            </p>
 
+                            <p
+                              className="
+                                mt-1
+                                text-xs
+                                leading-5
+                                text-[#718096]
+                              "
+                            >
+                              {notification.message}
+                            </p>
 
-                          <p className="mt-2 text-[11px] text-slate-600">
-                            {notification.time}
-                          </p>
+                            <p
+                              className="
+                                mt-1.5
+                                text-[11px]
+                                text-[#526175]
+                              "
+                            >
+                              {notification.time}
+                            </p>
+                          </div>
 
+                          {/* Delete */}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeNotification(
+                                notification.id
+                              )
+                            }
+                            aria-label={`Remove ${notification.title}`}
+                            className="
+                              flex
+                              h-7
+                              w-7
+                              shrink-0
+                              items-center
+                              justify-center
+                              self-start
+                              rounded-md
+                              text-[#526175]
+                              transition
+                              hover:bg-red-500/10
+                              hover:text-red-400
+
+                              sm:opacity-0
+                              sm:group-hover:opacity-100
+                            "
+                          >
+                            <X size={15} />
+                          </button>
                         </div>
-
-
-                        {/* DELETE */}
-
-                        <button
-                          type="button"
-                          onClick={(event) =>
-                            deleteNotification(
-                              notification.id,
-                              event
-                            )
-                          }
-                          className="
-                            absolute
-                            right-2
-                            top-2
-                            hidden
-                            h-7
-                            w-7
-                            items-center
-                            justify-center
-                            rounded-lg
-                            text-slate-500
-                            transition
-                            hover:bg-red-500/10
-                            hover:text-red-400
-                            group-hover:flex
-                          "
-                          aria-label="Delete notification"
-                        >
-                          <X size={14} />
-                        </button>
-
                       </div>
-                    );
-                  })
-
+                    )
+                  )
                 ) : (
-
-                  /* EMPTY STATE */
+                  /* ================= EMPTY STATE ================= */
 
                   <div
                     className="
                       flex
+                      min-h-44
                       flex-col
                       items-center
                       justify-center
-                      px-6
-                      py-16
+                      px-4
                       text-center
                     "
                   >
+                    <Bell
+                      size={28}
+                      strokeWidth={1.5}
+                      className="text-[#526175]"
+                    />
 
-                    <div
-                      className="
-                        flex
-                        h-14
-                        w-14
-                        items-center
-                        justify-center
-                        rounded-2xl
-                        bg-slate-800
-                        text-slate-500
-                      "
-                    >
-                      <Bell size={24} />
-                    </div>
-
-                    <h4 className="mt-5 font-semibold text-white">
+                    <p className="mt-3 text-sm font-medium text-white">
                       No notifications
-                    </h4>
-
-                    <p className="mt-2 text-sm text-slate-500">
-                      You have no notifications right now.
                     </p>
 
+                    <p className="mt-1 text-xs text-[#718096]">
+                      You're all caught up!
+                    </p>
                   </div>
                 )}
-
               </div>
 
-
-              {/* FOOTER */}
+              {/* ================= FOOTER ================= */}
 
               {notifications.length > 0 && (
-                <div className="border-t border-slate-800 p-3">
-
+                <div
+                  className="
+                    border-t
+                    border-[#263244]
+                    px-4
+                    py-3
+                    text-center
+                  "
+                >
                   <button
                     type="button"
                     onClick={() =>
                       setNotificationOpen(false)
                     }
                     className="
-                      w-full
-                      rounded-xl
-                      py-2.5
-                      text-sm
+                      text-xs
                       font-medium
                       text-blue-400
                       transition
-                      hover:bg-blue-500/10
                       hover:text-blue-300
                     "
                   >
                     View all notifications
                   </button>
-
                 </div>
               )}
-
             </div>
           )}
-
         </div>
 
+        {/* ================= DIVIDER ================= */}
 
-        {/* DIVIDER */}
+        <div className="h-6 w-px bg-[#263244]" />
 
-        <div className="hidden h-7 w-px bg-slate-800 sm:block" />
-
-
-        {/* =====================================
-            PROFILE
-        ====================================== */}
+        {/* ================= PROFILE ================= */}
 
         <div
           ref={profileRef}
-          className="relative"
+          className="
+            relative
+            ml-2
+            sm:ml-5
+          "
         >
+          {/* Profile Button */}
 
           <button
             type="button"
             onClick={() => {
-              setProfileOpen((prev) => !prev);
+              setProfileOpen(
+                (previous) => !previous
+              );
               setNotificationOpen(false);
             }}
             aria-expanded={profileOpen}
@@ -763,62 +590,39 @@ function Header({ onMenuClick }) {
               flex
               items-center
               gap-2
-              rounded-xl
-              border
-              border-transparent
-              p-1.5
-              transition-all
-              duration-200
-              hover:border-slate-800
-              hover:bg-slate-900/70
+              rounded-md
+              p-1
+              transition
+              hover:bg-[#172235]
               sm:gap-3
             "
           >
-
-            {/* AVATAR */}
+            {/* Avatar */}
 
             {isLoggedIn ? (
-              <div className="relative">
-
-                <img
-                  src="https://i.pravatar.cc/100?img=12"
-                  alt="Tom Cook"
-                  className="
-                    h-9
-                    w-9
-                    rounded-xl
-                    border
-                    border-slate-700
-                    object-cover
-                  "
-                />
-
-                <span
-                  className="
-                    absolute
-                    -bottom-0.5
-                    -right-0.5
-                    h-3
-                    w-3
-                    rounded-full
-                    border-2
-                    border-[#0b1220]
-                    bg-emerald-400
-                  "
-                />
-
-              </div>
+              <img
+                src="https://i.pravatar.cc/100?img=12"
+                alt="User"
+                className="
+                  h-7
+                  w-7
+                  shrink-0
+                  rounded-full
+                  object-cover
+                "
+              />
             ) : (
               <div
                 className="
                   flex
-                  h-9
-                  w-9
+                  h-7
+                  w-7
+                  shrink-0
                   items-center
                   justify-center
-                  rounded-xl
-                  bg-blue-600
-                  text-sm
+                  rounded-full
+                  bg-slate-700
+                  text-xs
                   font-bold
                   text-white
                 "
@@ -827,35 +631,31 @@ function Header({ onMenuClick }) {
               </div>
             )}
 
+            {/* User Name */}
 
-            {/* USER DETAILS */}
+            <span
+              className="
+                hidden
+                text-sm
+                font-semibold
+                text-white
+                md:block
+              "
+            >
+              {isLoggedIn
+                ? "Tom Cook"
+                : "Guest"}
+            </span>
 
-            <div className="hidden text-left lg:block">
-
-              <p className="text-sm font-semibold text-white">
-                {isLoggedIn
-                  ? "Tom Cook"
-                  : "Guest"}
-              </p>
-
-              <p className="mt-0.5 text-[11px] text-slate-500">
-                {isLoggedIn
-                  ? "AI Explorer"
-                  : "Not logged in"}
-              </p>
-
-            </div>
-
+            {/* Arrow */}
 
             <ChevronDown
-              size={16}
+              size={15}
               className={`
-                hidden
-                text-slate-500
+                shrink-0
+                text-[#718096]
                 transition-transform
                 duration-200
-                sm:block
-
                 ${
                   profileOpen
                     ? "rotate-180"
@@ -863,13 +663,9 @@ function Header({ onMenuClick }) {
                 }
               `}
             />
-
           </button>
 
-
-          {/* =====================================
-              PROFILE DROPDOWN
-          ====================================== */}
+          {/* ================= PROFILE DROPDOWN ================= */}
 
           {profileOpen && (
             <div
@@ -878,63 +674,43 @@ function Header({ onMenuClick }) {
                 right-0
                 top-full
                 z-50
-                mt-3
-                w-64
+                mt-2
+                w-56
                 overflow-hidden
-                rounded-2xl
+                rounded-xl
                 border
-                border-slate-700/70
-                bg-[#101827]/98
+                border-[#263244]
+                bg-[#0d1626]
                 shadow-2xl
-                shadow-black/50
-                backdrop-blur-xl
+                shadow-black/40
               "
             >
+              {/* User Information */}
 
-              {/* PROFILE INFO */}
+              <div
+                className="
+                  border-b
+                  border-[#263244]
+                  px-4
+                  py-3
+                "
+              >
+                <p className="text-sm font-semibold text-white">
+                  {isLoggedIn
+                    ? "Tom Cook"
+                    : "Guest User"}
+                </p>
 
-              <div className="border-b border-slate-800 px-5 py-4">
-
-                <div className="flex items-center gap-3">
-
-                  <img
-                    src="https://i.pravatar.cc/100?img=12"
-                    alt="Tom Cook"
-                    className="
-                      h-11
-                      w-11
-                      rounded-xl
-                      border
-                      border-slate-700
-                      object-cover
-                    "
-                  />
-
-                  <div>
-
-                    <p className="text-sm font-semibold text-white">
-                      {isLoggedIn
-                        ? "Tom Cook"
-                        : "Guest User"}
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      {isLoggedIn
-                        ? "tom@example.com"
-                        : "You are not logged in"}
-                    </p>
-
-                  </div>
-
-                </div>
-
+                <p className="mt-1 break-all text-xs text-[#718096]">
+                  {isLoggedIn
+                    ? "tom@example.com"
+                    : "Please login to access your account"}
+                </p>
               </div>
 
+              {/* Profile - Logged In */}
 
-              {/* PROFILE LINK */}
-
-              <div className="p-2">
-
+              {isLoggedIn && (
                 <Link
                   to="/profile"
                   onClick={() =>
@@ -944,138 +720,94 @@ function Header({ onMenuClick }) {
                     flex
                     items-center
                     gap-3
-                    rounded-xl
-                    px-3
+                    px-4
                     py-3
                     text-sm
-                    font-medium
-                    text-slate-300
+                    text-[#aebbd0]
                     transition
-                    hover:bg-slate-800
+                    hover:bg-[#172235]
                     hover:text-white
+                    active:bg-[#172235]
                   "
                 >
+                  <User
+                    size={17}
+                    strokeWidth={1.8}
+                  />
 
-                  <div
-                    className="
-                      flex
-                      h-9
-                      w-9
-                      items-center
-                      justify-center
-                      rounded-lg
-                      bg-blue-500/10
-                      text-blue-400
-                    "
-                  >
-                    <User size={17} />
-                  </div>
-
-                  <span>My Profile</span>
-
+                  <span>Profile</span>
                 </Link>
+              )}
 
-              </div>
+              {/* Login - Guest */}
 
+              {!isLoggedIn && (
+                <Link
+                  to="/login"
+                  onClick={() =>
+                    setProfileOpen(false)
+                  }
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                    px-4
+                    py-3
+                    text-sm
+                    text-blue-400
+                    transition
+                    hover:bg-blue-500/10
+                    hover:text-blue-300
+                    active:bg-blue-500/20
+                  "
+                >
+                  <LogIn
+                    size={17}
+                    strokeWidth={1.8}
+                  />
 
-              {/* LOGIN / LOGOUT */}
+                  <span>Login</span>
+                </Link>
+              )}
 
-              <div className="border-t border-slate-800 p-2">
+              {/* Logout - Logged In */}
 
-                {isLoggedIn ? (
+              {isLoggedIn && (
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="
+                    flex
+                    w-full
+                    items-center
+                    gap-3
+                    border-t
+                    border-[#263244]
+                    px-4
+                    py-3
+                    text-sm
+                    text-red-400
+                    transition
+                    hover:bg-red-500/10
+                    hover:text-red-300
+                    active:bg-red-500/20
+                  "
+                >
+                  <LogOut
+                    size={17}
+                    strokeWidth={1.8}
+                  />
 
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="
-                      flex
-                      w-full
-                      items-center
-                      gap-3
-                      rounded-xl
-                      px-3
-                      py-3
-                      text-sm
-                      font-medium
-                      text-red-400
-                      transition
-                      hover:bg-red-500/10
-                      hover:text-red-300
-                    "
-                  >
-
-                    <div
-                      className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-lg
-                        bg-red-500/10
-                      "
-                    >
-                      <LogOut size={17} />
-                    </div>
-
-                    <span>Sign Out</span>
-
-                  </button>
-
-                ) : (
-
-                  <Link
-                    to="/login"
-                    onClick={() =>
-                      setProfileOpen(false)
-                    }
-                    className="
-                      flex
-                      items-center
-                      gap-3
-                      rounded-xl
-                      px-3
-                      py-3
-                      text-sm
-                      font-medium
-                      text-blue-400
-                      transition
-                      hover:bg-blue-500/10
-                      hover:text-blue-300
-                    "
-                  >
-
-                    <div
-                      className="
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-lg
-                        bg-blue-500/10
-                      "
-                    >
-                      <LogIn size={17} />
-                    </div>
-
-                    <span>Login</span>
-
-                  </Link>
-
-                )}
-
-              </div>
-
+                  <span>Sign Out</span>
+                </button>
+              )}
             </div>
           )}
-
         </div>
-
       </div>
-
     </header>
   );
 }
 
 export default Header;
+
