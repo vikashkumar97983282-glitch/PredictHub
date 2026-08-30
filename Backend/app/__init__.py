@@ -18,6 +18,9 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
 
+    @app.get('/')
+    def home():
+        return "this is api for frontend user's"
 
     ## routes 
     from app.routes.user import router as user_router
