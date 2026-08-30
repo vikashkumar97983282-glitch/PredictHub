@@ -12,6 +12,7 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import axios from "axios"
 
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
