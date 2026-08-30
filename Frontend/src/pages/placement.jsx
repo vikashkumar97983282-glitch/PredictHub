@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   ArrowLeft,
   Brain,
@@ -266,7 +266,7 @@ function PlacementForm() {
             inset-0
             opacity-[0.025]
             bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
-            bg-[size:40px_40px]
+            bg-size-[40px_40px]
           "
         />
       </div>
@@ -602,7 +602,7 @@ function PlacementForm() {
                     className="mt-0.5 shrink-0"
                   />
 
-                  <span className="min-w-0 break-words">
+                  <span className="min-w-0 wrap-break-word">
                     {error}
                   </span>
 
