@@ -13,7 +13,7 @@ import {
   X,
 } from "lucide-react";
 
-import { useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import Sidebar from "../components/sidebar";
 import Header from "../components/header";
@@ -45,6 +45,7 @@ function Prediction() {
   // PREDICTION MODELS
   // =========================
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const models = [
     {
       id: 1,
@@ -153,6 +154,25 @@ function Prediction() {
         "Prediction",
       ],
     },
+
+    {
+      id: 2,
+      title: "Placement Prediction",
+      description:
+        "Analyze student data and predict Placement performance using machine learning.",
+      category: "Machine Learning",
+      icon: Brain,
+      iconColor: "text-purple-400",
+      iconBg: "bg-purple-500/10",
+      borderColor:
+        "group-hover:border-purple-500/50",
+      route: "/prediction/placement",
+      tags: [
+        "Classification",
+        "Machine Learning",
+      ],
+    },
+
   ];
 
   // =========================
@@ -200,10 +220,7 @@ function Prediction() {
         matchesSearch
       );
     });
-  }, [
-    searchTerm,
-    activeCategory,
-  ]);
+  }, [models, activeCategory, searchTerm]);
 
   // =========================
   // SCROLL TO MODELS
@@ -305,8 +322,8 @@ function Prediction() {
                   absolute
                   inset-0
                   opacity-[0.025]
-                  [background-image:linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
-                  [background-size:40px_40px]
+                  bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
+                  bg-size-[40px_40px]
                 "
               />
 
@@ -317,8 +334,8 @@ function Prediction() {
                   absolute
                   -right-40
                   -top-40
-                  h-[500px]
-                  w-[500px]
+                  h-125
+                  w-125
                   rounded-full
                   bg-blue-600/10
                   blur-[120px]
@@ -332,8 +349,8 @@ function Prediction() {
                   absolute
                   -bottom-60
                   -left-40
-                  h-[500px]
-                  w-[500px]
+                  h-125
+                  w-125
                   rounded-full
                   bg-purple-600/10
                   blur-[120px]
@@ -404,7 +421,7 @@ function Prediction() {
 
                     <span
                       className="
-                        bg-gradient-to-r
+                        bg-linear-to-r
                         from-blue-400
                         via-indigo-400
                         to-purple-400
@@ -658,7 +675,7 @@ function Prediction() {
                                 group
                                 relative
                                 flex
-                                min-h-[330px]
+                                min-h-82.5
                                 flex-col
                                 overflow-hidden
                                 rounded-2xl
@@ -683,7 +700,7 @@ function Prediction() {
                                   pointer-events-none
                                   absolute
                                   inset-0
-                                  bg-gradient-to-br
+                                  bg-linear-to-br
                                   from-blue-500/5
                                   via-transparent
                                   to-purple-500/5
@@ -865,7 +882,7 @@ function Prediction() {
                     <div
                       className="
                         flex
-                        min-h-[300px]
+                        min-h-75
                         flex-col
                         items-center
                         justify-center
@@ -958,7 +975,7 @@ function Prediction() {
                     rounded-3xl
                     border
                     border-blue-500/15
-                    bg-gradient-to-br
+                    bg-linear-to-br
                     from-blue-600/10
                     via-[#101827]
                     to-purple-600/10
@@ -1076,6 +1093,8 @@ function Prediction() {
           </div>
 
         </main>
+
+        <Outlet/>
 
       </div>
 
