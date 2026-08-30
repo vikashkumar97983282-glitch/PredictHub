@@ -13,6 +13,16 @@ function PlacementForm() {
   const navigate = useNavigate();
 
   // =====================================================
+  // API CONFIGURATION
+  // =====================================================
+
+  const API_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  // Remove trailing slash if environment variable has one
+  const API_BASE_URL = API_URL.replace(/\/+$/, "");
+
+  // =====================================================
   // FORM STATE
   // =====================================================
 
@@ -95,48 +105,34 @@ function PlacementForm() {
     try {
       setLoading(true);
 
-      /*
-       * IMPORTANT:
-       *
-       * Your backend route is:
-       *
-       * http://localhost:8000/model/
-       *
-       * NOT:
-       *
-       * http://localhost:8000/model/placement
-       */
+      const endpoint = `${API_BASE_URL}/model/`;
 
-      const response = await fetch(
-        "http://localhost:8000/model/",
-        {
-          method: "POST",
+      console.log("Prediction API:", endpoint);
 
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
+      const response = await fetch(endpoint, {
+        method: "POST",
 
-          body: JSON.stringify({
-            cgpa: cgpa,
-            resume_score: resumeScore,
-          }),
-        }
-      );
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+
+        body: JSON.stringify({
+          cgpa: cgpa,
+          resume_score: resumeScore,
+        }),
+      });
 
       // =================================================
-      // GET RESPONSE
+      // READ RESPONSE
       // =================================================
 
       const contentType =
-        response.headers.get("content-type");
+        response.headers.get("content-type") || "";
 
       let result;
 
-      if (
-        contentType &&
-        contentType.includes("application/json")
-      ) {
+      if (contentType.includes("application/json")) {
         result = await response.json();
       } else {
         const text = await response.text();
@@ -150,7 +146,7 @@ function PlacementForm() {
       console.log("Backend response:", result);
 
       // =================================================
-      // HANDLE BACKEND ERROR
+      // BACKEND ERROR
       // =================================================
 
       if (!response.ok) {
@@ -176,10 +172,12 @@ function PlacementForm() {
     } catch (error) {
       console.error("Prediction error:", error);
 
-      // Network / CORS / server error
+      // Network / CORS / server connection error
       if (error instanceof TypeError) {
         setError(
-          "Unable to connect to the prediction server. Make sure your backend is running on http://localhost:8000."
+          `Unable to connect to the prediction server.
+
+Backend URL: ${API_BASE_URL}`
         );
       } else {
         setError(
@@ -216,14 +214,31 @@ function PlacementForm() {
   // =====================================================
 
   return (
-    <div className="fixed inset-0 z-50 w-full overflow-y-auto overflow-x-hidden bg-[#070b14] text-white">
-
+    <div
+      className="
+        fixed
+        inset-0
+        z-50
+        w-full
+        overflow-y-auto
+        overflow-x-hidden
+        overscroll-contain
+        bg-[#070b14]
+        text-white
+      "
+    >
       {/* =================================================
           BACKGROUND
       ================================================= */}
 
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-
+      <div
+        className="
+          pointer-events-none
+          fixed
+          inset-0
+          overflow-hidden
+        "
+      >
         {/* BLUE GLOW */}
 
         <div
@@ -266,21 +281,28 @@ function PlacementForm() {
             inset-0
             opacity-[0.025]
             bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
-            bg-size-[40px_40px]
+            bg-[size:40px_40px]
           "
         />
       </div>
 
       {/* =================================================
-          SCROLLABLE MAIN
+          SCROLLABLE CONTENT
       ================================================= */}
 
-      <main className="relative z-10 min-h-full w-full">
-
+      <main
+        className="
+          relative
+          z-10
+          min-h-screen
+          w-full
+        "
+      >
         <div
           className="
             mx-auto
             flex
+            min-h-screen
             w-full
             max-w-4xl
             flex-col
@@ -292,13 +314,11 @@ function PlacementForm() {
             lg:py-10
           "
         >
-
           {/* =================================================
               BACK BUTTON
           ================================================= */}
 
           <div className="shrink-0">
-
             <button
               type="button"
               onClick={() => navigate("/prediction")}
@@ -326,7 +346,6 @@ function PlacementForm() {
 
               <span>Back to Models</span>
             </button>
-
           </div>
 
           {/* =================================================
@@ -334,7 +353,6 @@ function PlacementForm() {
           ================================================= */}
 
           <section className="mt-8 text-center sm:mt-10">
-
             {/* ICON */}
 
             <div
@@ -425,7 +443,6 @@ function PlacementForm() {
               to generate a placement prediction using
               machine learning.
             </p>
-
           </section>
 
           {/* =================================================
@@ -451,15 +468,12 @@ function PlacementForm() {
               sm:p-8
             "
           >
-
             <form onSubmit={handleSubmit}>
-
               {/* =================================================
                   CGPA
               ================================================= */}
 
               <div>
-
                 <label
                   htmlFor="cgpa"
                   className="
@@ -511,7 +525,6 @@ function PlacementForm() {
                 <p className="mt-2 text-xs text-slate-500">
                   Example: 8.5
                 </p>
-
               </div>
 
               {/* =================================================
@@ -519,7 +532,6 @@ function PlacementForm() {
               ================================================= */}
 
               <div className="mt-6">
-
                 <label
                   htmlFor="resume_score"
                   className="
@@ -571,7 +583,6 @@ function PlacementForm() {
                 <p className="mt-2 text-xs text-slate-500">
                   Score should be between 0 and 100.
                 </p>
-
               </div>
 
               {/* =================================================
@@ -596,21 +607,19 @@ function PlacementForm() {
                     text-red-400
                   "
                 >
-
                   <AlertCircle
                     size={18}
                     className="mt-0.5 shrink-0"
                   />
 
-                  <span className="min-w-0 wrap-break-word">
+                  <span className="min-w-0 whitespace-pre-line break-words">
                     {error}
                   </span>
-
                 </div>
               )}
 
               {/* =================================================
-                  SUBMIT BUTTON
+                  SUBMIT
               ================================================= */}
 
               <button
@@ -641,7 +650,6 @@ function PlacementForm() {
                   disabled:opacity-60
                 "
               >
-
                 {loading ? (
                   <>
                     <Loader2
@@ -658,9 +666,7 @@ function PlacementForm() {
                     <span>Predict Placement</span>
                   </>
                 )}
-
               </button>
-
             </form>
 
             {/* =================================================
@@ -681,11 +687,9 @@ function PlacementForm() {
                   sm:p-6
                 "
               >
-
                 {/* RESULT HEADER */}
 
                 <div className="flex items-center gap-3">
-
                   <div
                     className="
                       flex
@@ -703,7 +707,6 @@ function PlacementForm() {
                   </div>
 
                   <div className="min-w-0">
-
                     <p className="text-sm text-slate-400">
                       Prediction Result
                     </p>
@@ -718,9 +721,7 @@ function PlacementForm() {
                     >
                       Prediction Generated
                     </h2>
-
                   </div>
-
                 </div>
 
                 {/* RESULT VALUE */}
@@ -729,7 +730,7 @@ function PlacementForm() {
                   className="
                     mt-5
                     w-full
-                    overflow-hidden
+                    overflow-x-auto
                     rounded-xl
                     border
                     border-slate-800
@@ -738,7 +739,6 @@ function PlacementForm() {
                     sm:p-5
                   "
                 >
-
                   <p
                     className="
                       text-xs
@@ -764,12 +764,9 @@ function PlacementForm() {
                   >
                     {formatPrediction()}
                   </p>
-
                 </div>
-
               </div>
             )}
-
           </section>
 
           {/* =================================================
@@ -777,11 +774,8 @@ function PlacementForm() {
           ================================================= */}
 
           <div className="h-16 shrink-0 sm:h-24" />
-
         </div>
-
       </main>
-
     </div>
   );
 }
