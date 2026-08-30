@@ -1,6 +1,14 @@
 fastapi
-uvicorn[standard]
-numpy
-pandas
+uvicorn
+pydantic
+pydantic-settings
+python-dotenv
+sqlalchemy
+psycopg2-binary
 scikit-learn
+pandas
+numpy
 joblib
+python-jose
+passlib
+pytest
