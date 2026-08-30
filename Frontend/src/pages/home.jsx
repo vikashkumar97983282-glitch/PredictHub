@@ -127,6 +127,19 @@ function HowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
 
+  const [data, setData] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("https://your-backend-url.com/")
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   /* AUTO SLIDER */
 
   useEffect(() => {
