@@ -21,8 +21,10 @@ def create_app() -> FastAPI:
 
     ## routes 
     from app.routes.user import router as user_router
+    from app.routes.models import router as model_router
 
-    app.include_router(user_router,tags=['user'])
+    app.include_router(user_router,prefix="/user", tags=['user'])
+    app.include_router(model_router,prefix="/model",tags=['model'])
 
 
     

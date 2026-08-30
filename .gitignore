@@ -4,6 +4,9 @@ Frontend/node_modules/
 # Frontend build
 Frontend/dist/
 
+Frontend/.env
+Frontend/.env.local
+
 # Environment files
 .env
 .env.*
