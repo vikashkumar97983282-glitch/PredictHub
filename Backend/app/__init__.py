@@ -23,7 +23,7 @@ def create_app() -> FastAPI:
 
     @app.get('/')
     def home():
-        return "this is api for frontend user's"
+        return "Connect your data, choose a model, and get intelligent predictions in seconds."
 
     ## routes 
     from app.routes.user import router as user_router
