@@ -1058,9 +1058,14 @@ function Home() {
               </p>
 
               {typeof backendResponse === "string" && (
-                <p className="mx-auto mt-5 max-w-2xl leading-7 text-blue-100">
-                  {backendResponse}
-                </p>
+                <div className="mx-auto mt-6 max-w-2xl rounded-2xl border border-white/20 bg-white/10 px-5 py-4 text-left shadow-lg backdrop-blur-sm">
+                  <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/70">
+                    API Message
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-white/95 sm:text-base">
+                    {backendResponse}
+                  </p>
+                </div>
               )}
 
               <Link
