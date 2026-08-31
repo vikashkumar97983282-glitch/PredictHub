@@ -25,7 +25,7 @@ function ComingSoon() {
       if (index < COMING_SOON_TEXT.length) {
         timeoutId = window.setTimeout(() => {
           typeNext(index + 1);
-        }, 10);
+        }, 50);
         return;
       }
 
