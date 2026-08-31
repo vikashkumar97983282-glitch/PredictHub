@@ -120,7 +120,7 @@ const models = [
     iconBg: "bg-purple-500/10",
     borderColor: "group-hover:border-purple-500/50",
     route: "/prediction/placement",
-    tags: ["Classification", "Machine Learning"],
+    tags: ["Regression", "Random Forest"],
   },
 ];
 
