@@ -1,0 +1,163 @@
+import { useEffect, useState } from "react";
+import { ArrowLeft, Brain, Sparkles, Zap } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+
+const COMING_SOON_TEXT = "COMING SOON....";
+
+function ComingSoon() {
+  const { "*": modelSlug } = useParams();
+  const [typedComingSoon, setTypedComingSoon] = useState("");
+
+  const modelName = modelSlug
+    ? modelSlug
+        .split("/")
+        .pop()
+        .replace(/-/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    : "This Model";
+
+  useEffect(() => {
+    let timeoutId;
+
+    const typeNext = (index) => {
+      setTypedComingSoon(COMING_SOON_TEXT.slice(0, index));
+
+      if (index < COMING_SOON_TEXT.length) {
+        timeoutId = window.setTimeout(() => {
+          typeNext(index + 1);
+        }, 10);
+        return;
+      }
+
+      timeoutId = window.setTimeout(() => {
+        typeNext(0);
+      }, 1400);
+    };
+
+    typeNext(0);
+
+    return () => {
+      if (timeoutId) {
+        window.clearTimeout(timeoutId);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen overflow-x-hidden overflow-y-auto bg-[#020816] text-white">
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-24 top-[-8rem] h-72 w-72 rounded-full bg-cyan-500/12 blur-3xl" />
+        <div className="absolute right-[-5rem] top-20 h-80 w-80 rounded-full bg-violet-500/12 blur-3xl" />
+        <div className="absolute bottom-[-8rem] left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-blue-500/10 blur-3xl" />
+      </div>
+
+      <main className="relative mx-auto flex min-h-screen max-w-4xl items-center px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        <section className="relative w-full overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-2xl shadow-black/35 backdrop-blur-xl sm:p-6">
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-500" />
+            <div className="absolute -right-14 top-2 h-32 w-32 rounded-full bg-blue-500/10 blur-3xl" />
+            <div className="absolute -left-14 bottom-0 h-32 w-32 rounded-full bg-cyan-500/10 blur-3xl" />
+
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-300">
+                <Sparkles size={13} className="animate-pulse" />
+                Model Preview
+              </div>
+
+              <div className="mt-5 max-w-2xl">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-slate-400">
+                  Prediction Model
+                </p>
+
+                <h1 className="mt-3 max-w-xl whitespace-normal break-normal text-3xl font-black leading-[1.05] tracking-tight sm:text-4xl">
+                  <span className="block whitespace-normal break-normal text-slate-100">
+                    {modelName}
+                  </span>
+                  <span className="mt-1.5 block whitespace-nowrap text-emerald-400">
+                    {typedComingSoon}
+                    <span
+                      className={`ml-0.5 inline-block h-[1em] w-[2px] align-[-0.12em] bg-emerald-400 ${
+                        typedComingSoon.length === COMING_SOON_TEXT.length
+                          ? "animate-pulse"
+                          : "animate-pulse"
+                      }`}
+                    />
+                  </span>
+                </h1>
+
+                <p className="mt-4 max-w-xl text-sm leading-6 text-slate-300 sm:text-base">
+                  We&apos;re preparing this model now. Soon you&apos;ll be able
+                  to open it here and see prediction results in a clean,
+                  simple flow.
+                </p>
+              </div>
+
+              <div className="mt-5 flex flex-wrap gap-2.5">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                    Status
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-amber-300">
+                    Under development
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-slate-500">
+                    Availability
+                  </p>
+                  <p className="mt-0.5 text-sm font-semibold text-emerald-300">
+                    Coming Soon
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 transition duration-300 hover:-translate-y-0.5 hover:border-cyan-400/20 hover:bg-white/[0.05]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300">
+                    <Brain size={17} />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-white">
+                    ML Powered
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    Intelligent prediction workflows.
+                  </p>
+                </div>
+
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3.5 transition duration-300 hover:-translate-y-0.5 hover:border-blue-400/20 hover:bg-white/[0.05]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-400/10 text-blue-300">
+                    <Zap size={17} />
+                  </div>
+                  <p className="mt-3 text-sm font-semibold text-white">
+                    Fast Results
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    Quick response and smooth interaction.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/prediction"
+                  className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-cyan-400 via-blue-500 to-violet-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-blue-950/25 transition duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-900/35"
+                >
+                  <ArrowLeft
+                    size={17}
+                    className="transition-transform duration-300 group-hover:-translate-x-1"
+                  />
+                  Back to Predictions
+                </Link>
+
+                <div className="inline-flex items-center justify-center rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-sm text-slate-300">
+                  More models are on the way
+                </div>
+              </div>
+            </div>
+          </section>
+      </main>
+    </div>
+  );
+}
+
+export default ComingSoon;
