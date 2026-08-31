@@ -19,190 +19,166 @@ import Sidebar from "../components/sidebar";
 import Header from "../components/header";
 import Footer from "../components/footer";
 
+/* =====================================================
+   PREDICTION MODELS
+===================================================== */
+
+const models = [
+  {
+    id: 1,
+    title: "House Price Prediction",
+    description:
+      "Predict house prices based on location, area, bedrooms, bathrooms, and other important features.",
+    category: "Machine Learning",
+    icon: TrendingUp,
+    iconColor: "text-blue-400",
+    iconBg: "bg-blue-500/10",
+    borderColor: "group-hover:border-blue-500/50",
+    route: "/prediction/house-price",
+    tags: ["Regression", "Random Forest"],
+  },
+
+  {
+    id: 2,
+    title: "Student Performance",
+    description:
+      "Analyze student data and predict academic performance using machine learning.",
+    category: "Machine Learning",
+    icon: Brain,
+    iconColor: "text-purple-400",
+    iconBg: "bg-purple-500/10",
+    borderColor: "group-hover:border-purple-500/50",
+    route: "/prediction/student-performance",
+    tags: ["Classification", "Machine Learning"],
+  },
+
+  {
+    id: 3,
+    title: "Disease Prediction",
+    description:
+      "Predict possible conditions based on selected input data and machine learning models.",
+    category: "Machine Learning",
+    icon: Activity,
+    iconColor: "text-red-400",
+    iconBg: "bg-red-500/10",
+    borderColor: "group-hover:border-red-500/50",
+    route: "/prediction/disease",
+    tags: ["Classification", "Healthcare"],
+  },
+
+  {
+    id: 4,
+    title: "Stock Price Prediction",
+    description:
+      "Analyze historical market data and generate future stock price predictions.",
+    category: "Deep Learning",
+    icon: BarChart3,
+    iconColor: "text-emerald-400",
+    iconBg: "bg-emerald-500/10",
+    borderColor: "group-hover:border-emerald-500/50",
+    route: "/prediction/stock-price",
+    tags: ["LSTM", "Time Series"],
+  },
+
+  {
+    id: 5,
+    title: "Image Classification",
+    description:
+      "Upload an image and let an AI model classify and identify its contents.",
+    category: "Deep Learning",
+    icon: Cpu,
+    iconColor: "text-orange-400",
+    iconBg: "bg-orange-500/10",
+    borderColor: "group-hover:border-orange-500/50",
+    route: "/prediction/image-classification",
+    tags: ["CNN", "Computer Vision"],
+  },
+
+  {
+    id: 6,
+    title: "Data Analytics Prediction",
+    description:
+      "Upload your dataset and explore AI-powered predictions and insights.",
+    category: "Data Science",
+    icon: Database,
+    iconColor: "text-cyan-400",
+    iconBg: "bg-cyan-500/10",
+    borderColor: "group-hover:border-cyan-500/50",
+    route: "/prediction/data-analysis",
+    tags: ["Analytics", "Prediction"],
+  },
+
+  {
+    // FIXED: was id: 2
+    id: 7,
+    title: "Placement Prediction",
+    description:
+      "Analyze student data and predict placement performance using machine learning.",
+    category: "Machine Learning",
+    icon: Brain,
+    iconColor: "text-purple-400",
+    iconBg: "bg-purple-500/10",
+    borderColor: "group-hover:border-purple-500/50",
+    route: "/prediction/placement",
+    tags: ["Classification", "Machine Learning"],
+  },
+];
+
+/* =====================================================
+   CATEGORIES
+===================================================== */
+
+const categories = [
+  "All",
+  "Machine Learning",
+  "Deep Learning",
+  "Data Science",
+];
+
+/* =====================================================
+   PREDICTION PAGE
+===================================================== */
+
 function Prediction() {
   const navigate = useNavigate();
 
-  // =========================
-  // SIDEBAR STATE
-  // =========================
+  /* =====================================================
+     SIDEBAR STATE
+  ===================================================== */
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] =
     useState(false);
 
-  // =========================
-  // SEARCH & CATEGORY
-  // =========================
+  /* =====================================================
+     SEARCH & CATEGORY
+  ===================================================== */
 
-  const [searchTerm, setSearchTerm] =
-    useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [activeCategory, setActiveCategory] =
     useState("All");
 
-  // =========================
-  // PREDICTION MODELS
-  // =========================
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const models = [
-    {
-      id: 1,
-      title: "House Price Prediction",
-      description:
-        "Predict house prices based on location, area, bedrooms, bathrooms, and other important features.",
-      category: "Machine Learning",
-      icon: TrendingUp,
-      iconColor: "text-blue-400",
-      iconBg: "bg-blue-500/10",
-      borderColor:
-        "group-hover:border-blue-500/50",
-      route: "/prediction/house-price",
-      tags: [
-        "Regression",
-        "Random Forest",
-      ],
-    },
-
-    {
-      id: 2,
-      title: "Student Performance",
-      description:
-        "Analyze student data and predict academic performance using machine learning.",
-      category: "Machine Learning",
-      icon: Brain,
-      iconColor: "text-purple-400",
-      iconBg: "bg-purple-500/10",
-      borderColor:
-        "group-hover:border-purple-500/50",
-      route: "/prediction/student-performance",
-      tags: [
-        "Classification",
-        "Machine Learning",
-      ],
-    },
-
-    {
-      id: 3,
-      title: "Disease Prediction",
-      description:
-        "Predict possible conditions based on selected input data and machine learning models.",
-      category: "Machine Learning",
-      icon: Activity,
-      iconColor: "text-red-400",
-      iconBg: "bg-red-500/10",
-      borderColor:
-        "group-hover:border-red-500/50",
-      route: "/prediction/disease",
-      tags: [
-        "Classification",
-        "Healthcare",
-      ],
-    },
-
-    {
-      id: 4,
-      title: "Stock Price Prediction",
-      description:
-        "Analyze historical market data and generate future stock price predictions.",
-      category: "Deep Learning",
-      icon: BarChart3,
-      iconColor: "text-emerald-400",
-      iconBg: "bg-emerald-500/10",
-      borderColor:
-        "group-hover:border-emerald-500/50",
-      route: "/prediction/stock-price",
-      tags: [
-        "LSTM",
-        "Time Series",
-      ],
-    },
-
-    {
-      id: 5,
-      title: "Image Classification",
-      description:
-        "Upload an image and let an AI model classify and identify its contents.",
-      category: "Deep Learning",
-      icon: Cpu,
-      iconColor: "text-orange-400",
-      iconBg: "bg-orange-500/10",
-      borderColor:
-        "group-hover:border-orange-500/50",
-      route: "/prediction/image-classification",
-      tags: [
-        "CNN",
-        "Computer Vision",
-      ],
-    },
-
-    {
-      id: 6,
-      title: "Data Analytics Prediction",
-      description:
-        "Upload your dataset and explore AI-powered predictions and insights.",
-      category: "Data Science",
-      icon: Database,
-      iconColor: "text-cyan-400",
-      iconBg: "bg-cyan-500/10",
-      borderColor:
-        "group-hover:border-cyan-500/50",
-      route: "/prediction/data-analysis",
-      tags: [
-        "Analytics",
-        "Prediction",
-      ],
-    },
-
-    {
-      id: 2,
-      title: "Placement Prediction",
-      description:
-        "Analyze student data and predict Placement performance using machine learning.",
-      category: "Machine Learning",
-      icon: Brain,
-      iconColor: "text-purple-400",
-      iconBg: "bg-purple-500/10",
-      borderColor:
-        "group-hover:border-purple-500/50",
-      route: "/prediction/placement",
-      tags: [
-        "Classification",
-        "Machine Learning",
-      ],
-    },
-
-  ];
-
-  // =========================
-  // CATEGORIES
-  // =========================
-
-  const categories = [
-    "All",
-    "Machine Learning",
-    "Deep Learning",
-    "Data Science",
-  ];
-
-  // =========================
-  // FILTER MODELS
-  // =========================
+  /* =====================================================
+     FILTER MODELS
+  ===================================================== */
 
   const filteredModels = useMemo(() => {
+    const searchValue = searchTerm.trim().toLowerCase();
+
     return models.filter((model) => {
+      /* Category filter */
+
       const matchesCategory =
         activeCategory === "All" ||
         model.category === activeCategory;
 
-      const searchValue =
-        searchTerm.toLowerCase();
+      /* Search filter */
 
       const matchesSearch =
-        model.title
-          .toLowerCase()
-          .includes(searchValue) ||
+        searchValue === "" ||
+        model.title.toLowerCase().includes(searchValue) ||
         model.description
           .toLowerCase()
           .includes(searchValue) ||
@@ -210,21 +186,16 @@ function Prediction() {
           .toLowerCase()
           .includes(searchValue) ||
         model.tags.some((tag) =>
-          tag
-            .toLowerCase()
-            .includes(searchValue)
+          tag.toLowerCase().includes(searchValue)
         );
 
-      return (
-        matchesCategory &&
-        matchesSearch
-      );
+      return matchesCategory && matchesSearch;
     });
-  }, [models, activeCategory, searchTerm]);
+  }, [activeCategory, searchTerm]);
 
-  // =========================
-  // SCROLL TO MODELS
-  // =========================
+  /* =====================================================
+     SCROLL TO MODELS
+  ===================================================== */
 
   const handleExploreModels = () => {
     document
@@ -235,41 +206,35 @@ function Prediction() {
       });
   };
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-[#070b14]">
+  /* =====================================================
+     RENDER
+  ===================================================== */
 
-      {/* =====================
+  return (
+    <div className="flex h-screen overflow-hidden bg-[#070b14] text-white">
+
+      {/* =================================================
           SIDEBAR
-      ====================== */}
+      ================================================= */}
 
       <Sidebar
         isOpen={sidebarOpen}
         isCollapsed={sidebarCollapsed}
-        onClose={() =>
-          setSidebarOpen(false)
-        }
+        onClose={() => setSidebarOpen(false)}
         onToggleCollapse={() =>
           setSidebarCollapsed((prev) => !prev)
         }
       />
 
-      {/* =====================
+      {/* =================================================
           MAIN APPLICATION
-      ====================== */}
+      ================================================= */}
 
-      <div
-        className="
-          flex
-          min-w-0
-          flex-1
-          flex-col
-          overflow-hidden
-        "
-      >
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
-        {/* =====================
+        {/* =================================================
             HEADER
-        ====================== */}
+        ================================================= */}
 
         <Header
           onMenuClick={() =>
@@ -277,14 +242,9 @@ function Prediction() {
           }
         />
 
-        {/* =====================
+        {/* =================================================
             SCROLLABLE AREA
-
-            IMPORTANT:
-            min-h-0 + flex-1 +
-            overflow-y-auto
-            fixes the scroll issue.
-        ====================== */}
+        ================================================= */}
 
         <main
           className="
@@ -296,15 +256,15 @@ function Prediction() {
           "
         >
 
-          {/* =====================
-              PREDICTION PAGE
-          ====================== */}
+          {/* =================================================
+              PAGE
+          ================================================= */}
 
-          <div className="relative min-h-full bg-[#070b14] text-white">
+          <div className="relative min-h-full bg-[#070b14]">
 
-            {/* =====================
+            {/* =================================================
                 BACKGROUND EFFECTS
-            ====================== */}
+            ================================================= */}
 
             <div
               className="
@@ -359,9 +319,9 @@ function Prediction() {
 
             </div>
 
-            {/* =====================
-                PAGE CONTENT
-            ====================== */}
+            {/* =================================================
+                CONTENT
+            ================================================= */}
 
             <div className="relative z-10">
 
@@ -377,9 +337,9 @@ function Prediction() {
                 "
               >
 
-                {/* =====================
+                {/* =================================================
                     HERO
-                ====================== */}
+                ================================================= */}
 
                 <section className="text-center">
 
@@ -401,9 +361,11 @@ function Prediction() {
                       text-blue-400
                     "
                   >
+
                     <Sparkles size={14} />
 
                     AI Prediction Platform
+
                   </div>
 
                   <h1
@@ -417,6 +379,7 @@ function Prediction() {
                       lg:text-6xl
                     "
                   >
+
                     Explore{" "}
 
                     <span
@@ -435,6 +398,7 @@ function Prediction() {
                     <br />
 
                     Prediction Models
+
                   </h1>
 
                   <p
@@ -455,17 +419,11 @@ function Prediction() {
 
                 </section>
 
-                {/* =====================
+                {/* =================================================
                     SEARCH
-                ====================== */}
+                ================================================= */}
 
-                <section
-                  className="
-                    mx-auto
-                    mt-10
-                    max-w-3xl
-                  "
-                >
+                <section className="mx-auto mt-10 max-w-3xl">
 
                   <div
                     className="
@@ -490,19 +448,14 @@ function Prediction() {
 
                     <Search
                       size={20}
-                      className="
-                        shrink-0
-                        text-slate-500
-                      "
+                      className="shrink-0 text-slate-500"
                     />
 
                     <input
                       type="text"
                       value={searchTerm}
                       onChange={(event) =>
-                        setSearchTerm(
-                          event.target.value
-                        )
+                        setSearchTerm(event.target.value)
                       }
                       placeholder="Search prediction models..."
                       className="
@@ -519,9 +472,7 @@ function Prediction() {
                     {searchTerm && (
                       <button
                         type="button"
-                        onClick={() =>
-                          setSearchTerm("")
-                        }
+                        onClick={() => setSearchTerm("")}
                         className="
                           flex
                           h-8
@@ -534,6 +485,7 @@ function Prediction() {
                           hover:bg-slate-800
                           hover:text-white
                         "
+                        aria-label="Clear search"
                       >
                         <X size={17} />
                       </button>
@@ -543,9 +495,9 @@ function Prediction() {
 
                 </section>
 
-                {/* =====================
+                {/* =================================================
                     CATEGORY FILTER
-                ====================== */}
+                ================================================= */}
 
                 <section
                   className="
@@ -557,67 +509,56 @@ function Prediction() {
                   "
                 >
 
-                  <div
-                    className="
-                      flex
-                      items-center
-                      text-slate-500
-                    "
-                  >
+                  <div className="flex items-center text-slate-500">
                     <Filter size={17} />
                   </div>
 
-                  {categories.map(
-                    (category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() =>
-                          setActiveCategory(
-                            category
-                          )
-                        }
-                        className={`
-                          rounded-xl
-                          border
-                          px-4
-                          py-2.5
-                          text-sm
-                          font-medium
-                          transition-all
-                          duration-200
+                  {categories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() =>
+                        setActiveCategory(category)
+                      }
+                      className={`
+                        rounded-xl
+                        border
+                        px-4
+                        py-2.5
+                        text-sm
+                        font-medium
+                        transition-all
+                        duration-200
 
-                          ${
-                            activeCategory ===
-                            category
-                              ? `
-                                border-blue-500/40
-                                bg-blue-500/15
-                                text-blue-400
-                                shadow-lg
-                                shadow-blue-500/5
-                              `
-                              : `
-                                border-slate-800
-                                bg-[#101827]/70
-                                text-slate-400
-                                hover:border-slate-700
-                                hover:bg-slate-800
-                                hover:text-white
-                              `
-                          }
-                        `}
-                      >
-                        {category}
-                      </button>
-                    )
-                  )}
+                        ${
+                          activeCategory === category
+                            ? `
+                              border-blue-500/40
+                              bg-blue-500/15
+                              text-blue-400
+                              shadow-lg
+                              shadow-blue-500/5
+                            `
+                            : `
+                              border-slate-800
+                              bg-[#101827]/70
+                              text-slate-400
+                              hover:border-slate-700
+                              hover:bg-slate-800
+                              hover:text-white
+                            `
+                        }
+                      `}
+                    >
+                      {category}
+                    </button>
+                  ))}
 
                 </section>
 
-                {/* =====================
+                {/* =================================================
                     MODELS
-                ====================== */}
+                ================================================= */}
 
                 <section
                   id="prediction-models"
@@ -626,23 +567,11 @@ function Prediction() {
 
                   <div className="mb-8">
 
-                    <h2
-                      className="
-                        text-2xl
-                        font-bold
-                        text-white
-                      "
-                    >
+                    <h2 className="text-2xl font-bold text-white">
                       Available Models
                     </h2>
 
-                    <p
-                      className="
-                        mt-2
-                        text-sm
-                        text-slate-500
-                      "
-                    >
+                    <p className="mt-2 text-sm text-slate-500">
                       {filteredModels.length} model
                       {filteredModels.length !== 1
                         ? "s"
@@ -663,221 +592,220 @@ function Prediction() {
                       "
                     >
 
-                      {filteredModels.map(
-                        (model) => {
-                          const Icon =
-                            model.icon;
+                      {filteredModels.map((model) => {
+                        const Icon = model.icon;
 
-                          return (
+                        return (
+                          <div
+                            key={model.id}
+                            className={`
+                              group
+                              relative
+                              flex
+                              min-h-82.5
+                              flex-col
+                              overflow-hidden
+                              rounded-2xl
+                              border
+                              border-slate-800
+                              bg-[#101827]/80
+                              p-6
+                              backdrop-blur-sm
+                              transition-all
+                              duration-300
+                              hover:-translate-y-2
+                              ${model.borderColor}
+                              hover:shadow-2xl
+                              hover:shadow-black/30
+                            `}
+                          >
+
+                            {/* CARD GRADIENT */}
+
                             <div
-                              key={model.id}
-                              className={`
-                                group
-                                relative
-                                flex
-                                min-h-82.5
-                                flex-col
-                                overflow-hidden
-                                rounded-2xl
-                                border
-                                border-slate-800
-                                bg-[#101827]/80
-                                p-6
-                                backdrop-blur-sm
-                                transition-all
+                              className="
+                                pointer-events-none
+                                absolute
+                                inset-0
+                                bg-linear-to-br
+                                from-blue-500/5
+                                via-transparent
+                                to-purple-500/5
+                                opacity-0
+                                transition-opacity
                                 duration-300
-                                hover:-translate-y-2
-                                ${model.borderColor}
-                                hover:shadow-2xl
-                                hover:shadow-black/30
-                              `}
+                                group-hover:opacity-100
+                              "
+                            />
+
+                            <div
+                              className="
+                                relative
+                                z-10
+                                flex
+                                h-full
+                                flex-col
+                              "
                             >
 
-                              {/* CARD GRADIENT */}
+                              {/* ICON */}
 
                               <div
                                 className="
-                                  pointer-events-none
-                                  absolute
-                                  inset-0
-                                  bg-linear-to-br
-                                  from-blue-500/5
-                                  via-transparent
-                                  to-purple-500/5
-                                  opacity-0
-                                  transition-opacity
-                                  duration-300
-                                  group-hover:opacity-100
-                                "
-                              />
-
-                              <div
-                                className="
-                                  relative
-                                  z-10
                                   flex
-                                  h-full
-                                  flex-col
+                                  items-start
+                                  justify-between
+                                  gap-4
                                 "
                               >
 
-                                {/* ICON */}
-
                                 <div
-                                  className="
+                                  className={`
                                     flex
-                                    items-start
-                                    justify-between
-                                    gap-4
-                                  "
+                                    h-14
+                                    w-14
+                                    items-center
+                                    justify-center
+                                    rounded-2xl
+                                    border
+                                    border-white/5
+                                    ${model.iconBg}
+                                    transition-transform
+                                    duration-300
+                                    group-hover:scale-110
+                                    group-hover:rotate-3
+                                  `}
                                 >
 
-                                  <div
-                                    className={`
-                                      flex
-                                      h-14
-                                      w-14
-                                      items-center
-                                      justify-center
-                                      rounded-2xl
-                                      border
-                                      border-white/5
-                                      ${model.iconBg}
-                                      transition-transform
-                                      duration-300
-                                      group-hover:scale-110
-                                      group-hover:rotate-3
-                                    `}
-                                  >
-                                    <Icon
-                                      size={25}
-                                      className={
-                                        model.iconColor
-                                      }
-                                    />
-                                  </div>
-
-                                  <span
-                                    className="
-                                      rounded-full
-                                      border
-                                      border-slate-700
-                                      bg-slate-900/70
-                                      px-3
-                                      py-1
-                                      text-[11px]
-                                      font-medium
-                                      text-slate-400
-                                    "
-                                  >
-                                    {model.category}
-                                  </span>
+                                  <Icon
+                                    size={25}
+                                    className={model.iconColor}
+                                  />
 
                                 </div>
 
-                                {/* TITLE */}
-
-                                <h3
+                                <span
                                   className="
-                                    mt-6
-                                    text-xl
-                                    font-bold
-                                    text-white
-                                  "
-                                >
-                                  {model.title}
-                                </h3>
-
-                                {/* DESCRIPTION */}
-
-                                <p
-                                  className="
-                                    mt-3
-                                    text-sm
-                                    leading-6
+                                    rounded-full
+                                    border
+                                    border-slate-700
+                                    bg-slate-900/70
+                                    px-3
+                                    py-1
+                                    text-[11px]
+                                    font-medium
                                     text-slate-400
                                   "
                                 >
-                                  {model.description}
-                                </p>
-
-                                {/* TAGS */}
-
-                                <div
-                                  className="
-                                    mt-5
-                                    flex
-                                    flex-wrap
-                                    gap-2
-                                  "
-                                >
-
-                                  {model.tags.map(
-                                    (tag) => (
-                                      <span
-                                        key={tag}
-                                        className="
-                                          rounded-lg
-                                          bg-slate-800/80
-                                          px-2.5
-                                          py-1
-                                          text-xs
-                                          text-slate-400
-                                        "
-                                      >
-                                        {tag}
-                                      </span>
-                                    )
-                                  )}
-
-                                </div>
-
-                                {/* BUTTON */}
-
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    navigate(
-                                      model.route
-                                    )
-                                  }
-                                  className="
-                                    mt-auto
-                                    flex
-                                    items-center
-                                    justify-between
-                                    border-t
-                                    border-slate-800
-                                    pt-5
-                                    text-sm
-                                    font-semibold
-                                    text-blue-400
-                                    transition
-                                    hover:text-blue-300
-                                  "
-                                >
-                                  Start Prediction
-
-                                  <ArrowRight
-                                    size={18}
-                                    className="
-                                      transition-transform
-                                      duration-200
-                                      group-hover:translate-x-1
-                                    "
-                                  />
-                                </button>
+                                  {model.category}
+                                </span>
 
                               </div>
 
+                              {/* TITLE */}
+
+                              <h3
+                                className="
+                                  mt-6
+                                  text-xl
+                                  font-bold
+                                  text-white
+                                "
+                              >
+                                {model.title}
+                              </h3>
+
+                              {/* DESCRIPTION */}
+
+                              <p
+                                className="
+                                  mt-3
+                                  text-sm
+                                  leading-6
+                                  text-slate-400
+                                "
+                              >
+                                {model.description}
+                              </p>
+
+                              {/* TAGS */}
+
+                              <div
+                                className="
+                                  mt-5
+                                  flex
+                                  flex-wrap
+                                  gap-2
+                                "
+                              >
+
+                                {model.tags.map((tag) => (
+                                  <span
+                                    key={`${model.id}-${tag}`}
+                                    className="
+                                      rounded-lg
+                                      bg-slate-800/80
+                                      px-2.5
+                                      py-1
+                                      text-xs
+                                      text-slate-400
+                                    "
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+
+                              </div>
+
+                              {/* BUTTON */}
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  navigate(model.route)
+                                }
+                                className="
+                                  mt-auto
+                                  flex
+                                  items-center
+                                  justify-between
+                                  border-t
+                                  border-slate-800
+                                  pt-5
+                                  text-sm
+                                  font-semibold
+                                  text-blue-400
+                                  transition
+                                  hover:text-blue-300
+                                "
+                              >
+
+                                Start Prediction
+
+                                <ArrowRight
+                                  size={18}
+                                  className="
+                                    transition-transform
+                                    duration-200
+                                    group-hover:translate-x-1
+                                  "
+                                />
+
+                              </button>
+
                             </div>
-                          );
-                        }
-                      )}
+
+                          </div>
+                        );
+                      })}
 
                     </div>
 
                   ) : (
+
+                    /* =================================================
+                       NO RESULTS
+                    ================================================= */
 
                     <div
                       className="
@@ -938,9 +866,7 @@ function Prediction() {
                         type="button"
                         onClick={() => {
                           setSearchTerm("");
-                          setActiveCategory(
-                            "All"
-                          );
+                          setActiveCategory("All");
                         }}
                         className="
                           mt-6
@@ -959,13 +885,14 @@ function Prediction() {
                       </button>
 
                     </div>
+
                   )}
 
                 </section>
 
-                {/* =====================
+                {/* =================================================
                     CTA
-                ====================== */}
+                ================================================= */}
 
                 <section
                   className="
@@ -1048,9 +975,7 @@ function Prediction() {
 
                     <button
                       type="button"
-                      onClick={
-                        handleExploreModels
-                      }
+                      onClick={handleExploreModels}
                       className="
                         mt-7
                         inline-flex
@@ -1082,9 +1007,9 @@ function Prediction() {
 
               </div>
 
-              {/* =====================
+              {/* =================================================
                   FOOTER
-              ====================== */}
+              ================================================= */}
 
               <Footer />
 
@@ -1094,7 +1019,11 @@ function Prediction() {
 
         </main>
 
-        <Outlet/>
+        {/* =================================================
+            ROUTER OUTLET
+        ================================================= */}
+
+        <Outlet />
 
       </div>
 
@@ -1103,3 +1032,4 @@ function Prediction() {
 }
 
 export default Prediction;
+

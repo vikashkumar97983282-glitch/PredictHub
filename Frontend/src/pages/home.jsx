@@ -12,11 +12,164 @@ import {
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import axios from "axios"
+import axios from "axios";
 
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
+
+/* =====================================================
+   API CONFIGURATION
+===================================================== */
+
+const API_BASE_URL = (
+  import.meta.env.VITE_API_URL || "http://localhost:8000"
+).replace(/\/+$/, "");
+
+
+/* =====================================================
+   API STATUS HOOK
+===================================================== */
+
+function useBackendStatus() {
+  const [backendStatus, setBackendStatus] = useState("checking");
+  const [backendResponse, setBackendResponse] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkBackend = async () => {
+      const apiUrl = `${API_BASE_URL}`;
+
+      console.log("");
+      console.log("╔════════════════════════════════════════════╗");
+      console.log("║       PredictHub Backend Status            ║");
+      console.log("╚════════════════════════════════════════════╝");
+
+      console.log("🔄 Checking backend API...");
+      console.log("🌐 API URL:", apiUrl);
+
+      const startTime = performance.now();
+
+      try {
+        const response = await axios.get(apiUrl, {
+          timeout: 15000,
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        const endTime = performance.now();
+        const responseTime = Math.round(endTime - startTime);
+
+        if (!isMounted) return;
+
+        setBackendStatus("online");
+        setBackendResponse(response.data);
+
+        console.log("");
+        console.log("╔════════════════════════════════════════════╗");
+        console.log("║       ✅ BACKEND API IS RUNNING            ║");
+        console.log("╚════════════════════════════════════════════╝");
+
+        console.log("🌐 API URL:", apiUrl);
+        console.log("📡 HTTP Status:", response.status);
+        console.log("⚡ Response Time:", `${responseTime} ms`);
+        console.log("📦 Backend Response:", response.data);
+
+        console.log("");
+      } catch (error) {
+        if (!isMounted) return;
+
+        setBackendStatus("offline");
+        setBackendResponse(null);
+
+        console.log("");
+        console.log("╔════════════════════════════════════════════╗");
+        console.log("║       ❌ BACKEND API IS NOT RUNNING        ║");
+        console.log("╚════════════════════════════════════════════╝");
+
+        console.log("🌐 API URL:", apiUrl);
+
+        if (error.response) {
+          console.error(
+            "📡 HTTP Status:",
+            error.response.status
+          );
+
+          console.error(
+            "❌ Status Text:",
+            error.response.statusText
+          );
+
+          console.error(
+            "📦 Backend Response:",
+            error.response.data
+          );
+
+          console.error(
+            "⚠️ Backend responded, but returned an error."
+          );
+        } else if (error.request) {
+          console.error(
+            "❌ Network Error: Frontend could not connect to backend."
+          );
+
+          console.error(
+            "Possible reasons:"
+          );
+
+          console.error(
+            "1️⃣ Backend server is not running."
+          );
+
+          console.error(
+            "2️⃣ VITE_API_URL is incorrect."
+          );
+
+          console.error(
+            "3️⃣ Backend server is sleeping on Render."
+          );
+
+          console.error(
+            "4️⃣ CORS is not configured correctly."
+          );
+
+          console.error(
+            "5️⃣ Backend is using HTTP while frontend uses HTTPS."
+          );
+
+          console.error(
+            "6️⃣ Backend URL is unreachable."
+          );
+        } else if (error.code === "ECONNABORTED") {
+          console.error(
+            "⏱️ Request Timeout: Backend did not respond within 15 seconds."
+          );
+        } else {
+          console.error(
+            "❌ Axios Error:",
+            error.message
+          );
+        }
+
+        console.log("");
+      }
+    };
+
+    checkBackend();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  return {
+    backendStatus,
+    backendResponse,
+  };
+}
+
 
 /* =====================================================
    PREDICTION MODELS
@@ -42,6 +195,7 @@ const predictionModels = [
       "Transform your input data into meaningful insights using intelligent models.",
   },
 ];
+
 
 /* =====================================================
    FEATURES
@@ -73,6 +227,7 @@ const features = [
       "Make better decisions using AI-powered prediction results.",
   },
 ];
+
 
 /* =====================================================
    HOW IT WORKS DATA
@@ -120,28 +275,14 @@ const howItWorksSteps = [
   },
 ];
 
+
 /* =====================================================
-   HOW IT WORKS COMPONENT
+   HOW IT WORKS
 ===================================================== */
 
 function HowItWorks() {
   const [activeStep, setActiveStep] = useState(0);
   const [progress, setProgress] = useState(0);
-
-  const [data, setData] = useState("");
-
-  useEffect(() => {
-    axios
-      .get("https://your-backend-url.com/")
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
-
-  /* AUTO SLIDER */
 
   useEffect(() => {
     setProgress(0);
@@ -169,8 +310,6 @@ function HowItWorks() {
   }, [activeStep]);
 
   const step = howItWorksSteps[activeStep];
-
-  /* COLOR THEMES */
 
   const themes = {
     blue: {
@@ -206,6 +345,8 @@ function HowItWorks() {
         (prev - 1 + howItWorksSteps.length) %
         howItWorksSteps.length
     );
+
+    setProgress(0);
   };
 
   const nextStep = () => {
@@ -213,26 +354,20 @@ function HowItWorks() {
       (prev) =>
         (prev + 1) % howItWorksSteps.length
     );
+
+    setProgress(0);
   };
 
   return (
     <section className="relative overflow-hidden border-y border-slate-900 bg-[#0c1424] px-5 py-16 sm:px-8 lg:px-10">
 
-      {/* Background Glow */}
-
       <div className="pointer-events-none absolute inset-0">
-
         <div className="absolute left-[15%] top-[20%] h-64 w-64 rounded-full bg-blue-600/10 blur-[100px]" />
 
         <div className="absolute bottom-[10%] right-[15%] h-64 w-64 rounded-full bg-purple-600/10 blur-[100px]" />
-
       </div>
 
       <div className="relative mx-auto max-w-6xl">
-
-        {/* =====================================================
-            SECTION HEADER
-        ====================================================== */}
 
         <div className="text-center">
 
@@ -250,27 +385,19 @@ function HowItWorks() {
           </div>
 
           <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
-
             Three Steps to
 
             <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Intelligent Prediction
             </span>
-
           </h2>
 
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
-
             Choose your model, provide your data, and let AI generate
             intelligent predictions.
-
           </p>
 
         </div>
-
-        {/* =====================================================
-            STEP NAVIGATION
-        ====================================================== */}
 
         <div className="mx-auto mt-10 flex max-w-md items-center justify-between">
 
@@ -283,7 +410,10 @@ function HowItWorks() {
 
                 <button
                   type="button"
-                  onClick={() => setActiveStep(index)}
+                  onClick={() => {
+                    setActiveStep(index);
+                    setProgress(0);
+                  }}
                   className="flex flex-col items-center"
                 >
 
@@ -294,15 +424,12 @@ function HowItWorks() {
                         : "border-slate-700 bg-slate-900 text-slate-500"
                     }`}
                   >
-
                     {item.number}
-
                   </div>
 
                 </button>
 
                 {index !== howItWorksSteps.length - 1 && (
-
                   <div
                     className={`mx-2 h-px flex-1 transition-all duration-500 ${
                       activeStep > index
@@ -310,7 +437,6 @@ function HowItWorks() {
                         : "bg-slate-800"
                     }`}
                   />
-
                 )}
 
               </React.Fragment>
@@ -319,13 +445,7 @@ function HowItWorks() {
 
         </div>
 
-        {/* =====================================================
-            MAIN SLIDER CARD
-        ====================================================== */}
-
         <div className="relative mx-auto mt-8 max-w-5xl">
-
-          {/* Glow */}
 
           <div
             className={`pointer-events-none absolute -inset-4 rounded-3xl ${theme.glow} blur-3xl`}
@@ -335,21 +455,11 @@ function HowItWorks() {
             className={`relative overflow-hidden rounded-3xl border ${theme.border} bg-[#121c30]/90 shadow-xl`}
           >
 
-            {/* Background Number */}
-
             <div className="pointer-events-none absolute right-3 top-0 select-none text-[120px] font-black leading-none text-white/[0.025] sm:text-[160px]">
-
               {step.number}
-
             </div>
 
-            {/* =====================================================
-                CONTENT
-            ====================================================== */}
-
             <div className="relative grid lg:grid-cols-[1.4fr_0.8fr]">
-
-              {/* LEFT */}
 
               <div className="p-6 sm:p-8 lg:p-10">
 
@@ -358,9 +468,7 @@ function HowItWorks() {
                   <div
                     className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${theme.bg} ${theme.border} ${theme.text}`}
                   >
-
                     {step.icon}
-
                   </div>
 
                   <div>
@@ -372,9 +480,7 @@ function HowItWorks() {
                     </p>
 
                     <h3 className="mt-1 text-2xl font-bold sm:text-3xl">
-
                       {step.title}
-
                     </h3>
 
                   </div>
@@ -382,17 +488,12 @@ function HowItWorks() {
                 </div>
 
                 <p className="mt-6 max-w-2xl leading-7 text-slate-400">
-
                   {step.description}
-
                 </p>
-
-                {/* POINTS */}
 
                 <div className="mt-6 grid gap-3 sm:grid-cols-3">
 
                   {step.points.map((point) => (
-
                     <div
                       key={point}
                       className="flex items-center gap-2 rounded-xl border border-slate-800 bg-slate-950/40 px-3 py-3"
@@ -408,23 +509,15 @@ function HowItWorks() {
                       </span>
 
                     </div>
-
                   ))}
 
                 </div>
 
               </div>
 
-              {/* =====================================================
-                  RIGHT VISUAL
-              ====================================================== */}
-
               <div className="relative flex min-h-[240px] items-center justify-center border-t border-slate-800 bg-slate-950/30 p-6 lg:min-h-full lg:border-l lg:border-t-0">
 
-                {/* STEP 01 */}
-
                 {activeStep === 0 && (
-
                   <div className="grid w-full max-w-[230px] grid-cols-2 gap-3">
 
                     <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4">
@@ -467,13 +560,9 @@ function HowItWorks() {
                     </div>
 
                   </div>
-
                 )}
 
-                {/* STEP 02 */}
-
                 {activeStep === 1 && (
-
                   <div className="w-full max-w-[240px] space-y-3">
 
                     {[
@@ -481,7 +570,6 @@ function HowItWorks() {
                       "Feature 02",
                       "Feature 03",
                     ].map((feature, index) => (
-
                       <div
                         key={feature}
                         className="rounded-xl border border-slate-700 bg-slate-900 p-3"
@@ -504,16 +592,13 @@ function HowItWorks() {
                           <div
                             className="h-full rounded-full bg-purple-500"
                             style={{
-                              width: `${
-                                [80, 65, 90][index]
-                              }%`,
+                              width: `${[80, 65, 90][index]}%`,
                             }}
                           />
 
                         </div>
 
                       </div>
-
                     ))}
 
                     <div className="flex items-center justify-center gap-2 pt-2 text-xs text-purple-400">
@@ -525,13 +610,9 @@ function HowItWorks() {
                     </div>
 
                   </div>
-
                 )}
 
-                {/* STEP 03 */}
-
                 {activeStep === 2 && (
-
                   <div className="w-full max-w-[240px] rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-5">
 
                     <div className="flex items-center justify-between">
@@ -586,20 +667,13 @@ function HowItWorks() {
                     </div>
 
                   </div>
-
                 )}
 
               </div>
 
             </div>
 
-            {/* =====================================================
-                BOTTOM CONTROLS
-            ====================================================== */}
-
             <div className="flex items-center justify-between border-t border-slate-800 px-5 py-4 sm:px-8">
-
-              {/* Progress */}
 
               <div className="flex flex-1 items-center gap-3">
 
@@ -620,8 +694,6 @@ function HowItWorks() {
 
               </div>
 
-              {/* Controls */}
-
               <div className="flex gap-2">
 
                 <button
@@ -629,9 +701,7 @@ function HowItWorks() {
                   onClick={previousStep}
                   className="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-700 text-slate-400 transition hover:border-slate-500 hover:text-white"
                 >
-
                   <ChevronLeft size={18} />
-
                 </button>
 
                 <button
@@ -639,9 +709,7 @@ function HowItWorks() {
                   onClick={nextStep}
                   className={`flex h-9 w-9 items-center justify-center rounded-lg border ${theme.border} ${theme.bg} ${theme.text} transition hover:scale-105`}
                 >
-
                   <ChevronRight size={18} />
-
                 </button>
 
               </div>
@@ -658,19 +726,34 @@ function HowItWorks() {
   );
 }
 
+
 /* =====================================================
    HOME PAGE
 ===================================================== */
 
 function Home() {
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [sidebarCollapsed, setSidebarCollapsed] =
     useState(false);
+
+  // ===================================================
+  // BACKEND API STATUS
+  // ===================================================
+
+  const {
+    backendStatus,
+    backendResponse,
+  } = useBackendStatus();
+
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-white">
 
-      {/* SIDEBAR */}
+      {/* =====================================================
+          SIDEBAR
+      ===================================================== */}
 
       <Sidebar
         isOpen={sidebarOpen}
@@ -681,11 +764,16 @@ function Home() {
         }
       />
 
-      {/* MAIN AREA */}
+
+      {/* =====================================================
+          MAIN AREA
+      ===================================================== */}
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
 
-        {/* HEADER */}
+        {/* =====================================================
+            HEADER
+        ===================================================== */}
 
         <Navbar
           onMenuClick={() =>
@@ -693,13 +781,17 @@ function Home() {
           }
         />
 
-        {/* SCROLLABLE PAGE */}
+
+        {/* =====================================================
+            PAGE
+        ===================================================== */}
 
         <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
 
+
           {/* =====================================================
               HERO
-          ====================================================== */}
+          ===================================================== */}
 
           <section className="relative overflow-hidden">
 
@@ -728,9 +820,7 @@ function Home() {
                     Intelligent
 
                     <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-
                       Predictions
-
                     </span>
 
                     Powered by AI
@@ -771,6 +861,7 @@ function Home() {
 
                 </div>
 
+
                 {/* HERO RIGHT */}
 
                 <div className="w-full lg:max-w-[400px]">
@@ -789,6 +880,7 @@ function Home() {
 
                       {[40, 60, 45, 75, 65, 90].map(
                         (height, index) => (
+
                           <div
                             key={index}
                             className="flex-1 rounded-t bg-blue-500"
@@ -796,6 +888,7 @@ function Home() {
                               height: `${height}%`,
                             }}
                           />
+
                         )
                       )}
 
@@ -833,9 +926,10 @@ function Home() {
 
           </section>
 
+
           {/* =====================================================
               MODELS
-          ====================================================== */}
+          ===================================================== */}
 
           <section className="border-t border-slate-900 px-5 py-20 sm:px-8 lg:px-10">
 
@@ -863,9 +957,7 @@ function Home() {
                   >
 
                     <div className="text-blue-400">
-
                       {model.icon}
-
                     </div>
 
                     <h3 className="mt-6 text-xl font-bold">
@@ -886,15 +978,17 @@ function Home() {
 
           </section>
 
+
           {/* =====================================================
               HOW IT WORKS
-          ====================================================== */}
+          ===================================================== */}
 
           <HowItWorks />
 
+
           {/* =====================================================
               FEATURES
-          ====================================================== */}
+          ===================================================== */}
 
           <section className="px-5 py-20 sm:px-8 lg:px-10">
 
@@ -943,7 +1037,10 @@ function Home() {
 
           </section>
 
-          {/* CTA */}
+
+          {/* =====================================================
+              CTA
+          ===================================================== */}
 
           <section className="px-5 pb-20 sm:px-8 lg:px-10">
 
@@ -960,6 +1057,12 @@ function Home() {
 
               </p>
 
+              {typeof backendResponse === "string" && (
+                <p className="mx-auto mt-5 max-w-2xl leading-7 text-blue-100">
+                  {backendResponse}
+                </p>
+              )}
+
               <Link
                 to="/prediction"
                 className="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-7 py-3.5 font-semibold text-blue-600 transition hover:bg-slate-100"
@@ -975,7 +1078,10 @@ function Home() {
 
           </section>
 
-          {/* FOOTER */}
+
+          {/* =====================================================
+              FOOTER
+          ===================================================== */}
 
           <Footer />
 
@@ -988,3 +1094,4 @@ function Home() {
 }
 
 export default Home;
+
