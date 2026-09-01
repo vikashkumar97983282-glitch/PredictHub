@@ -286,8 +286,6 @@ function HowItWorks() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setProgress(0);
-
     const progressInterval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
@@ -299,6 +297,7 @@ function HowItWorks() {
     }, 30);
 
     const slideTimer = setTimeout(() => {
+      setProgress(0);
       setActiveStep(
         (prev) => (prev + 1) % howItWorksSteps.length
       );
