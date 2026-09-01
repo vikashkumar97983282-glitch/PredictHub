@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Home,
   Info,
@@ -13,12 +12,13 @@ import {
 import { Link, useLocation } from "react-router-dom";
 
 function Sidebar({
-  isOpen,
-  isCollapsed,
-  onClose,
-  onToggleCollapse,
+  isSidebarOpen,
+  isMobileMenuOpen,
+  onCloseMobileMenu,
+  onToggleSidebar,
 }) {
   const location = useLocation();
+  const isExpanded = isSidebarOpen || isMobileMenuOpen;
 
   const navItems = [
     { name: "Dashboard", icon: Home, path: "/" },
@@ -39,10 +39,10 @@ function Sidebar({
     <>
       {/* ================= MOBILE BACKDROP ================= */}
 
-      {isOpen && (
+      {isMobileMenuOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 lg:hidden"
-          onClick={onClose}
+          onClick={onCloseMobileMenu}
         />
       )}
 
@@ -63,9 +63,10 @@ function Sidebar({
           lg:z-auto
           lg:translate-x-0
 
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
 
-          ${isCollapsed ? "w-16" : "w-57.5"}
+          w-57.5
+          ${isSidebarOpen ? "lg:w-57.5" : "lg:w-16"}
         `}
       >
 
@@ -79,7 +80,7 @@ function Sidebar({
             items-center
 
             ${
-              isCollapsed
+              !isExpanded
                 ? "justify-center px-2"
                 : "justify-between px-5"
             }
@@ -88,7 +89,7 @@ function Sidebar({
 
           {/* Logo */}
 
-          {!isCollapsed && (
+          {isExpanded && (
             <div className="flex items-center gap-1.2">
               <Zap
                 size={25}
@@ -106,7 +107,14 @@ function Sidebar({
 
           <button
             type="button"
-            onClick={onToggleCollapse}
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                onCloseMobileMenu();
+                return;
+              }
+
+              onToggleSidebar();
+            }}
             className="
               flex
               h-8
@@ -122,12 +130,12 @@ function Sidebar({
               hover:text-white
             "
             aria-label={
-              isCollapsed
+              !isSidebarOpen
                 ? "Show sidebar"
                 : "Hide sidebar"
             }
             title={
-              isCollapsed
+              !isExpanded
                 ? "Show sidebar"
                 : "Hide sidebar"
             }
@@ -153,10 +161,10 @@ function Sidebar({
                 to={item.path}
                 onClick={() => {
                   if (window.innerWidth < 1024) {
-                    onClose();
+                    onCloseMobileMenu();
                   }
                 }}
-                title={isCollapsed ? item.name : ""}
+                title={!isExpanded ? item.name : ""}
                 className={`
                   mb-1
                   flex
@@ -169,7 +177,7 @@ function Sidebar({
                   transition
 
                   ${
-                    isCollapsed
+                    !isExpanded
                       ? "justify-center px-0"
                       : "gap-3 px-3"
                   }
@@ -188,7 +196,7 @@ function Sidebar({
                   className="shrink-0"
                 />
 
-                {!isCollapsed && (
+                {isExpanded && (
                   <span>
                     {item.name}
                   </span>
@@ -202,7 +210,7 @@ function Sidebar({
 
         {/* ================= MY ACTIVITY ================= */}
 
-        {!isCollapsed && (
+        {isExpanded && (
           <div className="mt-7 px-5">
 
             <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-[#8b9ab1]">
@@ -265,7 +273,12 @@ function Sidebar({
           <Link
             type="button"
             to="/profile"
-            title={isCollapsed ? "Settings" : ""}
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                onCloseMobileMenu();
+              }
+            }}
+            title={!isExpanded ? "Settings" : ""}
             className={`
               flex
               h-10
@@ -279,7 +292,7 @@ function Sidebar({
               hover:text-white
 
               ${
-                isCollapsed
+                !isExpanded
                   ? "justify-center px-0"
                   : "gap-3 px-3"
               }
@@ -292,7 +305,7 @@ function Sidebar({
               className="shrink-0"
             />
 
-            {!isCollapsed && (
+            {isExpanded && (
               <span>
                 Settings
               </span>

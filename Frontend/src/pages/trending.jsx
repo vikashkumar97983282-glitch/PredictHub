@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 import {
   Flame,
   TrendingUp,
@@ -17,6 +16,7 @@ import {
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
+import { useSidebar } from "../contexts/use-sidebar";
 
 /* ============================================================
    TRENDING MODELS
@@ -140,8 +140,13 @@ const categories = [
 ============================================================ */
 
 function Trending() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const {
+    isSidebarOpen,
+    isMobileMenuOpen,
+    toggleSidebar,
+    toggleMobileMenu,
+    closeMobileMenu,
+  } = useSidebar();
 
   return (
     <div className="relative flex min-h-screen bg-[#080f22] text-white">
@@ -161,12 +166,10 @@ function Trending() {
       ====================================================== */}
 
       <Sidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((prev) => !prev)
-        }
+        isSidebarOpen={isSidebarOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={closeMobileMenu}
+        onToggleSidebar={toggleSidebar}
       />
 
       {/* ======================================================
@@ -176,9 +179,7 @@ function Trending() {
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
 
         <Navbar
-          onMenuClick={() =>
-            setSidebarOpen((prev) => !prev)
-          }
+          onMenuClick={toggleMobileMenu}
         />
 
         {/* ====================================================

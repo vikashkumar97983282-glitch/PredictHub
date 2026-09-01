@@ -17,6 +17,7 @@ import axios from "axios";
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
+import { useSidebar } from "../contexts/use-sidebar";
 
 /* =====================================================
    API CONFIGURATION
@@ -733,10 +734,13 @@ function HowItWorks() {
 
 function Home() {
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [sidebarCollapsed, setSidebarCollapsed] =
-    useState(false);
+  const {
+    isSidebarOpen,
+    isMobileMenuOpen,
+    toggleSidebar,
+    toggleMobileMenu,
+    closeMobileMenu,
+  } = useSidebar();
 
   // ===================================================
   // BACKEND API STATUS
@@ -755,12 +759,10 @@ function Home() {
       ===================================================== */}
 
       <Sidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((prev) => !prev)
-        }
+        isSidebarOpen={isSidebarOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={closeMobileMenu}
+        onToggleSidebar={toggleSidebar}
       />
 
 
@@ -775,9 +777,7 @@ function Home() {
         ===================================================== */}
 
         <Navbar
-          onMenuClick={() =>
-            setSidebarOpen((prev) => !prev)
-          }
+          onMenuClick={toggleMobileMenu}
         />
 
 

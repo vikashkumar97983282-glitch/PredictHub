@@ -24,6 +24,7 @@ import {
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
+import { useSidebar } from "../contexts/use-sidebar";
 
 
 /* =========================================================
@@ -31,8 +32,13 @@ import Footer from "../components/footer";
 ========================================================= */
 
 function Profile() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const {
+    isSidebarOpen,
+    isMobileMenuOpen,
+    toggleSidebar,
+    toggleMobileMenu,
+    closeMobileMenu,
+  } = useSidebar();
   const [isEditing, setIsEditing] = useState(false);
 
   const [profile, setProfile] = useState({
@@ -91,12 +97,10 @@ function Profile() {
       {/* ================= SIDEBAR ================= */}
 
       <Sidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((prev) => !prev)
-        }
+        isSidebarOpen={isSidebarOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={closeMobileMenu}
+        onToggleSidebar={toggleSidebar}
       />
 
 
@@ -107,9 +111,7 @@ function Profile() {
         {/* ================= NAVBAR ================= */}
 
         <Navbar
-          onMenuClick={() =>
-            setSidebarOpen((prev) => !prev)
-          }
+          onMenuClick={toggleMobileMenu}
         />
 
 

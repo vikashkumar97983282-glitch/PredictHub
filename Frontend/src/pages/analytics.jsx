@@ -1,4 +1,3 @@
-import React, { useState } from "react";
 
 import {
   BarChart3,
@@ -18,6 +17,7 @@ import {
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
+import { useSidebar } from "../contexts/use-sidebar";
 
 /* ============================================================
    DATA
@@ -179,9 +179,13 @@ function StatCard({
 ============================================================ */
 
 function Analytics() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] =
-    useState(false);
+  const {
+    isSidebarOpen,
+    isMobileMenuOpen,
+    toggleSidebar,
+    toggleMobileMenu,
+    closeMobileMenu,
+  } = useSidebar();
 
   return (
     <div className="relative flex min-h-screen bg-[#080f22] text-white">
@@ -226,12 +230,10 @@ function Analytics() {
       ====================================================== */}
 
       <Sidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((prev) => !prev)
-        }
+        isSidebarOpen={isSidebarOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={closeMobileMenu}
+        onToggleSidebar={toggleSidebar}
       />
 
 
@@ -246,9 +248,7 @@ function Analytics() {
         ==================================================== */}
 
         <Navbar
-          onMenuClick={() =>
-            setSidebarOpen((prev) => !prev)
-          }
+          onMenuClick={toggleMobileMenu}
         />
 
 

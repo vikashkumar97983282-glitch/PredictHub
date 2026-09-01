@@ -18,6 +18,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../components/sidebar";
 import Header from "../components/header";
 import Footer from "../components/footer";
+import { useSidebar } from "../contexts/use-sidebar";
 
 /* =====================================================
    PREDICTION MODELS
@@ -146,10 +147,13 @@ function Prediction() {
      SIDEBAR STATE
   ===================================================== */
 
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [sidebarCollapsed, setSidebarCollapsed] =
-    useState(false);
+  const {
+    isSidebarOpen,
+    isMobileMenuOpen,
+    toggleSidebar,
+    toggleMobileMenu,
+    closeMobileMenu,
+  } = useSidebar();
 
   /* =====================================================
      SEARCH & CATEGORY
@@ -218,12 +222,10 @@ function Prediction() {
       ================================================= */}
 
       <Sidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((prev) => !prev)
-        }
+        isSidebarOpen={isSidebarOpen}
+        isMobileMenuOpen={isMobileMenuOpen}
+        onCloseMobileMenu={closeMobileMenu}
+        onToggleSidebar={toggleSidebar}
       />
 
       {/* =================================================
@@ -237,9 +239,7 @@ function Prediction() {
         ================================================= */}
 
         <Header
-          onMenuClick={() =>
-            setSidebarOpen((prev) => !prev)
-          }
+          onMenuClick={toggleMobileMenu}
         />
 
         {/* =================================================

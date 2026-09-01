@@ -10,9 +10,11 @@ import Analytics from "./pages/analytics";
 import Trending from "./pages/trending";
 import Community from "./pages/community";
 import Profile from "./pages/profile";
+import { SidebarProvider } from "./contexts/sidebar-context";
 
 function App() {
   return (
+    <SidebarProvider>
     <Routes>
       <Route path="/" element={<Home />} />
 
@@ -29,6 +31,7 @@ function App() {
       <Route path="/community" element={<Community />} />
       <Route path="/profile" element={<Profile />} />
     </Routes>
+    </SidebarProvider>
   );
 }
 
