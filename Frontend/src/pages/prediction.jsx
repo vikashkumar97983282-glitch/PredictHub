@@ -211,7 +211,7 @@ function Prediction() {
   ===================================================== */
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#070b14] text-white">
+    <div className="flex min-h-screen bg-[#070b14] text-white">
 
       {/* =================================================
           SIDEBAR
@@ -230,7 +230,7 @@ function Prediction() {
           MAIN APPLICATION
       ================================================= */}
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
 
         {/* =================================================
             HEADER
@@ -248,10 +248,8 @@ function Prediction() {
 
         <main
           className="
-            min-h-0
             flex-1
             overflow-x-hidden
-            overflow-y-auto
             scroll-smooth
           "
         >

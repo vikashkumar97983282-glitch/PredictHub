@@ -58,7 +58,8 @@ function Sidebar({
           shadow-2xl
           transition-all duration-300 ease-in-out
 
-          lg:static
+          lg:sticky
+          lg:top-0
           lg:z-auto
           lg:translate-x-0
 

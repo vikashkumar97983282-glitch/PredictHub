@@ -14,7 +14,7 @@ function About() {
 
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-[#030712] text-white">
+    <div className="flex min-h-screen w-full bg-[#030712] text-white">
 
       {/* =====================================================
           SIDEBAR
@@ -33,7 +33,7 @@ function About() {
           MAIN AREA
       ====================================================== */}
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
 
         {/* NAVBAR */}
 
@@ -47,7 +47,7 @@ function About() {
         />
 
         {/* CONTENT */}
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <main className="flex-1 overflow-x-hidden">
 
           <div className="min-h-full bg-slate-950">
 

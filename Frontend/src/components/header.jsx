@@ -150,14 +150,16 @@ function Header({ onMenuClick }) {
         relative
         z-40
         flex
-        h-14
+        h-16
         w-full
         shrink-0
         items-center
         justify-between
         border-b
-        border-[#263244]
-        bg-[#0d1626]
+        border-slate-700/70
+        bg-[#0b1324]/95
+        shadow-[0_10px_30px_rgba(2,8,23,0.22)]
+        backdrop-blur-xl
         px-3
         sm:px-6
         lg:px-7
@@ -177,11 +179,15 @@ function Header({ onMenuClick }) {
             shrink-0
             items-center
             justify-center
-            rounded-md
-            p-1.5
-            text-[#9aa8bd]
-            transition
-            hover:bg-[#172235]
+            rounded-xl
+            border
+            border-slate-700/70
+            bg-slate-800/50
+            p-2
+            text-slate-300
+            transition-all
+            hover:border-blue-400/40
+            hover:bg-blue-500/10
             hover:text-white
             lg:hidden
           "
@@ -197,7 +203,19 @@ function Header({ onMenuClick }) {
             min-w-0
             items-center
             gap-2.5
-            text-[#718096]
+            rounded-xl
+            border
+            border-slate-700/70
+            bg-slate-900/70
+            px-3
+            py-2
+            text-slate-400
+            shadow-inner
+            transition-all
+            focus-within:border-blue-400/50
+            focus-within:bg-slate-900
+            focus-within:ring-2
+            focus-within:ring-blue-500/10
             sm:gap-3
           "
         >
@@ -216,7 +234,7 @@ function Header({ onMenuClick }) {
               text-sm
               text-white
               outline-none
-              placeholder:text-[#718096]
+              placeholder:text-slate-500
               transition-all
               focus:w-28
               sm:w-40
@@ -257,11 +275,15 @@ function Header({ onMenuClick }) {
               flex
               items-center
               justify-center
-              rounded-md
-              p-1.5
-              text-[#718096]
-              transition
-              hover:bg-[#172235]
+              rounded-xl
+              border
+              border-slate-700/70
+              bg-slate-800/50
+              p-2
+              text-slate-300
+              transition-all
+              hover:border-blue-400/40
+              hover:bg-blue-500/10
               hover:text-white
               active:bg-[#172235]
             "
@@ -292,7 +314,7 @@ function Header({ onMenuClick }) {
                   leading-none
                   text-white
                   ring-2
-                  ring-[#0d1626]
+                  ring-[#0b1324]
                 "
               >
                 {unreadCount > 9
@@ -315,8 +337,9 @@ function Header({ onMenuClick }) {
                 overflow-hidden
                 rounded-xl
                 border
-                border-[#263244]
-                bg-[#0d1626]
+                border-slate-700/80
+                bg-[#0d1626]/98
+                backdrop-blur-xl
                 shadow-2xl
                 shadow-black/40
 
@@ -563,7 +586,7 @@ function Header({ onMenuClick }) {
 
         {/* ================= DIVIDER ================= */}
 
-        <div className="h-6 w-px bg-[#263244]" />
+        <div className="mx-1 h-7 w-px bg-slate-700/70 sm:mx-2" />
 
         {/* ================= PROFILE ================= */}
 
@@ -590,10 +613,13 @@ function Header({ onMenuClick }) {
               flex
               items-center
               gap-2
-              rounded-md
-              p-1
-              transition
-              hover:bg-[#172235]
+              rounded-xl
+              border
+              border-transparent
+              p-1.5
+              transition-all
+              hover:border-slate-700/70
+              hover:bg-slate-800/70
               sm:gap-3
             "
           >
@@ -604,8 +630,8 @@ function Header({ onMenuClick }) {
                 src="https://i.pravatar.cc/100?img=12"
                 alt="User"
                 className="
-                  h-7
-                  w-7
+                  h-8
+                  w-8
                   shrink-0
                   rounded-full
                   object-cover
@@ -615,13 +641,13 @@ function Header({ onMenuClick }) {
               <div
                 className="
                   flex
-                  h-7
-                  w-7
+                  h-8
+                  w-8
                   shrink-0
                   items-center
                   justify-center
                   rounded-full
-                  bg-slate-700
+                  bg-linear-to-br from-blue-500 to-indigo-600
                   text-xs
                   font-bold
                   text-white
@@ -679,8 +705,9 @@ function Header({ onMenuClick }) {
                 overflow-hidden
                 rounded-xl
                 border
-                border-[#263244]
-                bg-[#0d1626]
+                border-slate-700/80
+                bg-[#0d1626]/98
+                backdrop-blur-xl
                 shadow-2xl
                 shadow-black/40
               "

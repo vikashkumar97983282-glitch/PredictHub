@@ -359,7 +359,7 @@ function HowItWorks() {
   };
 
   return (
-    <section className="relative overflow-hidden border-y border-slate-900 bg-[#0c1424] px-5 py-16 sm:px-8 lg:px-10">
+    <section className="relative overflow-hidden border-y border-slate-900 bg-[#0c1424] px-5 py-16 sm:px-8 lg:px-10 over">
 
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[15%] top-[20%] h-64 w-64 rounded-full bg-blue-600/10 blur-[100px]" />
@@ -387,7 +387,7 @@ function HowItWorks() {
           <h2 className="mt-4 text-3xl font-bold sm:text-4xl">
             Three Steps to
 
-            <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="block bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
               Intelligent Prediction
             </span>
           </h2>
@@ -433,7 +433,7 @@ function HowItWorks() {
                   <div
                     className={`mx-2 h-px flex-1 transition-all duration-500 ${
                       activeStep > index
-                        ? `bg-gradient-to-r ${theme.gradient}`
+                        ? `bg-linear-to-r ${theme.gradient}`
                         : "bg-slate-800"
                     }`}
                   />
@@ -455,7 +455,7 @@ function HowItWorks() {
             className={`relative overflow-hidden rounded-3xl border ${theme.border} bg-[#121c30]/90 shadow-xl`}
           >
 
-            <div className="pointer-events-none absolute right-3 top-0 select-none text-[120px] font-black leading-none text-white/[0.025] sm:text-[160px]">
+            <div className="pointer-events-none absolute right-3 top-0 select-none text-[120px] font-black leading-none text-white/2.5 sm:text-[160px]">
               {step.number}
             </div>
 
@@ -515,10 +515,10 @@ function HowItWorks() {
 
               </div>
 
-              <div className="relative flex min-h-[240px] items-center justify-center border-t border-slate-800 bg-slate-950/30 p-6 lg:min-h-full lg:border-l lg:border-t-0">
+              <div className="relative flex min-h-60 items-center justify-center border-t border-slate-800 bg-slate-950/30 p-6 lg:min-h-full lg:border-l lg:border-t-0">
 
                 {activeStep === 0 && (
-                  <div className="grid w-full max-w-[230px] grid-cols-2 gap-3">
+                  <div className="grid w-full max-w-57.5 grid-cols-2 gap-3">
 
                     <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4">
 
@@ -563,7 +563,7 @@ function HowItWorks() {
                 )}
 
                 {activeStep === 1 && (
-                  <div className="w-full max-w-[240px] space-y-3">
+                  <div className="w-full max-w-60 space-y-3">
 
                     {[
                       "Feature 01",
@@ -613,7 +613,7 @@ function HowItWorks() {
                 )}
 
                 {activeStep === 2 && (
-                  <div className="w-full max-w-[240px] rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-5">
+                  <div className="w-full max-w-60 rounded-2xl border border-cyan-500/30 bg-cyan-500/5 p-5">
 
                     <div className="flex items-center justify-between">
 
@@ -652,7 +652,7 @@ function HowItWorks() {
 
                       <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
 
-                        <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-cyan-500 to-green-400" />
+                        <div className="h-full w-[95%] rounded-full bg-linear-to-r from-cyan-500 to-green-400" />
 
                       </div>
 
@@ -681,10 +681,10 @@ function HowItWorks() {
                   0{activeStep + 1}/03
                 </span>
 
-                <div className="h-1.5 max-w-[180px] flex-1 overflow-hidden rounded-full bg-slate-800">
+                <div className="h-1.5 max-w-45 flex-1 overflow-hidden rounded-full bg-slate-800">
 
                   <div
-                    className={`h-full bg-gradient-to-r ${theme.gradient}`}
+                    className={`h-full bg-linear-to-r ${theme.gradient}`}
                     style={{
                       width: `${progress}%`,
                     }}
@@ -743,13 +743,12 @@ function Home() {
   // ===================================================
 
   const {
-    backendStatus,
     backendResponse,
   } = useBackendStatus();
 
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-slate-950 text-white">
+    <div className="flex min-h-screen w-full bg-slate-950 text-white">
 
       {/* =====================================================
           SIDEBAR
@@ -769,7 +768,7 @@ function Home() {
           MAIN AREA
       ===================================================== */}
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
 
         {/* =====================================================
             HEADER
@@ -786,7 +785,7 @@ function Home() {
             PAGE
         ===================================================== */}
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <main className="flex-1 overflow-x-hidden">
 
 
           {/* =====================================================
@@ -819,7 +818,7 @@ function Home() {
 
                     Intelligent
 
-                    <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
+                    <span className="block bg-linear-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
                       Predictions
                     </span>
 
@@ -864,7 +863,7 @@ function Home() {
 
                 {/* HERO RIGHT */}
 
-                <div className="w-full lg:max-w-[400px]">
+                <div className="w-full lg:max-w-100">
 
                   <div className="rounded-3xl border border-slate-800 bg-slate-900/80 p-6 shadow-2xl">
 
@@ -1044,7 +1043,7 @@ function Home() {
 
           <section className="px-5 pb-20 sm:px-8 lg:px-10">
 
-            <div className="mx-auto max-w-5xl rounded-3xl bg-gradient-to-r from-blue-600 to-purple-600 px-7 py-16 text-center">
+            <div className="mx-auto max-w-5xl rounded-3xl bg-linear-to-r from-blue-600 to-purple-600 px-7 py-16 text-center">
 
               <h2 className="text-3xl font-bold sm:text-4xl">
                 Ready to Start Predicting?

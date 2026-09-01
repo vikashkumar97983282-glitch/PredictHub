@@ -144,7 +144,7 @@ function Trending() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[#080f22] text-white">
+    <div className="relative flex min-h-screen bg-[#080f22] text-white">
 
       {/* Background Glow */}
 
@@ -173,7 +173,7 @@ function Trending() {
           MAIN APPLICATION AREA
       ====================================================== */}
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
 
         <Navbar
           onMenuClick={() =>
@@ -185,7 +185,7 @@ function Trending() {
             SCROLLABLE CONTENT
         ==================================================== */}
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+        <main className="flex-1 overflow-x-hidden">
 
           <div className="px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
 

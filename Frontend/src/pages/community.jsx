@@ -91,7 +91,7 @@ function Trending() {
   const [period, setPeriod] = useState("This Month");
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0d1422] text-white">
+    <div className="flex min-h-screen bg-[#0d1422] text-white">
       {/* ======================================================
           SIDEBAR
       ====================================================== */}
@@ -109,7 +109,7 @@ function Trending() {
           MAIN AREA
       ====================================================== */}
 
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col">
         {/* ====================================================
             NAVBAR
         ==================================================== */}
@@ -124,7 +124,7 @@ function Trending() {
             SCROLLABLE CONTENT
         ==================================================== */}
 
-        <main className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-[#0f1726]">
+        <main className="flex-1 overflow-x-hidden bg-[#0f1726]">
           {/* Background Glow */}
 
           <div className="min-h-full bg-[radial-gradient(circle_at_70%_5%,rgba(120,70,200,0.16),transparent_28%)]">
