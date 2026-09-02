@@ -10,30 +10,79 @@ import Analytics from "./pages/analytics";
 import Trending from "./pages/trending";
 import Community from "./pages/community";
 import Profile from "./pages/profile";
-import { SidebarProvider } from "./contexts/sidebar-context";
 import Login from "./pages/login";
+import CreateUser from "./pages/CreateUser";
+
+import { SidebarProvider } from "./contexts/sidebar-context";
+
+// Admin
+import AdminHome from "./admin/pages/AdminHome";
+import AdminLayout from "./admin/contents/adminLayout";
 
 function App() {
   return (
     <SidebarProvider>
-    <Routes>
-      <Route path="/" element={<Home />} />
+      <Routes>
 
-      <Route path="/login" element={<Login />} />
+        {/* =========================
+            USER ROUTES
+        ========================== */}
 
-      <Route path="/about" element={<About />} />
+        <Route path="/" element={<Home />} />
 
-      <Route path="/prediction">
-        <Route index element={<Prediction />} />
-        <Route path="placement" element={<PlacementForm />} />
-        <Route path="*" element={<ComingSoon />} />
-      </Route>
+        <Route path="/login" element={<Login />} />
 
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/trending" element={<Trending />} />
-      <Route path="/community" element={<Community />} />
-      <Route path="/profile" element={<Profile />} />
-    </Routes>
+        <Route path="/register" element={<CreateUser />} />
+
+        <Route path="/about" element={<About />} />
+
+        <Route path="/prediction">
+          <Route index element={<Prediction />} />
+          <Route
+            path="placement"
+            element={<PlacementForm />}
+          />
+          <Route
+            path="*"
+            element={<ComingSoon />}
+          />
+        </Route>
+
+        <Route
+          path="/analytics"
+          element={<Analytics />}
+        />
+
+        <Route
+          path="/trending"
+          element={<Trending />}
+        />
+
+        <Route
+          path="/community"
+          element={<Community />}
+        />
+
+        <Route
+          path="/profile"
+          element={<Profile />}
+        />
+
+
+        {/* =========================
+            ADMIN ROUTES
+        ========================== */}
+
+        <Route
+          path="/admin"
+          element={
+            <AdminLayout>
+              <AdminHome />
+            </AdminLayout>
+          }
+        />
+
+      </Routes>
     </SidebarProvider>
   );
 }

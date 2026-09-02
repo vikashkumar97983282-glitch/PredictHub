@@ -31,7 +31,7 @@ function ComingSoon() {
 
       timeoutId = window.setTimeout(() => {
         typeNext(0);
-      }, 1000);
+      }, 700);
     };
 
     typeNext(0);

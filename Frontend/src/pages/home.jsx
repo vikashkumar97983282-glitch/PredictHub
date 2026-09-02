@@ -847,7 +847,7 @@ function Home() {
                     </Link>
 
                     <Link
-                      to="/models"
+                      to="/prediction"
                       className="rounded-xl border border-slate-700 px-7 py-3.5 text-center font-semibold text-slate-300 transition hover:border-blue-500"
                     >
 
