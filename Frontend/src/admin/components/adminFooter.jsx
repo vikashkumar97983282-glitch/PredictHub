@@ -1,27 +1,25 @@
 import React from "react";
+import { Sparkles } from "lucide-react";
 
-function AdminFooter() {
+const AdminFooter = () => {
   return (
-    <footer className="border-t border-gray-200 bg-white">
-      <div className="flex min-h-14 flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-gray-500 sm:flex-row sm:px-6">
+    <footer className="border-t border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+
+      <div className="flex flex-col items-center justify-between gap-2 text-xs text-slate-400 sm:flex-row">
 
         <p>
           © {new Date().getFullYear()} PredictHub. All rights reserved.
         </p>
 
-        <div className="flex items-center gap-4">
-          <span>Admin Panel</span>
-
-          <span className="h-1 w-1 rounded-full bg-gray-300" />
-
-          <span className="text-green-600">
-            System Operational
-          </span>
+        <div className="flex items-center gap-1">
+          <Sparkles size={13} />
+          <span>AI Prediction Platform</span>
         </div>
 
       </div>
+
     </footer>
   );
-}
+};
 
 export default AdminFooter;

@@ -1,29 +1,28 @@
 import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+
 import {
   LayoutDashboard,
   Users,
   UserPlus,
   Brain,
-  BarChart3,
   TrendingUp,
+  BarChart3,
   Settings,
-  X,
   LogOut,
   ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
-import { NavLink } from "react-router-dom";
 
-function AdminSidebar({
-  isOpen,
-  isCollapsed,
-  onClose,
-  onToggleCollapse,
-}) {
+const AdminSidebar = ({
+  sidebarOpen = true,
+  setSidebarOpen,
+}) => {
+  const navigate = useNavigate();
+
   const menuItems = [
     {
       name: "Dashboard",
-      path: "/admin",
+      path: "/admin/dashboard",
       icon: LayoutDashboard,
     },
     {
@@ -33,7 +32,7 @@ function AdminSidebar({
     },
     {
       name: "Create User",
-      path: "/admin/create-user",
+      path: "/admin/users/create",
       icon: UserPlus,
     },
     {
@@ -58,180 +57,185 @@ function AdminSidebar({
     },
   ];
 
+  const handleLogout = () => {
+    // Clear authentication later
+    localStorage.removeItem("token");
+
+    navigate("/login");
+  };
+
   return (
-    <>
-      {/* =========================
-          MOBILE BACKDROP
-      ========================== */}
-      {isOpen && (
-        <div
-          onClick={onClose}
-          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-        />
-      )}
+    <aside
+      className={`
+        fixed
+        left-0
+        top-0
+        z-50
+        flex
+        h-screen
+        flex-col
+        border-r
+        border-slate-200
+        bg-white
+        transition-all
+        duration-300
+        ${sidebarOpen ? "w-64" : "w-20"}
+      `}
+    >
 
-      {/* =========================
-          SIDEBAR
-      ========================== */}
-      <aside
-        className={`
-          fixed left-0 top-0 z-50 flex h-screen flex-col
-          border-r border-gray-200 bg-white
-          transition-all duration-300
-          ${isCollapsed ? "w-20" : "w-64"}
-          ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
-        `}
-      >
-        {/* =========================
-            LOGO
-        ========================== */}
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 px-4">
-          <div
-            className={`flex items-center ${
-              isCollapsed ? "justify-center w-full" : "gap-3"
-            }`}
-          >
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
-              P
-            </div>
+      {/* ==========================================
+          LOGO
+      =========================================== */}
+      <div className="flex h-16 items-center border-b border-slate-200 px-4">
 
-            {!isCollapsed && (
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">
-                  PredictHub
-                </h1>
+        <div className="flex items-center gap-3">
 
-                <p className="text-[11px] font-medium uppercase tracking-wider text-gray-400">
-                  Admin Panel
-                </p>
-              </div>
-            )}
+          {/* Logo */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
+            P
           </div>
 
-          {/* Mobile close */}
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
-          >
-            <X size={20} />
-          </button>
+          {/* Brand */}
+          {sidebarOpen && (
+            <div className="min-w-0">
+              <h1 className="text-lg font-bold text-slate-900">
+                PredictHub
+              </h1>
+
+              <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
+                Admin Panel
+              </p>
+            </div>
+          )}
+
         </div>
 
-        {/* =========================
-            NAVIGATION
-        ========================== */}
-        <nav className="flex-1 overflow-y-auto px-3 py-5">
-          <p
-            className={`mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-gray-400 ${
-              isCollapsed ? "hidden" : "block"
-            }`}
-          >
+      </div>
+
+
+      {/* ==========================================
+          MAIN MENU
+      =========================================== */}
+      <div className="flex-1 overflow-y-auto px-3 py-6">
+
+        {sidebarOpen && (
+          <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             Main Menu
           </p>
+        )}
 
-          <div className="space-y-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
+        <nav className="space-y-1">
 
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  end={item.path === "/admin"}
-                  onClick={onClose}
-                  title={isCollapsed ? item.name : ""}
-                  className={({ isActive }) =>
-                    `
-                    group flex h-11 items-center rounded-lg
-                    text-sm font-medium transition
-                    ${
-                      isCollapsed
-                        ? "justify-center px-0"
-                        : "gap-3 px-3"
-                    }
-                    ${
-                      isActive
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                    }
-                    `
+          {menuItems.map((item) => {
+
+            const Icon = item.icon;
+
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/admin/dashboard"}
+                className={({ isActive }) => `
+                  group
+                  flex
+                  items-center
+                  gap-3
+                  rounded-lg
+                  px-3
+                  py-3
+                  text-sm
+                  font-medium
+                  transition-all
+                  duration-200
+
+                  ${
+                    isActive
+                      ? "bg-blue-50 text-blue-600"
+                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
                   }
-                >
-                  {({ isActive }) => (
-                    <>
-                      <Icon
-                        size={19}
-                        className={`shrink-0 ${
-                          isActive
-                            ? "text-blue-600"
-                            : "text-gray-400 group-hover:text-gray-600"
-                        }`}
-                      />
 
-                      {!isCollapsed && <span>{item.name}</span>}
-                    </>
-                  )}
-                </NavLink>
-              );
-            })}
-          </div>
+                  ${sidebarOpen ? "" : "justify-center"}
+                `}
+              >
+
+                <Icon
+                  size={19}
+                  strokeWidth={1.8}
+                  className="shrink-0"
+                />
+
+                {sidebarOpen && (
+                  <span>
+                    {item.name}
+                  </span>
+                )}
+
+              </NavLink>
+            );
+          })}
+
         </nav>
 
-        {/* =========================
-            ADMIN PROFILE
-        ========================== */}
-        <div className="border-t border-gray-200 p-3">
-          <div
-            className={`flex items-center rounded-lg bg-gray-50 p-2 ${
-              isCollapsed ? "justify-center" : "gap-3"
-            }`}
-          >
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-bold text-blue-600">
-              A
-            </div>
+      </div>
 
-            {!isCollapsed && (
-              <>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-gray-900">
-                    Admin
-                  </p>
 
-                  <p className="truncate text-xs text-gray-500">
-                    Administrator
-                  </p>
-                </div>
+      {/* ==========================================
+          ADMIN PROFILE
+      =========================================== */}
+      <div className="border-t border-slate-200 p-3">
 
-                <button
-                  type="button"
-                  title="Logout"
-                  className="rounded-lg p-2 text-gray-400 transition hover:bg-white hover:text-red-500"
-                >
-                  <LogOut size={17} />
-                </button>
-              </>
-            )}
+        <div
+          className={`
+            flex
+            items-center
+            rounded-lg
+            bg-slate-50
+            p-2
+
+            ${sidebarOpen ? "gap-3" : "justify-center"}
+          `}
+        >
+
+          {/* Avatar */}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600">
+            A
           </div>
+
+
+          {/* Admin info */}
+          {sidebarOpen && (
+            <div className="min-w-0 flex-1">
+
+              <p className="truncate text-sm font-semibold text-slate-800">
+                Admin
+              </p>
+
+              <p className="truncate text-xs text-slate-400">
+                Administrator
+              </p>
+
+            </div>
+          )}
+
+
+          {/* Logout */}
+          {sidebarOpen && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              title="Logout"
+              className="rounded-lg p-2 text-slate-400 transition hover:bg-white hover:text-red-500"
+            >
+              <LogOut size={18} />
+            </button>
+          )}
+
         </div>
 
-        {/* =========================
-            COLLAPSE BUTTON
-        ========================== */}
-        <button
-          type="button"
-          onClick={onToggleCollapse}
-          className="absolute -right-3 top-20 hidden h-7 w-7 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 shadow-sm transition hover:bg-gray-50 hover:text-gray-900 lg:flex"
-        >
-          {isCollapsed ? (
-            <ChevronRight size={15} />
-          ) : (
-            <ChevronLeft size={15} />
-          )}
-        </button>
-      </aside>
-    </>
+      </div>
+
+    </aside>
   );
-}
+};
 
 export default AdminSidebar;

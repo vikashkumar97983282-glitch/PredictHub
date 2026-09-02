@@ -1,61 +1,40 @@
 import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
 
-import AdminHeader from "../components/adminHeader";
-import AdminSidebar from "../components/adminSidebar";
-import AdminFooter from "../components/adminFooter";
+import AdminHeader from "../components/AdminHeader";
+import AdminSidebar from "../components/AdminSidebar";
+import AdminFooter from "../components/AdminFooter";
 
-function AdminLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50">
 
-      {/* =========================
-          SIDEBAR
-      ========================== */}
       <AdminSidebar
-        isOpen={sidebarOpen}
-        isCollapsed={sidebarCollapsed}
-        onClose={() => setSidebarOpen(false)}
-        onToggleCollapse={() =>
-          setSidebarCollapsed((previous) => !previous)
-        }
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
       />
 
-      {/* =========================
-          MAIN CONTENT
-      ========================== */}
       <div
-        className={`
-          flex min-h-screen flex-col
-          transition-all duration-300
-          ${sidebarCollapsed ? "lg:ml-20" : "lg:ml-64"}
-        `}
+        className={`min-h-screen transition-all duration-300 ${
+          sidebarOpen ? "lg:ml-64" : "lg:ml-20"
+        }`}
       >
-
-        {/* =========================
-            HEADER
-        ========================== */}
         <AdminHeader
-          onMenuClick={() => setSidebarOpen(true)}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
         />
 
-        {/* =========================
-            PAGE CONTENT
-        ========================== */}
-        <main className="flex-1">
-          {children}
+        <main className="min-h-[calc(100vh-128px)] p-4 sm:p-6 lg:p-8">
+          <Outlet />
         </main>
 
-        {/* =========================
-            FOOTER
-        ========================== */}
         <AdminFooter />
-
       </div>
+
     </div>
   );
-}
+};
 
 export default AdminLayout;

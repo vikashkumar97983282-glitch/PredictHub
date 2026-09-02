@@ -128,7 +128,11 @@ function Login() {
       }
 
       // Redirect after successful login
-      navigate("/");
+      if (data.admin && data.admin.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error("Login error:", err);
 
