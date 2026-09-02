@@ -1,60 +1,107 @@
 import os
+from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from pymongo import AsyncMongoClient
 
 
+# ============================================================
+# Load environment variables
+# ============================================================
+
 load_dotenv()
 
 
-MONGODB_URI = os.getenv("MONGODB_URI")
-MONGODB_DATABASE = os.getenv("MONGODB_DATABASE")
+# ============================================================
+# MongoDB credentials
+# ============================================================
+
+MONGODB_USERNAME = os.getenv("MONGODB_USERNAME")
+MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 
 
-if not MONGODB_URI:
-    raise ValueError(
-        "MONGODB_URI environment variable is not set."
+if not MONGODB_USERNAME:
+    raise RuntimeError(
+        "❌ MONGODB_USERNAME is missing in .env"
     )
 
-if not MONGODB_DATABASE:
-    raise ValueError(
-        "MONGODB_DATABASE environment variable is not set."
+if not MONGODB_PASSWORD:
+    raise RuntimeError(
+        "❌ MONGODB_PASSWORD is missing in .env"
     )
 
 
-client = None
-db = None
+# ============================================================
+# URL encode username and password
+# This prevents problems with special characters
+# ============================================================
 
+username = quote_plus(MONGODB_USERNAME)
+password = quote_plus(MONGODB_PASSWORD)
+
+
+# ============================================================
+# MongoDB Atlas URI
+# ============================================================
+
+MONGODB_URI = (
+    f"mongodb+srv://{username}:{password}"
+    f"@cluster0.nml3k20.mongodb.net/"
+    f"predicthub"
+    f"?retryWrites=true&w=majority"
+)
+
+
+# ============================================================
+# MongoDB client
+# ============================================================
+
+client = AsyncMongoClient(
+    MONGODB_URI,
+    serverSelectionTimeoutMS=30000,
+)
+
+
+# ============================================================
+# Database
+# ============================================================
+
+db = client["predicthub"]
+collection = db["admin"]  # Specify the collection name for admin data
+
+
+# ============================================================
+# Connect to MongoDB
+# ============================================================
 
 async def connect_to_database():
 
-    global client, db
+    try:
 
-    client = AsyncMongoClient(MONGODB_URI)
+        # Ping MongoDB Atlas
+        await client.admin.command("ping")
 
-    db = client[MONGODB_DATABASE]
+        print("========================================")
+        print("✅ MongoDB connected successfully")
+        print("📦 Database: predicthub")
+        print("========================================")
 
-    # Test connection
-    await client.admin.command("ping")
+    except Exception as e:
 
-    print("🚀🚀 MongoDB Atlas connected successfully")
+        print("========================================")
+        print("❌ MongoDB connection failed")
+        print(f"Error: {e}")
+        print("========================================")
 
-
-async def close_database_connection():
-
-    global client
-
-    if client:
-        await client.close()
-
-        print("MongoDB connection closed")
+        raise
 
 
-def get_database():
+# ============================================================
+# Close MongoDB
+# ============================================================
 
-    if db is None:
-        raise RuntimeError(
-            "Database is not connected."
-        )
+async def close_database():
 
-    return db
+    await client.close()
+
+    print("🔌 MongoDB connection closed")
