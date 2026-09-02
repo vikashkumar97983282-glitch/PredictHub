@@ -20,11 +20,11 @@ const AdminAnalytics = () => {
     <div className="space-y-6">
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-white">
           Analytics
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-400">
           Analyze users, models and prediction performance.
         </p>
       </div>
@@ -39,22 +39,22 @@ const AdminAnalytics = () => {
         ].map(([title, value, Icon]) => (
           <div
             key={title}
-            className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+            className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20"
           >
 
             <div className="flex items-center justify-between">
 
               <div>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-slate-400">
                   {title}
                 </p>
 
-                <h2 className="mt-2 text-2xl font-bold text-slate-900">
+                <h2 className="mt-2 text-2xl font-bold text-white">
                   {value}
                 </h2>
               </div>
 
-              <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+              <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
                 <Icon size={21} />
               </div>
 
@@ -66,9 +66,9 @@ const AdminAnalytics = () => {
       </div>
 
       {/* Model usage */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20">
 
-        <h2 className="font-semibold text-slate-900">
+        <h2 className="font-semibold text-white">
           Model Usage
         </h2>
 
@@ -83,11 +83,11 @@ const AdminAnalytics = () => {
 
               <div className="mb-2 flex justify-between">
 
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-medium text-slate-300">
                   {name}
                 </span>
 
-                <span className="text-sm font-semibold text-slate-600">
+                <span className="text-sm font-semibold text-slate-300">
                   {value}%
                 </span>
 
@@ -96,7 +96,7 @@ const AdminAnalytics = () => {
               <div className="h-2 overflow-hidden rounded-full bg-slate-100">
 
                 <div
-                  className="h-full rounded-full bg-blue-500"
+                  className="h-full rounded-full bg-cyan-400"
                   style={{ width: `${value}%` }}
                 />
 

@@ -25,6 +25,8 @@ const AdminUsers = () => {
       email: "rahul@example.com",
       role: "User",
       status: "Active",
+      lastActive: "Active now",
+      predictions: 12,
     },
     {
       id: 2,
@@ -32,6 +34,8 @@ const AdminUsers = () => {
       email: "priya@example.com",
       role: "User",
       status: "Active",
+      lastActive: "10 min ago",
+      predictions: 8,
     },
     {
       id: 3,
@@ -39,6 +43,8 @@ const AdminUsers = () => {
       email: "amit@example.com",
       role: "Admin",
       status: "Active",
+      lastActive: "24 min ago",
+      predictions: 6,
     },
     {
       id: 4,
@@ -46,6 +52,8 @@ const AdminUsers = () => {
       email: "neha@example.com",
       role: "User",
       status: "Inactive",
+      lastActive: "32 min ago",
+      predictions: 3,
     },
   ]);
 
@@ -57,6 +65,7 @@ const AdminUsers = () => {
   const [roleFilter, setRoleFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
   const [openMenu, setOpenMenu] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // =====================================================
   // FILTER USERS
@@ -154,6 +163,24 @@ const AdminUsers = () => {
     setOpenMenu(null);
   };
 
+  const openUserDialog = (user, mode) => {
+    setSelectedUser({ user, mode });
+    closeMenu();
+  };
+
+  const handleEditUser = (event) => {
+    event.preventDefault();
+
+    setUsers((currentUsers) =>
+      currentUsers.map((user) =>
+        user.id === selectedUser.user.id
+          ? selectedUser.user
+          : user
+      )
+    );
+    setSelectedUser(null);
+  };
+
   return (
     <div className="space-y-6">
 
@@ -164,18 +191,18 @@ const AdminUsers = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-white">
             Users
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-400">
             Manage all registered PredictHub users.
           </p>
         </div>
 
         <Link
           to="/admin/users/create"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
         >
           <Plus size={18} />
           Create User
@@ -188,23 +215,23 @@ const AdminUsers = () => {
           STATISTICS
       ================================================= */}
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid gap-4 min-[420px]:grid-cols-2 lg:grid-cols-4">
 
         {/* Total */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-4 shadow-xl shadow-black/20">
           <div className="flex items-center justify-between">
 
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500">
                 Total Users
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-slate-900">
+              <p className="mt-1 text-2xl font-bold text-white">
                 {totalUsers}
               </p>
             </div>
 
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-400/10 text-cyan-300">
               <UserCheck size={19} />
             </div>
 
@@ -213,15 +240,15 @@ const AdminUsers = () => {
 
 
         {/* Active */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-4 shadow-xl shadow-black/20">
           <div className="flex items-center justify-between">
 
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500">
                 Active Users
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-slate-900">
+              <p className="mt-1 text-2xl font-bold text-white">
                 {activeUsers}
               </p>
             </div>
@@ -235,15 +262,15 @@ const AdminUsers = () => {
 
 
         {/* Inactive */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-4 shadow-xl shadow-black/20">
           <div className="flex items-center justify-between">
 
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500">
                 Inactive Users
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-slate-900">
+              <p className="mt-1 text-2xl font-bold text-white">
                 {inactiveUsers}
               </p>
             </div>
@@ -257,15 +284,15 @@ const AdminUsers = () => {
 
 
         {/* Admins */}
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-4 shadow-xl shadow-black/20">
           <div className="flex items-center justify-between">
 
             <div>
-              <p className="text-xs font-medium text-slate-400">
+              <p className="text-xs font-medium text-slate-500">
                 Administrators
               </p>
 
-              <p className="mt-1 text-2xl font-bold text-slate-900">
+              <p className="mt-1 text-2xl font-bold text-white">
                 {adminUsers}
               </p>
             </div>
@@ -284,13 +311,13 @@ const AdminUsers = () => {
           USERS TABLE
       ================================================= */}
 
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
         {/* ================================================
             FILTER HEADER
         ================================================= */}
 
-        <div className="flex flex-col gap-3 border-b border-slate-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-3 border-b border-[#243047] p-4 lg:flex-row lg:items-center lg:justify-between">
 
           {/* Search */}
           <div className="relative w-full lg:max-w-sm">
@@ -307,7 +334,7 @@ const AdminUsers = () => {
                 setSearch(e.target.value)
               }
               placeholder="Search users..."
-              className="h-10 w-full rounded-lg border border-slate-200 bg-slate-50 pl-10 pr-10 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-100"
+              className="h-10 w-full rounded-lg border border-[#243047] bg-slate-900/70 pl-10 pr-10 text-sm text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-400 focus:bg-slate-900 focus:ring-2 focus:ring-cyan-400/20"
             />
 
             {search && (
@@ -324,7 +351,7 @@ const AdminUsers = () => {
 
 
           {/* Filters */}
-          <div className="flex flex-col gap-2 sm:flex-row">
+          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
 
             {/* Role */}
             <select
@@ -332,7 +359,7 @@ const AdminUsers = () => {
               onChange={(e) =>
                 setRoleFilter(e.target.value)
               }
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="h-10 w-full rounded-lg border border-[#243047] bg-slate-900/70 px-3 text-sm text-slate-300 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 sm:w-auto"
             >
               <option value="All">
                 All Roles
@@ -354,7 +381,7 @@ const AdminUsers = () => {
               onChange={(e) =>
                 setStatusFilter(e.target.value)
               }
-              className="h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="h-10 w-full rounded-lg border border-[#243047] bg-slate-900/70 px-3 text-sm text-slate-300 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20 sm:w-auto"
             >
               <option value="All">
                 All Status
@@ -401,9 +428,9 @@ const AdminUsers = () => {
 
         <div className="overflow-x-auto">
 
-          <table className="w-full min-w-[750px]">
+          <table className="w-full min-w-187.5">
 
-            <thead className="bg-slate-50">
+            <thead className="bg-slate-800/70">
 
               <tr>
 
@@ -436,7 +463,7 @@ const AdminUsers = () => {
 
                   <tr
                     key={user.id}
-                    className="transition hover:bg-slate-50"
+                    className="transition hover:bg-slate-800/50"
                   >
 
                     {/* USER */}
@@ -444,7 +471,7 @@ const AdminUsers = () => {
 
                       <div className="flex items-center gap-3">
 
-                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-50 font-semibold text-blue-600">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-400/10 font-semibold text-cyan-300">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
 
@@ -548,19 +575,13 @@ const AdminUsers = () => {
                       {/* DROPDOWN */}
                       {openMenu === user.id && (
 
-                        <div className="absolute right-5 top-14 z-30 w-44 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 text-left shadow-lg">
+                        <div className="absolute right-5 top-14 z-30 w-44 overflow-hidden rounded-lg border border-[#243047] bg-[#111827] py-1 text-left shadow-xl shadow-black/30">
 
                           {/* View */}
                           <button
                             type="button"
-                            onClick={() => {
-                              console.log(
-                                "View user:",
-                                user
-                              );
-                              closeMenu();
-                            }}
-                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50"
+                            onClick={() => openUserDialog(user, "view")}
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-300 transition hover:bg-slate-800"
                           >
                             <Eye size={16} />
                             View User
@@ -570,14 +591,8 @@ const AdminUsers = () => {
                           {/* Edit */}
                           <button
                             type="button"
-                            onClick={() => {
-                              console.log(
-                                "Edit user:",
-                                user
-                              );
-                              closeMenu();
-                            }}
-                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50"
+                            onClick={() => openUserDialog(user, "edit")}
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-300 transition hover:bg-slate-800"
                           >
                             <Pencil size={16} />
                             Edit User
@@ -592,7 +607,7 @@ const AdminUsers = () => {
                                 user.id
                               )
                             }
-                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-600 transition hover:bg-slate-50"
+                            className="flex w-full items-center gap-3 px-3 py-2.5 text-sm text-slate-300 transition hover:bg-slate-800"
                           >
                             {user.status === "Active" ? (
                               <>
@@ -662,7 +677,7 @@ const AdminUsers = () => {
                         setRoleFilter("All");
                         setStatusFilter("All");
                       }}
-                      className="mt-4 text-sm font-medium text-blue-600 hover:text-blue-700"
+                      className="mt-4 text-sm font-medium text-cyan-300 hover:text-cyan-200"
                     >
                       Clear filters
                     </button>
@@ -680,6 +695,63 @@ const AdminUsers = () => {
         </div>
 
       </div>
+
+      {selectedUser && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-[#243047] bg-[#111827] p-6 shadow-2xl shadow-black/40">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-cyan-300">
+                  {selectedUser.mode === "edit" ? "Edit user" : "User details"}
+                </p>
+                <h2 className="mt-1 text-xl font-semibold text-white">
+                  {selectedUser.user.name}
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedUser(null)}
+                aria-label="Close user dialog"
+                className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-white"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {selectedUser.mode === "edit" ? (
+              <form onSubmit={handleEditUser} className="mt-5 space-y-4">
+                <input
+                  required
+                  value={selectedUser.user.name}
+                  onChange={(event) => setSelectedUser({ ...selectedUser, user: { ...selectedUser.user, name: event.target.value } })}
+                  className="w-full rounded-lg border border-[#243047] bg-slate-900/70 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400"
+                  placeholder="Full name"
+                />
+                <input
+                  required
+                  type="email"
+                  value={selectedUser.user.email}
+                  onChange={(event) => setSelectedUser({ ...selectedUser, user: { ...selectedUser.user, email: event.target.value } })}
+                  className="w-full rounded-lg border border-[#243047] bg-slate-900/70 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400"
+                  placeholder="Email"
+                />
+                <div className="flex justify-end gap-3">
+                  <button type="button" onClick={() => setSelectedUser(null)} className="rounded-lg px-4 py-2 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white">Cancel</button>
+                  <button type="submit" className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Save User</button>
+                </div>
+              </form>
+            ) : (
+              <div className="mt-5 space-y-3 text-sm">
+                <p className="rounded-lg bg-slate-900/70 p-3 text-slate-300">Email: {selectedUser.user.email}</p>
+                <p className="rounded-lg bg-slate-900/70 p-3 text-slate-300">Role: {selectedUser.user.role}</p>
+                <p className="rounded-lg bg-slate-900/70 p-3 text-slate-300">Status: {selectedUser.user.status}</p>
+                <p className="rounded-lg bg-slate-900/70 p-3 text-slate-300">Last active: {selectedUser.user.lastActive}</p>
+                <p className="rounded-lg bg-slate-900/70 p-3 text-slate-300">Predictions: {selectedUser.user.predictions}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );

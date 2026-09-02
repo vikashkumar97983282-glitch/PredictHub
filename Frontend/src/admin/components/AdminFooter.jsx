@@ -3,9 +3,9 @@ import { Sparkles } from "lucide-react";
 
 const AdminFooter = () => {
   return (
-    <footer className="border-t border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+    <footer className="border-t border-[#243047] bg-[#0f172a] px-4 py-4 sm:px-6 lg:px-8">
 
-      <div className="flex flex-col items-center justify-between gap-2 text-xs text-slate-400 sm:flex-row">
+      <div className="flex flex-col items-center justify-between gap-2 text-xs text-slate-500 sm:flex-row">
 
         <p>
           © {new Date().getFullYear()} PredictHub. All rights reserved.

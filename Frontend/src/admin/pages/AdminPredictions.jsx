@@ -43,29 +43,29 @@ const AdminPredictions = () => {
     <div className="space-y-6">
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-white">
           Predictions
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-400">
           Monitor prediction requests across all models.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20">
+          <p className="text-sm text-slate-400">
             Total Predictions
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+          <h2 className="mt-2 text-2xl font-bold text-white">
             48,392
           </h2>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20">
+          <p className="text-sm text-slate-400">
             Completed
           </p>
 
@@ -74,8 +74,8 @@ const AdminPredictions = () => {
           </h2>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-          <p className="text-sm text-slate-500">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20">
+          <p className="text-sm text-slate-400">
             Processing
           </p>
 
@@ -86,13 +86,13 @@ const AdminPredictions = () => {
 
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
         <div className="overflow-x-auto">
 
           <table className="w-full min-w-[750px]">
 
-            <thead className="bg-slate-50">
+            <thead className="bg-slate-800/70">
 
               <tr>
                 <th className="px-5 py-3 text-left text-xs uppercase tracking-wider text-slate-400">
@@ -121,17 +121,17 @@ const AdminPredictions = () => {
             <tbody className="divide-y divide-slate-100">
 
               {predictions.map((prediction, index) => (
-                <tr key={index} className="hover:bg-slate-50">
+                <tr key={index} className="transition hover:bg-slate-800/50">
 
-                  <td className="px-5 py-4 text-sm font-medium text-slate-700">
+                  <td className="px-5 py-4 text-sm font-medium text-slate-300">
                     {prediction.user}
                   </td>
 
-                  <td className="px-5 py-4 text-sm text-slate-600">
+                  <td className="px-5 py-4 text-sm text-slate-400">
                     {prediction.model}
                   </td>
 
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-800">
+                  <td className="px-5 py-4 text-sm font-semibold text-slate-200">
                     {prediction.result}
                   </td>
 

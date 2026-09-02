@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 import {
   LayoutDashboard,
+  Activity,
   Users,
   UserPlus,
   Brain,
@@ -10,7 +11,7 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  ChevronLeft,
+  Menu,
 } from "lucide-react";
 
 const AdminSidebar = ({
@@ -29,6 +30,11 @@ const AdminSidebar = ({
       name: "Users",
       path: "/admin/users",
       icon: Users,
+    },
+    {
+      name: "Activity",
+      path: "/admin/activity",
+      icon: Activity,
     },
     {
       name: "Create User",
@@ -75,38 +81,48 @@ const AdminSidebar = ({
         h-screen
         flex-col
         border-r
-        border-slate-200
-        bg-white
+        border-[#243047]
+        bg-[#0f172a]
+        shadow-2xl shadow-black/30
         transition-all
         duration-300
-        ${sidebarOpen ? "w-64" : "w-20"}
+        ${sidebarOpen ? "w-64 translate-x-0" : "w-20 -translate-x-full lg:translate-x-0"}
       `}
     >
 
       {/* ==========================================
           LOGO
       =========================================== */}
-      <div className="flex h-16 items-center border-b border-slate-200 px-4">
+      <div className="flex h-16 items-center border-b border-[#243047] px-4">
 
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center gap-3">
 
           {/* Logo */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white">
+          <div className={`${sidebarOpen ? "flex" : "hidden"} h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400 text-lg font-bold text-slate-950 shadow-lg shadow-cyan-500/20`}>
             P
           </div>
 
           {/* Brand */}
           {sidebarOpen && (
             <div className="min-w-0">
-              <h1 className="text-lg font-bold text-slate-900">
+              <h1 className="text-lg font-bold text-white">
                 PredictHub
               </h1>
 
-              <p className="text-[10px] font-medium uppercase tracking-widest text-slate-400">
+              <p className="text-[10px] font-medium uppercase tracking-widest text-slate-500">
                 Admin Panel
               </p>
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            aria-label={sidebarOpen ? "Collapse navigation" : "Expand navigation"}
+            className={`${sidebarOpen ? "ml-auto" : "mx-auto"} rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-cyan-300`}
+          >
+            <Menu size={20} />
+          </button>
 
         </div>
 
@@ -119,7 +135,7 @@ const AdminSidebar = ({
       <div className="flex-1 overflow-y-auto px-3 py-6">
 
         {sidebarOpen && (
-          <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <p className="mb-3 px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
             Main Menu
           </p>
         )}
@@ -150,8 +166,8 @@ const AdminSidebar = ({
 
                   ${
                     isActive
-                      ? "bg-blue-50 text-blue-600"
-                      : "text-slate-600 hover:bg-slate-50 hover:text-blue-600"
+                      ? "bg-cyan-400/10 text-cyan-300"
+                      : "text-slate-400 hover:bg-slate-800 hover:text-cyan-200"
                   }
 
                   ${sidebarOpen ? "" : "justify-center"}
@@ -182,14 +198,14 @@ const AdminSidebar = ({
       {/* ==========================================
           ADMIN PROFILE
       =========================================== */}
-      <div className="border-t border-slate-200 p-3">
+      <div className="border-t border-[#243047] p-3">
 
         <div
           className={`
             flex
             items-center
             rounded-lg
-            bg-slate-50
+            bg-slate-800/70
             p-2
 
             ${sidebarOpen ? "gap-3" : "justify-center"}
@@ -197,7 +213,7 @@ const AdminSidebar = ({
         >
 
           {/* Avatar */}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-600">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 text-sm font-semibold text-cyan-300">
             A
           </div>
 
@@ -206,11 +222,11 @@ const AdminSidebar = ({
           {sidebarOpen && (
             <div className="min-w-0 flex-1">
 
-              <p className="truncate text-sm font-semibold text-slate-800">
+              <p className="truncate text-sm font-semibold text-slate-200">
                 Admin
               </p>
 
-              <p className="truncate text-xs text-slate-400">
+              <p className="truncate text-xs text-slate-500">
                 Administrator
               </p>
 
@@ -224,7 +240,7 @@ const AdminSidebar = ({
               type="button"
               onClick={handleLogout}
               title="Logout"
-              className="rounded-lg p-2 text-slate-400 transition hover:bg-white hover:text-red-500"
+              className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-700 hover:text-red-400"
             >
               <LogOut size={18} />
             </button>

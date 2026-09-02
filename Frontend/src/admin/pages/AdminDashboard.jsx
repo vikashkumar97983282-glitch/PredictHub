@@ -8,8 +8,10 @@ import {
   ArrowDownRight,
   MoreHorizontal,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
 
   const stats = [
     {
@@ -47,11 +49,11 @@ const AdminDashboard = () => {
 
       {/* Page heading */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-white">
           Dashboard
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-400">
           Monitor your PredictHub platform and prediction activity.
         </p>
       </div>
@@ -65,21 +67,21 @@ const AdminDashboard = () => {
           return (
             <div
               key={stat.title}
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20"
             >
               <div className="flex items-start justify-between">
 
                 <div>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-slate-400">
                     {stat.title}
                   </p>
 
-                  <h3 className="mt-2 text-2xl font-bold text-slate-900">
+                  <h3 className="mt-2 text-2xl font-bold text-white">
                     {stat.value}
                   </h3>
                 </div>
 
-                <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+                <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
                   <Icon size={21} />
                 </div>
 
@@ -118,21 +120,26 @@ const AdminDashboard = () => {
       <div className="grid gap-6 xl:grid-cols-3">
 
         {/* Chart */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm xl:col-span-2">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 xl:col-span-2">
 
           <div className="flex items-center justify-between">
 
             <div>
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-white">
                 Prediction Activity
               </h2>
 
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-slate-500">
                 Prediction activity over the last 7 days
               </p>
             </div>
 
-            <button className="rounded-lg p-2 text-slate-400 hover:bg-slate-50">
+            <button
+              type="button"
+              onClick={() => navigate("/admin/predictions")}
+              title="View all predictions"
+              className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-cyan-300"
+            >
               <MoreHorizontal size={19} />
             </button>
 
@@ -146,7 +153,7 @@ const AdminDashboard = () => {
                 className="flex flex-1 flex-col items-center gap-2"
               >
                 <div
-                  className="w-full max-w-12 rounded-t-lg bg-blue-500 transition hover:bg-blue-600"
+                  className="w-full max-w-12 rounded-t-lg bg-cyan-400 transition hover:bg-cyan-300"
                   style={{ height: `${height}%` }}
                 />
 
@@ -160,9 +167,9 @@ const AdminDashboard = () => {
         </div>
 
         {/* Recent activity */}
-        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20">
 
-          <h2 className="font-semibold text-slate-900">
+          <h2 className="font-semibold text-white">
             Recent Activity
           </h2>
 
@@ -179,10 +186,10 @@ const AdminDashboard = () => {
                 key={index}
                 className="flex gap-3"
               >
-                <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-blue-500" />
+                <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-cyan-400" />
 
                 <div>
-                  <p className="text-sm font-medium text-slate-700">
+                  <p className="text-sm font-medium text-slate-300">
                     {title}
                   </p>
 

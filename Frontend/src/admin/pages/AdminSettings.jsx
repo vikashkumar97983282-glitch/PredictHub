@@ -9,33 +9,38 @@ import {
 const AdminSettings = () => {
 
   const [notifications, setNotifications] = useState(true);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  const handleSave = () => {
+    setSaveMessage("Changes saved successfully.");
+  };
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-white">
           Settings
         </h1>
 
-        <p className="mt-1 text-sm text-slate-500">
+        <p className="mt-1 text-sm text-slate-400">
           Manage your admin account and platform preferences.
         </p>
       </div>
 
       {/* Profile */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
         <div className="border-b border-slate-100 p-5">
 
           <div className="flex items-center gap-3">
 
-            <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+            <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
               <User size={20} />
             </div>
 
             <div>
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-white">
                 Admin Profile
               </h2>
 
@@ -57,7 +62,7 @@ const AdminSettings = () => {
 
             <input
               defaultValue="Admin"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -69,7 +74,7 @@ const AdminSettings = () => {
             <input
               defaultValue="admin@predicthub.com"
               type="email"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -78,18 +83,18 @@ const AdminSettings = () => {
       </div>
 
       {/* Security */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
         <div className="border-b border-slate-100 p-5">
 
           <div className="flex items-center gap-3">
 
-            <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+            <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
               <Shield size={20} />
             </div>
 
             <div>
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-white">
                 Security
               </h2>
 
@@ -112,7 +117,7 @@ const AdminSettings = () => {
             <input
               type="password"
               placeholder="Enter new password"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -124,7 +129,7 @@ const AdminSettings = () => {
             <input
               type="password"
               placeholder="Confirm password"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -133,18 +138,18 @@ const AdminSettings = () => {
       </div>
 
       {/* Notifications */}
-      <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
         <div className="flex items-center justify-between p-5">
 
           <div className="flex items-center gap-3">
 
-            <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+            <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
               <Bell size={20} />
             </div>
 
             <div>
-              <h2 className="font-semibold text-slate-900">
+              <h2 className="font-semibold text-white">
                 Notifications
               </h2>
 
@@ -159,7 +164,7 @@ const AdminSettings = () => {
             onClick={() => setNotifications(!notifications)}
             className={`relative h-6 w-11 rounded-full transition ${
               notifications
-                ? "bg-blue-600"
+                ? "bg-cyan-400"
                 : "bg-slate-300"
             }`}
           >
@@ -178,10 +183,20 @@ const AdminSettings = () => {
 
       <div className="flex justify-end">
 
-        <button className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+        <button
+          type="button"
+          onClick={handleSave}
+          className="inline-flex items-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
+        >
           <Save size={17} />
           Save Changes
         </button>
+
+        {saveMessage && (
+          <p className="mt-2 text-right text-xs font-medium text-emerald-400">
+            {saveMessage}
+          </p>
+        )}
 
       </div>
 

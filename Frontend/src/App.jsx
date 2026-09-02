@@ -35,6 +35,7 @@ import AdminModels from "./admin/pages/AdminModels";
 import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminSettings from "./admin/pages/AdminSettings";
+import AdminActivity from "./admin/pages/AdminActivity";
 
 // ⭐ ADMIN CREATE USER
 import AdminCreateUser from "./admin/pages/CreateUser";
@@ -141,6 +142,11 @@ function App() {
           <Route
             path="dashboard"
             element={<AdminDashboard />}
+          />
+
+          <Route
+            path="activity"
+            element={<AdminActivity />}
           />
 
           {/* -----------------------------------------------

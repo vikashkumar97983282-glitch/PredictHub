@@ -44,11 +44,11 @@ const CreateUser = () => {
         </Link>
 
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-white">
             Create User
           </h1>
 
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-slate-400">
             Create a new PredictHub account.
           </p>
         </div>
@@ -57,17 +57,17 @@ const CreateUser = () => {
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"
+        className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 sm:p-7"
       >
 
         <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-5">
 
-          <div className="rounded-xl bg-blue-50 p-3 text-blue-600">
+          <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
             <UserPlus size={21} />
           </div>
 
           <div>
-            <h2 className="font-semibold text-slate-900">
+            <h2 className="font-semibold text-white">
               User Information
             </h2>
 
@@ -91,7 +91,7 @@ const CreateUser = () => {
               onChange={handleChange}
               required
               placeholder="Enter full name"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -107,7 +107,7 @@ const CreateUser = () => {
               onChange={handleChange}
               required
               placeholder="user@example.com"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -123,7 +123,7 @@ const CreateUser = () => {
               onChange={handleChange}
               required
               placeholder="Create password"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none transition placeholder:text-slate-600 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
 
@@ -136,7 +136,7 @@ const CreateUser = () => {
               name="role"
               value={form.role}
               onChange={handleChange}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+              className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             >
               <option value="User">User</option>
               <option value="Admin">Admin</option>
@@ -149,14 +149,14 @@ const CreateUser = () => {
 
           <Link
             to="/admin/users"
-            className="rounded-lg border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            className="rounded-lg border border-[#243047] px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white"
           >
             Cancel
           </Link>
 
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            className="rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
           >
             Create User
           </button>
