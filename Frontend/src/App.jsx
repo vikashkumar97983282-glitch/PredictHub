@@ -11,12 +11,15 @@ import Trending from "./pages/trending";
 import Community from "./pages/community";
 import Profile from "./pages/profile";
 import { SidebarProvider } from "./contexts/sidebar-context";
+import Login from "./pages/login";
 
 function App() {
   return (
     <SidebarProvider>
     <Routes>
       <Route path="/" element={<Home />} />
+
+      <Route path="/login" element={<Login />} />
 
       <Route path="/about" element={<About />} />
 
