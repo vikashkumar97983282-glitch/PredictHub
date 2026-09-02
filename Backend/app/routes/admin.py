@@ -51,15 +51,27 @@ async def create_admin(data: AdminCreate):
 
 
 
-@router.post('/login',response_model=AdminLoginResponse)
-def login(data: AdminLogin):
+@router.post('/login')
+async def login(data: AdminLogin):
 
-    if data.email != "admin@gmail.com" or data.password != "admin123":
+    user = await db.admin.find_one({"email": data.email.lower()})
+
+    if not user:
+        return {
+            'message':'Invalid user',
+            'token': None
+        }
+
+    if data.email != user["email"] or data.password != user["password"]:
         return {
             'message':'Invalid email or password',
             'token': None
         }
     return {
-        'message':'Login successful',
-        'token': 'your_jwt_token_here'
+        "message": "Login successful",
+        "admin": {
+            "id": str(user["_id"]),
+            "email": user["email"],
+            "role": user["role"],
+        }
     }
