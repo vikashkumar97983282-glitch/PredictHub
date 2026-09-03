@@ -26,12 +26,17 @@ async def login(
     email = data.email.lower().strip()
 
     # --------------------------------------------------------
-    # FIND USER
+    # FIND ADMIN OR USER
     # --------------------------------------------------------
 
-    user = await db.users.find_one({
+    user = await db.admin.find_one({
         "email": email
     })
+
+    if user is None:
+        user = await db.users.find_one({
+            "email": email
+        })
 
     if user is None:
 
@@ -73,7 +78,7 @@ async def login(
         "id": str(user["_id"]),
         "name": user["name"],
         "email": user["email"],
-        "role": user["role"],
+        "role": user.get("role", "user").lower(),
     }
 
     # --------------------------------------------------------
