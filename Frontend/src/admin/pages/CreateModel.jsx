@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Brain, CheckCircle2, Plus, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { saveModel } from "../../lib/api";
+import { requestJson, saveModel } from "../../lib/api";
 
 const iconOptions = [
   "Brain",
@@ -101,24 +101,60 @@ const CreateModel = () => {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validate()) return;
 
     setSubmitting(true);
-    const model = {
-      id: crypto.randomUUID(),
-      ...form,
-      route: normalizeRoute(form.route),
-      tags,
-      predictions: Number(form.predictions) || 0,
-      name: form.title,
+
+    const route = normalizeRoute(form.route);
+    const modelPayload = {
+      model_title: form.title.trim(),
+      model_description: form.description.trim(),
+      model_category: form.category,
+      model_icon: form.icon,
+      model_icon_color: form.iconColor,
+      model_icon_background: form.iconBg,
+      model_background_color: form.borderColor,
+      model_status: form.status,
+      model_routes: route,
+      model_types: form.modelType,
+      model_version: form.version.trim(),
+      model_tags: tags,
     };
 
-    saveModel(model);
-    navigate("/admin/models", {
-      state: { success: `${model.title} was created successfully.` },
-    });
+    try {
+      const response = await requestJson("/admin/add_model", {
+        method: "POST",
+        body: JSON.stringify(modelPayload),
+      });
+
+      const model = {
+        id: response.model_id || crypto.randomUUID(),
+        title: form.title.trim(),
+        name: form.title.trim(),
+        description: form.description.trim(),
+        category: form.category,
+        icon: form.icon,
+        iconColor: form.iconColor,
+        iconBg: form.iconBg,
+        borderColor: form.borderColor,
+        route,
+        tags,
+        modelType: form.modelType,
+        version: form.version.trim(),
+        status: form.status,
+        predictions: Number(form.predictions) || 0,
+      };
+
+      saveModel(model);
+      navigate("/admin/models", {
+        state: { success: `${model.title} was created successfully.` },
+      });
+    } catch (error) {
+      setErrors({ submit: error.message || "Unable to create model." });
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -141,6 +177,12 @@ const CreateModel = () => {
             <p className="text-xs text-slate-400">All required fields must be completed before creating the model.</p>
           </div>
         </div>
+
+        {errors.submit && (
+          <p role="alert" className="mb-5 rounded-lg border border-red-400/30 bg-red-400/10 px-3 py-2 text-sm text-red-300">
+            {errors.submit}
+          </p>
+        )}
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
