@@ -10,14 +10,14 @@ from app.database.db_connection import (
 
 
 # ============================================================
-# Application lifespan
+# APPLICATION LIFESPAN
 # ============================================================
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
 
     # --------------------------------------------------------
-    # Startup
+    # STARTUP
     # --------------------------------------------------------
 
     await connect_to_database()
@@ -25,14 +25,14 @@ async def lifespan(app: FastAPI):
     yield
 
     # --------------------------------------------------------
-    # Shutdown
+    # SHUTDOWN
     # --------------------------------------------------------
 
     await close_database()
 
 
 # ============================================================
-# Create FastAPI application
+# CREATE FASTAPI APPLICATION
 # ============================================================
 
 def create_app() -> FastAPI:
@@ -62,7 +62,7 @@ def create_app() -> FastAPI:
     )
 
     # ========================================================
-    # Home
+    # HOME
     # ========================================================
 
     @app.get("/")
@@ -73,37 +73,63 @@ def create_app() -> FastAPI:
         }
 
     # ========================================================
-    # Routes
+    # IMPORT ROUTES
     # ========================================================
 
     from app.routes.user import router as user_router
     from app.routes.models import router as model_router
     from app.routes.admin import router as admin_router
     from app.routes.login import router as login_router
+    from app.routes.logout import router as logout_router
 
+    # ========================================================
+    # LOGIN
+    # ========================================================
 
     app.include_router(
         login_router,
         prefix="/login",
-        tags=["login"],
+        tags=["Login"],
     )
+
+    # ========================================================
+    # LOGOUT
+    # ========================================================
+
+    app.include_router(
+        logout_router,
+        prefix="/logout",
+        tags=["Logout"],
+    )
+
+    # ========================================================
+    # USER
+    # ========================================================
 
     app.include_router(
         user_router,
         prefix="/user",
-        tags=["user"],
+        tags=["User"],
     )
+
+    # ========================================================
+    # MODEL
+    # ========================================================
 
     app.include_router(
         model_router,
         prefix="/model",
-        tags=["model"],
+        tags=["Model"],
     )
+
+    # ========================================================
+    # ADMIN
+    # ========================================================
 
     app.include_router(
         admin_router,
         prefix="/admin",
-        tags=["admin"],
+        tags=["Admin"],
     )
 
     return app

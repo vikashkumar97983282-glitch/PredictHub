@@ -35,3 +35,6 @@ def create_access_token(user_id: str, email: str, role: str):
     )
 
     return token
+
+async def revoke_token(token: str):
+    return None
