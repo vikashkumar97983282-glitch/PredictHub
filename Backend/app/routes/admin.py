@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.schemas.admin_schema import AdminLogin, AdminLoginResponse, AdminCreate
+from app.schemas.admin_schema import AdminLoginResponse, AdminCreate
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
 
@@ -52,28 +52,3 @@ async def create_admin(data: AdminCreate):
 
 
 
-@router.post('/login')
-async def login(data: AdminLogin):
-
-    user = await db.admin.find_one({"email": data.email.lower()})
-
-    if not user:
-        return {
-            'message':'Invalid user',
-            'token': None
-        }
-
-    if data.email != user["email"] or data.password != user["password"]:
-        return {
-            'message':'Invalid email or password',
-            'token': None
-        }
-    return {
-        "message": "Login successful",
-        "admin": {
-            "id": str(user["_id"]),
-            "name": user["name"],
-            "email": user["email"],
-            "role": user["role"],
-        }
-    }

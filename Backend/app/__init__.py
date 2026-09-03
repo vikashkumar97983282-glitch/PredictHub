@@ -79,6 +79,14 @@ def create_app() -> FastAPI:
     from app.routes.user import router as user_router
     from app.routes.models import router as model_router
     from app.routes.admin import router as admin_router
+    from app.routes.login import router as login_router
+
+
+    app.include_router(
+        login_router,
+        prefix="/login",
+        tags=["login"],
+    )
 
     app.include_router(
         user_router,
