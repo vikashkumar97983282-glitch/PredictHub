@@ -9,7 +9,7 @@ from app.services.jwt_services import create_access_token
 router = APIRouter()
 
 
-@router.post("/login")
+@router.post("/")
 async def login(data: Login):
 
     email = data.email.strip().lower()
