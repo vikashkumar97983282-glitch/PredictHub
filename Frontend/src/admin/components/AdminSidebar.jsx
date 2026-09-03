@@ -12,12 +12,14 @@ import {
   LogOut,
   Menu,
 } from "lucide-react";
+import { clearAuth, getStoredUser } from "../../lib/api";
 
 const AdminSidebar = ({
   sidebarOpen = true,
   setSidebarOpen,
 }) => {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
 
   const menuItems = [
     {
@@ -64,7 +66,7 @@ const AdminSidebar = ({
 
   const handleLogout = () => {
     // Clear authentication later
-    localStorage.removeItem("token");
+    clearAuth();
 
     navigate("/login");
   };
@@ -227,11 +229,11 @@ const AdminSidebar = ({
             <div className="min-w-0 flex-1">
 
               <p className="truncate text-sm font-semibold text-slate-200">
-                Admin
+                {currentUser?.name || "Admin"}
               </p>
 
               <p className="truncate text-xs text-slate-500">
-                Administrator
+                {currentUser?.email || "Administrator"}
               </p>
 
             </div>

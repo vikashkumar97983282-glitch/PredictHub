@@ -5,8 +5,10 @@ import {
   Bell,
   Save,
 } from "lucide-react";
+import { getStoredUser } from "../../lib/api";
 
 const AdminSettings = () => {
+  const currentUser = getStoredUser();
 
   const [notifications, setNotifications] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
@@ -61,7 +63,7 @@ const AdminSettings = () => {
             </label>
 
             <input
-              defaultValue="Admin"
+              defaultValue={currentUser?.name || "Admin"}
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
@@ -72,7 +74,7 @@ const AdminSettings = () => {
             </label>
 
             <input
-              defaultValue="admin@predicthub.com"
+              defaultValue={currentUser?.email || ""}
               type="email"
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />

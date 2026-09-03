@@ -8,19 +8,10 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL, requestJson } from "../lib/api";
 
 function PlacementForm() {
   const navigate = useNavigate();
-
-  // =====================================================
-  // API CONFIGURATION
-  // =====================================================
-
-  const API_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:8000";
-
-  // Remove trailing slash if environment variable has one
-  const API_BASE_URL = API_URL.replace(/\/+$/, "");
 
   // =====================================================
   // FORM STATE
@@ -109,54 +100,14 @@ function PlacementForm() {
 
       console.log("Prediction API:", endpoint);
 
-      const response = await fetch(endpoint, {
+      const result = await requestJson("/model/", {
         method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-
         body: JSON.stringify({
           cgpa: cgpa,
           resume_score: resumeScore,
         }),
       });
-
-      // =================================================
-      // READ RESPONSE
-      // =================================================
-
-      const contentType =
-        response.headers.get("content-type") || "";
-
-      let result;
-
-      if (contentType.includes("application/json")) {
-        result = await response.json();
-      } else {
-        const text = await response.text();
-
-        result = {
-          message: text,
-        };
-      }
-
-      console.log("API Status:", response.status);
       console.log("Backend response:", result);
-
-      // =================================================
-      // BACKEND ERROR
-      // =================================================
-
-      if (!response.ok) {
-        throw new Error(
-          result?.detail ||
-            result?.message ||
-            result?.error ||
-            `Prediction failed. Server returned ${response.status}.`
-        );
-      }
 
       // =================================================
       // GET PREDICTION

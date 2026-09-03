@@ -18,15 +18,11 @@ import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
+import { API_BASE_URL } from "../lib/api";
 
 /* =====================================================
    API CONFIGURATION
 ===================================================== */
-
-const API_BASE_URL = (
-  import.meta.env.VITE_API_URL || "http://localhost:8000"
-).replace(/\/+$/, "");
-
 
 /* =====================================================
    API STATUS HOOK

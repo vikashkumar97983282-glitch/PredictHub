@@ -11,6 +11,7 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { clearAuth, getStoredUser } from "../lib/api";
 
 function Header({ onMenuClick }) {
   // =========================
@@ -18,11 +19,7 @@ function Header({ onMenuClick }) {
   // =========================
 
   const [currentUser, setCurrentUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("user")) || null;
-    } catch {
-      return null;
-    }
+    return getStoredUser();
   });
   const isLoggedIn = Boolean(currentUser);
 
@@ -112,11 +109,7 @@ function Header({ onMenuClick }) {
 
   useEffect(() => {
     const refreshUser = () => {
-      try {
-        setCurrentUser(JSON.parse(localStorage.getItem("user")) || null);
-      } catch {
-        setCurrentUser(null);
-      }
+      setCurrentUser(getStoredUser());
     };
 
     window.addEventListener("user-authenticated", refreshUser);
@@ -133,12 +126,7 @@ function Header({ onMenuClick }) {
   // =========================
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("admin");
-    localStorage.removeItem("user");
-
-    setCurrentUser(null);
+    clearAuth();
     setProfileOpen(false);
     setNotificationOpen(false);
 

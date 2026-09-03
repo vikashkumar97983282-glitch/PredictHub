@@ -6,9 +6,11 @@ import {
   Menu,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { clearAuth, getStoredUser } from "../../lib/api";
 
 const AdminHeader = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
+  const currentUser = getStoredUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [activePanel, setActivePanel] = useState(null);
 
@@ -40,7 +42,7 @@ const AdminHeader = ({ setSidebarOpen }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    clearAuth();
     navigate("/login");
   };
 
@@ -156,11 +158,11 @@ const AdminHeader = ({ setSidebarOpen }) => {
 
             <div className="hidden text-left sm:block">
               <p className="text-sm font-semibold text-slate-200">
-                Admin
+                {currentUser?.name || "Admin"}
               </p>
 
               <p className="text-[11px] text-slate-500">
-                Administrator
+                {currentUser?.email || "Administrator"}
               </p>
             </div>
 

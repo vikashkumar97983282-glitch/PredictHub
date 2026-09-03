@@ -8,6 +8,7 @@ import {
   LogIn,
   Brain,
 } from "lucide-react";
+import { requestJson, storeAuth } from "../lib/api";
 
 function Login() {
   const navigate = useNavigate();
@@ -54,84 +55,15 @@ function Login() {
       // ==========================================
       // FASTAPI LOGIN API
       // ==========================================
-      const response = await fetch(
-        "https://predicthub-g9lj.onrender.com/admin/login",
-        {
-          method: "POST",
+      const data = await requestJson("/login/", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
 
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
-
-      // Try to read JSON response
-      const data = await response.json();
-
-      console.log("Login response:", data);
-
-      // ==========================================
-      // LOGIN FAILED
-      // ==========================================
-      if (!response.ok) {
-        setError(
-          data.detail ||
-            data.message ||
-            "Invalid email or password."
-        );
-
-        return;
-      }
-
-      // ==========================================
-      // LOGIN SUCCESS
-      // ==========================================
-
-      console.log("Login successful");
-
-      /*
-       * If your API returns a token, for example:
-       *
-       * {
-       *   "access_token": "xxxxx",
-       *   "token_type": "bearer"
-       * }
-       *
-       * save it here.
-       */
-
-      if (data.access_token) {
-        if (rememberMe) {
-          localStorage.setItem(
-            "access_token",
-            data.access_token
-          );
-        } else {
-          sessionStorage.setItem(
-            "access_token",
-            data.access_token
-          );
-        }
-      }
-
-      // Save user/admin information if returned
-      if (data.admin) {
-        localStorage.setItem(
-          "admin",
-          JSON.stringify(data.admin)
-        );
-        localStorage.setItem("user", JSON.stringify(data.admin));
-      }
-
-      window.dispatchEvent(new Event("user-authenticated"));
+      storeAuth(data, rememberMe);
 
       // Redirect after successful login
-      if (data.admin && data.admin.role === "admin") {
+      if (data.user?.role === "admin") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");
@@ -139,9 +71,7 @@ function Login() {
     } catch (err) {
       console.error("Login error:", err);
 
-      setError(
-        "Unable to connect to the server. Please try again."
-      );
+      setError(err.message || "Unable to connect to the server. Please try again.");
     } finally {
       setLoading(false);
     }

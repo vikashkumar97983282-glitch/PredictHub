@@ -12,7 +12,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { requestJson, storeAuth } from "../lib/api";
 
 function CreateUser() {
   const navigate = useNavigate();
@@ -92,35 +92,18 @@ function CreateUser() {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        "https://predicthub-g9lj.onrender.com/user/register",
-        formData
-      );
+      const data = await requestJson("/user/register", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: response.data.username || formData.name,
-          email: formData.email,
-          role: response.data.role || "user",
-        })
-      );
-      window.dispatchEvent(new Event("user-authenticated"));
-
-      setSuccessMessage(response.data.message || "Registration successful.");
+      storeAuth(data);
+      setSuccessMessage(data.message || "Registration successful.");
       navigate("/");
     } catch (error) {
       console.error("Create user error:", error);
 
-      if (error.response?.data?.detail) {
-        setErrorMessage(error.response.data.detail);
-      } else if (error.response?.data?.message) {
-        setErrorMessage(error.response.data.message);
-      } else {
-        setErrorMessage(
-          "Unable to create user. Please try again."
-        );
-      }
+      setErrorMessage(error.message || "Unable to create user. Please try again.");
     } finally {
       setLoading(false);
     }

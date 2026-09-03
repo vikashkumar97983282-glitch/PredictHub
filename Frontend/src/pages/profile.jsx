@@ -25,6 +25,7 @@ import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
+import { getStoredUser } from "../lib/api";
 
 
 /* =========================================================
@@ -39,12 +40,13 @@ function Profile() {
     toggleMobileMenu,
     closeMobileMenu,
   } = useSidebar();
+  const storedUser = getStoredUser();
   const [isEditing, setIsEditing] = useState(false);
 
   const [profile, setProfile] = useState({
-    name: "Tom Cook",
-    username: "tomcook",
-    email: "tomcook@example.com",
+    name: storedUser?.name || "Guest User",
+    username: storedUser?.email?.split("@")[0] || "guest",
+    email: storedUser?.email || "",
     phone: "+91 98765 43210",
     location: "New Delhi, India",
     website: "tomcook.dev",
@@ -662,7 +664,7 @@ function Profile() {
                       <SocialButton
                         icon={Briefcase}
                         name="LinkedIn"
-                        username="Tom Cook"
+                        username={profile.name}
                       />
 
 
