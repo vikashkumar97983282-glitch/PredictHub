@@ -1,13 +1,11 @@
 from fastapi import APIRouter
 from app.schemas.admin_schema import AdminLogin, AdminLoginResponse, AdminCreate
 from app.database.db_connection import db,collection
+from app.services.hash_password import hash_password
 
 
 
 router = APIRouter()
-
-
-
 
 
 
@@ -33,12 +31,15 @@ async def create_admin(data: AdminCreate):
         return {
             'message':'Admin already exists'
         }
+
+    hashed_password = hash_password(data.password)
     
     admin = {
         "name": data.name,
+        "age": data.age,
         "email": data.email.lower(),
-        "password": data.password,
-        "role": "admin",
+        "password": hashed_password,
+        "role": data.role,
     }
 
     result = await db.admin.insert_one(admin)

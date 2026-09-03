@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.schemas.auth_schema import UserRegisterSchema
 from app.database.db_connection import db
+from app.services.hash_password import hash_password, verify_password
 
 
 router = APIRouter()
@@ -37,10 +38,12 @@ async def register(data: UserRegisterSchema):
             "message": "Password and confirm password do not match"
         }
 
+    password_hashed = hash_password(data.password)
+
     user_data = {
         "name": data.name,
         "email": data.email.lower(),
-        "password": data.password,
+        "password": password_hashed,
         "role": data.role,
     }
 

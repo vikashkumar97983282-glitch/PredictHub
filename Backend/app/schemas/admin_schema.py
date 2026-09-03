@@ -8,6 +8,7 @@ class AdminCreate(BaseModel):
     email: EmailStr = Field(..., description="Admin email address")
     password: str = Field(..., description="Admin password")
     confirm_password: str = Field(..., description="Confirm admin password")
+    role: str = "admin"
 
 class AdminLogin(BaseModel):
     email: EmailStr = Field(..., description="Admin email address")
