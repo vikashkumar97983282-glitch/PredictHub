@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   UserPlus,
   User,
@@ -93,21 +93,12 @@ function CreateUser() {
       setLoading(true);
 
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/admin/create_user`,
+        "https://predicthub-g9lj.onrender.com/user/register",
         formData
       );
 
-      setSuccessMessage(
-        response.data.message || "User created successfully."
-      );
-
-      // Clear form
-      setFormData({
-        name: "",
-        email: "",
-        password: "",
-        confirm_password: "",
-      });
+      setSuccessMessage(response.data.message || "Registration successful.");
+      navigate("/");
     } catch (error) {
       console.error("Create user error:", error);
 
