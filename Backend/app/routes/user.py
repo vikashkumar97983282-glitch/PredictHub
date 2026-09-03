@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from app.schemas.security_schema import UserRegisterSchema
 from app.database.db_connection import db
-from app.services.hash_password import hash_password, verify_password
+from app.services.hash_password import hash_password
+from app.services.jwt_services import create_access_token
 
 
 router = APIRouter()
@@ -29,14 +30,13 @@ async def register(data: UserRegisterSchema):
     user = await db.users.find_one({"email": data.email.lower()})
 
     if user:
-        return {
-            "message": "User already exists"
-        }
+        raise HTTPException(status_code=409, detail="User already exists")
 
     if data.password != data.confirm_password:
-        return {
-            "message": "Password and confirm password do not match"
-        }
+        raise HTTPException(
+            status_code=400,
+            detail="Password and confirm password do not match",
+        )
 
     password_hashed = hash_password(data.password)
 
@@ -44,14 +44,25 @@ async def register(data: UserRegisterSchema):
         "name": data.name,
         "email": data.email.lower(),
         "password": password_hashed,
-        "role": data.role,
+        "role": data.role.lower(),
     }
 
     result = await db.users.insert_one(user_data)
 
+    role = data.role.lower()
+    user = {
+        "id": str(result.inserted_id),
+        "name": data.name,
+        "email": data.email.lower(),
+        "role": role,
+    }
+
     return {
         "message": "User registered successfully",
-        "user_id": str(result.inserted_id),
-        "username": data.name,
-        "role": data.role,
+        "token": create_access_token(
+            user_id=user["id"],
+            email=user["email"],
+            role=role,
+        ),
+        "user": user,
     }
