@@ -3,21 +3,37 @@ const API_BASE_URL = (
 ).replace(/\/+$/, "");
 
 export const getStoredToken = () => {
-  const token =
-    localStorage.getItem("access_token") || sessionStorage.getItem("access_token");
+  const localToken = localStorage.getItem("access_token");
+  const sessionToken = sessionStorage.getItem("access_token");
 
-  return token && isValidToken(token) ? token : null;
+  if (localToken && isValidToken(localToken)) {
+    return localToken;
+  }
+
+  if (sessionToken && isValidToken(sessionToken)) {
+    return sessionToken;
+  }
+
+  localStorage.removeItem("access_token");
+  sessionStorage.removeItem("access_token");
+  localStorage.removeItem("user");
+  sessionStorage.removeItem("user");
+  return null;
 };
 
 export const getStoredUser = () => {
-  if (!getStoredToken()) {
+  const localToken = localStorage.getItem("access_token");
+  const sessionToken = sessionStorage.getItem("access_token");
+
+  if (!localToken && !sessionToken) {
     return null;
   }
 
   try {
-    return JSON.parse(
-      localStorage.getItem("user") || sessionStorage.getItem("user")
-    ) || null;
+    const storage = localToken && isValidToken(localToken)
+      ? localStorage
+      : sessionStorage;
+    return JSON.parse(storage.getItem("user")) || null;
   } catch {
     return null;
   }

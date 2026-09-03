@@ -20,6 +20,7 @@ import CreateUser from "./pages/CreateUser";
 // CONTEXT
 // =========================
 import { SidebarProvider } from "./contexts/sidebar-context";
+import { getStoredToken, getStoredUser } from "./lib/api";
 
 // =========================
 // ADMIN LAYOUT
@@ -40,6 +41,17 @@ import CreateModel from "./admin/pages/CreateModel";
 
 // ⭐ ADMIN CREATE USER
 import AdminCreateUser from "./admin/pages/CreateUser";
+
+function AdminRoute() {
+  const token = getStoredToken();
+  const user = getStoredUser();
+
+  if (!token || user?.role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <AdminLayout />;
+}
 
 function App() {
   return (
@@ -134,7 +146,7 @@ function App() {
 
         <Route
           path="/admin"
-          element={<AdminLayout />}
+          element={<AdminRoute />}
         >
 
           {/* /admin */}
