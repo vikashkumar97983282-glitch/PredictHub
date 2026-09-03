@@ -1,14 +1,39 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   Brain,
-  Plus,
+  BarChart3,
+  Activity,
+  Database,
+  Cpu,
+  LineChart,
+  Image,
+  HeartPulse,
+  GraduationCap,
+  TrendingUp,
   MoreHorizontal,
   CheckCircle2,
 } from "lucide-react";
+import { getStoredModels } from "../../lib/api";
+
+const iconOptions = {
+  Brain,
+  BarChart3,
+  Activity,
+  Database,
+  Cpu,
+  LineChart,
+  Image,
+  HeartPulse,
+  GraduationCap,
+  TrendingUp,
+};
 
 const AdminModels = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [models, setModels] = useState([
+  const [models, setModels] = useState(() => [
     {
       name: "House Price Prediction",
       type: "Regression",
@@ -37,26 +62,21 @@ const AdminModels = () => {
       status: "Inactive",
       predictions: "4,210",
     },
+    ...getStoredModels(),
   ]);
-  const [showAddForm, setShowAddForm] = useState(false);
   const [openMenu, setOpenMenu] = useState(null);
-  const [newModel, setNewModel] = useState({ name: "", type: "Regression" });
+  const [successMessage, setSuccessMessage] = useState(location.state?.success || "");
 
-  const handleAddModel = (event) => {
-    event.preventDefault();
-    setModels((currentModels) => [
-      ...currentModels,
-      {
-        name: newModel.name,
-        type: newModel.type,
-        version: "v1.0",
-        status: "Active",
-        predictions: "0",
-      },
-    ]);
-    setNewModel({ name: "", type: "Regression" });
-    setShowAddForm(false);
-  };
+  useEffect(() => {
+    if (!location.state?.success) {
+      return;
+    }
+
+    window.history.replaceState({}, document.title);
+    const timeoutId = window.setTimeout(() => setSuccessMessage(""), 4000);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [location.state]);
 
   const toggleModelStatus = (modelName) => {
     setModels((currentModels) =>
@@ -86,10 +106,10 @@ const AdminModels = () => {
 
         <button
           type="button"
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => navigate("/admin/models/create")}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
         >
-          <Plus size={18} />
+          <span aria-hidden="true">+</span>
           Add Model
         </button>
 
@@ -100,13 +120,16 @@ const AdminModels = () => {
         {models.map((model) => (
           <div
             key={model.name}
-            className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20"
+            className={`group rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 transition ${model.borderColor || ""}`}
           >
 
             <div className="relative flex items-start justify-between">
 
-              <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
-                <Brain size={22} />
+              <div className={`rounded-xl p-3 ${model.iconBg || "bg-cyan-400/10"} ${model.iconColor || "text-cyan-300"}`}>
+                {(() => {
+                  const Icon = iconOptions[model.icon] || Brain;
+                  return <Icon size={22} />;
+                })()}
               </div>
 
               <button
@@ -133,13 +156,19 @@ const AdminModels = () => {
             </div>
 
             <h2 className="mt-5 font-semibold text-white">
-              {model.name}
+              {model.name || model.title}
             </h2>
+
+            {model.description && (
+              <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-400">
+                {model.description}
+              </p>
+            )}
 
             <div className="mt-2 flex items-center gap-2">
 
-              <span className="rounded-md bg-slate-100 px-2 py-1 text-xs text-slate-500">
-                {model.type}
+              <span className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-300">
+                {model.category || model.modelType || model.type}
               </span>
 
               <span className="text-xs text-slate-400">
@@ -147,6 +176,16 @@ const AdminModels = () => {
               </span>
 
             </div>
+
+            {model.tags?.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {model.tags.map((tag) => (
+                  <span key={tag} className="rounded-md bg-slate-800/80 px-2 py-1 text-[11px] text-slate-400">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
 
             <div className="mt-5 flex items-center justify-between border-t border-[#243047] pt-4">
 
@@ -178,33 +217,10 @@ const AdminModels = () => {
 
       </div>
 
-      {showAddForm && (
-        <form
-          onSubmit={handleAddModel}
-          className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20"
-        >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <input
-              required
-              value={newModel.name}
-              onChange={(event) => setNewModel({ ...newModel, name: event.target.value })}
-              placeholder="Model name"
-              className="rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none placeholder:text-slate-600 focus:border-cyan-400"
-            />
-            <select
-              value={newModel.type}
-              onChange={(event) => setNewModel({ ...newModel, type: event.target.value })}
-              className="rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400"
-            >
-              <option>Regression</option>
-              <option>Classification</option>
-            </select>
-          </div>
-          <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" onClick={() => setShowAddForm(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white">Cancel</button>
-            <button type="submit" className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Add Model</button>
-          </div>
-        </form>
+      {successMessage && (
+        <div role="status" className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-300">
+          {successMessage}
+        </div>
       )}
 
     </div>

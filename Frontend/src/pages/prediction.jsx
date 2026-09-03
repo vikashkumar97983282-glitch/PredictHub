@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Brain,
   Search,
@@ -19,6 +19,16 @@ import Sidebar from "../components/sidebar";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
+import { getStoredModels } from "../lib/api";
+
+const iconOptions = {
+  Brain,
+  BarChart3,
+  Activity,
+  Database,
+  Cpu,
+  TrendingUp,
+};
 
 /* =====================================================
    PREDICTION MODELS
@@ -159,6 +169,25 @@ function Prediction() {
      SEARCH & CATEGORY
   ===================================================== */
 
+  const [availableModels, setAvailableModels] = useState(() => [
+    ...models,
+    ...getStoredModels(),
+  ]);
+
+  useEffect(() => {
+    const refreshModels = () => {
+      setAvailableModels([...models, ...getStoredModels()]);
+    };
+
+    window.addEventListener("model-added", refreshModels);
+    window.addEventListener("storage", refreshModels);
+
+    return () => {
+      window.removeEventListener("model-added", refreshModels);
+      window.removeEventListener("storage", refreshModels);
+    };
+  }, []);
+
   const [searchTerm, setSearchTerm] = useState("");
 
   const [activeCategory, setActiveCategory] =
@@ -171,7 +200,7 @@ function Prediction() {
   const filteredModels = useMemo(() => {
     const searchValue = searchTerm.trim().toLowerCase();
 
-    return models.filter((model) => {
+    return availableModels.filter((model) => {
       /* Category filter */
 
       const matchesCategory =
@@ -195,7 +224,7 @@ function Prediction() {
 
       return matchesCategory && matchesSearch;
     });
-  }, [activeCategory, searchTerm]);
+  }, [activeCategory, availableModels, searchTerm]);
 
   /* =====================================================
      SCROLL TO MODELS
@@ -591,7 +620,9 @@ function Prediction() {
                     >
 
                       {filteredModels.map((model) => {
-                        const Icon = model.icon;
+                        const Icon = typeof model.icon === "string"
+                          ? iconOptions[model.icon] || Brain
+                          : model.icon;
 
                         return (
                           <div

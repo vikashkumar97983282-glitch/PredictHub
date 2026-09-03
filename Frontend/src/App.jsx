@@ -36,6 +36,7 @@ import AdminPredictions from "./admin/pages/AdminPredictions";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminSettings from "./admin/pages/AdminSettings";
 import AdminActivity from "./admin/pages/AdminActivity";
+import CreateModel from "./admin/pages/CreateModel";
 
 // ⭐ ADMIN CREATE USER
 import AdminCreateUser from "./admin/pages/CreateUser";
@@ -77,6 +78,18 @@ function App() {
           <Route
             path="placement"
             element={<PlacementForm />}
+          />
+
+          {/* /prediction/stock-price */}
+          <Route
+            path="stock-price"
+            element={<ComingSoon />}
+          />
+
+          {/* /prediction/data-analysis */}
+          <Route
+            path="data-analysis"
+            element={<ComingSoon />}
           />
 
           {/* Unknown prediction pages */}
@@ -174,6 +187,12 @@ function App() {
           <Route
             path="models"
             element={<AdminModels />}
+          />
+
+          {/* /admin/models/create */}
+          <Route
+            path="models/create"
+            element={<CreateModel />}
           />
 
           {/* -----------------------------------------------

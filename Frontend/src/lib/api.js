@@ -69,6 +69,21 @@ export const clearAuth = () => {
   window.dispatchEvent(new Event("user-authenticated"));
 };
 
+export const getStoredModels = () => {
+  try {
+    const models = JSON.parse(localStorage.getItem("predicthub_models"));
+    return Array.isArray(models) ? models : [];
+  } catch {
+    return [];
+  }
+};
+
+export const saveModel = (model) => {
+  const models = [...getStoredModels(), model];
+  localStorage.setItem("predicthub_models", JSON.stringify(models));
+  window.dispatchEvent(new Event("model-added"));
+};
+
 export const requestJson = async (path, options = {}) => {
   const headers = {
     Accept: "application/json",
