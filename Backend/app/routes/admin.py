@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 from app.schemas.admin_schema import AdminLoginResponse, AdminCreate
+from app.schemas.model_schema import AddModelSchema
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
 
@@ -50,5 +51,17 @@ async def create_admin(data: AdminCreate):
         "role": "admin",
     }
 
+
+@router.post("/add_model")
+async def add_model(data: AddModelSchema):
+
+    model_data = data.model_dump()
+
+    result = await db.models.insert_one(model_data)
+
+    return {
+        "message": "Model added successfully",
+        "model_id": str(result.inserted_id)
+    }
 
 
