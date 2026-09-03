@@ -49,5 +49,6 @@ async def register(data: UserRegisterSchema):
     return {
         "message": "User registered successfully",
         "user_id": str(result.inserted_id),
+        "username": data.name,
         "role": data.role,
     }
