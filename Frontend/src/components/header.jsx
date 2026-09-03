@@ -17,9 +17,14 @@ function Header({ onMenuClick }) {
   // LOGIN STATE
   // =========================
 
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return Boolean(localStorage.getItem("token"));
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || null;
+    } catch {
+      return null;
+    }
   });
+  const isLoggedIn = Boolean(currentUser);
 
   // =========================
   // DROPDOWN STATES
@@ -105,14 +110,35 @@ function Header({ onMenuClick }) {
     };
   }, []);
 
+  useEffect(() => {
+    const refreshUser = () => {
+      try {
+        setCurrentUser(JSON.parse(localStorage.getItem("user")) || null);
+      } catch {
+        setCurrentUser(null);
+      }
+    };
+
+    window.addEventListener("user-authenticated", refreshUser);
+    window.addEventListener("storage", refreshUser);
+
+    return () => {
+      window.removeEventListener("user-authenticated", refreshUser);
+      window.removeEventListener("storage", refreshUser);
+    };
+  }, []);
+
   // =========================
   // LOGOUT
   // =========================
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("admin");
+    localStorage.removeItem("user");
 
-    setIsLoggedIn(false);
+    setCurrentUser(null);
     setProfileOpen(false);
     setNotificationOpen(false);
 
@@ -669,7 +695,7 @@ function Header({ onMenuClick }) {
               "
             >
               {isLoggedIn
-                ? "Tom Cook"
+                ? currentUser.name || currentUser.email
                 : "Guest"}
             </span>
 
@@ -724,13 +750,13 @@ function Header({ onMenuClick }) {
               >
                 <p className="text-sm font-semibold text-white">
                   {isLoggedIn
-                    ? "Tom Cook"
+                    ? currentUser.name || currentUser.email
                     : "Guest User"}
                 </p>
 
                 <p className="mt-1 break-all text-xs text-[#718096]">
                   {isLoggedIn
-                    ? "tom@example.com"
+                    ? currentUser.email || ""
                     : "Please login to access your account"}
                 </p>
               </div>

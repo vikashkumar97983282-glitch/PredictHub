@@ -125,7 +125,10 @@ function Login() {
           "admin",
           JSON.stringify(data.admin)
         );
+        localStorage.setItem("user", JSON.stringify(data.admin));
       }
+
+      window.dispatchEvent(new Event("user-authenticated"));
 
       // Redirect after successful login
       if (data.admin && data.admin.role === "admin") {

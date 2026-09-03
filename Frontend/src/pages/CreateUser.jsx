@@ -97,6 +97,16 @@ function CreateUser() {
         formData
       );
 
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          name: response.data.username || formData.name,
+          email: formData.email,
+          role: response.data.role || "user",
+        })
+      );
+      window.dispatchEvent(new Event("user-authenticated"));
+
       setSuccessMessage(response.data.message || "Registration successful.");
       navigate("/");
     } catch (error) {
