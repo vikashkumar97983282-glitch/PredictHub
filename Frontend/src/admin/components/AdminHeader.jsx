@@ -6,7 +6,7 @@ import {
   Menu,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { clearAuth, getStoredUser } from "../../lib/api";
+import { getStoredUser, logout } from "../../lib/api";
 
 const AdminHeader = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
@@ -41,8 +41,8 @@ const AdminHeader = ({ setSidebarOpen }) => {
     }
   };
 
-  const handleLogout = () => {
-    clearAuth();
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 

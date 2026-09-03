@@ -1,4 +1,5 @@
 import "./App.css";
+import { useEffect, useState } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 
 // =========================
@@ -43,10 +44,27 @@ import CreateModel from "./admin/pages/CreateModel";
 import AdminCreateUser from "./admin/pages/CreateUser";
 
 function AdminRoute() {
-  const token = getStoredToken();
-  const user = getStoredUser();
+  const [isAuthorized, setIsAuthorized] = useState(() => {
+    const token = getStoredToken();
+    return Boolean(token && getStoredUser()?.role?.toLowerCase() === "admin");
+  });
 
-  if (!token || user?.role !== "admin") {
+  useEffect(() => {
+    const refreshAuthorization = () => {
+      const token = getStoredToken();
+      setIsAuthorized(Boolean(token && getStoredUser()?.role?.toLowerCase() === "admin"));
+    };
+
+    window.addEventListener("user-authenticated", refreshAuthorization);
+    window.addEventListener("storage", refreshAuthorization);
+
+    return () => {
+      window.removeEventListener("user-authenticated", refreshAuthorization);
+      window.removeEventListener("storage", refreshAuthorization);
+    };
+  }, []);
+
+  if (!isAuthorized) {
     return <Navigate to="/login" replace />;
   }
 

@@ -12,7 +12,7 @@ import {
   LogOut,
   Menu,
 } from "lucide-react";
-import { clearAuth, getStoredUser } from "../../lib/api";
+import { getStoredUser, logout } from "../../lib/api";
 
 const AdminSidebar = ({
   sidebarOpen = true,
@@ -64,9 +64,9 @@ const AdminSidebar = ({
     },
   ];
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     // Clear authentication later
-    clearAuth();
+    await logout();
 
     navigate("/login");
   };

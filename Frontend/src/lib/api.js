@@ -47,8 +47,15 @@ const isValidToken = (token) => {
   }
 
   try {
+    const encodedPayload = parts[1]
+      .replace(/-/g, "+")
+      .replace(/_/g, "/");
+    const paddedPayload = encodedPayload.padEnd(
+      encodedPayload.length + ((4 - (encodedPayload.length % 4)) % 4),
+      "="
+    );
     const payload = JSON.parse(
-      atob(parts[1].replace(/-/g, "+").replace(/_/g, "/"))
+      atob(paddedPayload)
     );
 
     return typeof payload.exp === "number" && payload.exp * 1000 > Date.now();
@@ -68,10 +75,14 @@ export const storeAuth = (data, rememberMe = true) => {
 
   const storage = rememberMe ? localStorage : sessionStorage;
   const otherStorage = rememberMe ? sessionStorage : localStorage;
+  const user = {
+    ...(data.user || {}),
+    role: data.user?.role?.toLowerCase() || "user",
+  };
 
   otherStorage.removeItem("access_token");
   storage.setItem("access_token", data.token);
-  storage.setItem("user", JSON.stringify(data.user || {}));
+  storage.setItem("user", JSON.stringify(user));
 
   window.dispatchEvent(new Event("user-authenticated"));
 };
@@ -83,6 +94,20 @@ export const clearAuth = () => {
   sessionStorage.removeItem("access_token");
   sessionStorage.removeItem("user");
   window.dispatchEvent(new Event("user-authenticated"));
+};
+
+export const logout = async () => {
+  const token = getStoredToken();
+
+  try {
+    if (token) {
+      await requestJson("/logout/", { method: "POST" });
+    }
+  } catch (error) {
+    console.error("Logout request failed:", error);
+  } finally {
+    clearAuth();
+  }
 };
 
 export const getStoredModels = () => {

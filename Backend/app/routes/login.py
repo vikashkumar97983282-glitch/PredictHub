@@ -4,7 +4,8 @@ from app.schemas.login_schema import Login
 from app.database.db_connection import db
 
 from app.services.jwt_services import create_access_token
-from app.services.hash_password import verify_password
+from app.services.hash_password import hash_password, verify_password
+import hmac
 
 
 router = APIRouter()
@@ -29,11 +30,13 @@ async def login(
     # FIND ADMIN OR USER
     # --------------------------------------------------------
 
-    user = await db.admin.find_one({
+    user_collection = db.admin
+    user = await user_collection.find_one({
         "email": email
     })
 
     if user is None:
+        user_collection = db.users
         user = await db.users.find_one({
             "email": email
         })
@@ -52,13 +55,15 @@ async def login(
     # VERIFY PASSWORD
     # --------------------------------------------------------
 
+    stored_password = user.get("password", "")
+    password_valid = False
+    legacy_password = False
+
     try:
-        password_valid = verify_password(
-            data.password,
-            user["password"]
-        )
+        password_valid = verify_password(data.password, stored_password)
     except (TypeError, ValueError):
-        password_valid = False
+        legacy_password = hmac.compare_digest(data.password, str(stored_password))
+        password_valid = legacy_password
 
     if not password_valid:
 
@@ -68,6 +73,12 @@ async def login(
             headers={
                 "WWW-Authenticate": "Bearer"
             },
+        )
+
+    if legacy_password:
+        await user_collection.update_one(
+            {"_id": user["_id"]},
+            {"$set": {"password": hash_password(data.password)}},
         )
 
     # --------------------------------------------------------

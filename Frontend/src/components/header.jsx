@@ -11,7 +11,7 @@ import {
   CheckCheck,
 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { clearAuth, getStoredUser } from "../lib/api";
+import { getStoredUser, logout } from "../lib/api";
 
 function Header({ onMenuClick }) {
   // =========================
@@ -125,8 +125,8 @@ function Header({ onMenuClick }) {
   // LOGOUT
   // =========================
 
-  const handleLogout = () => {
-    clearAuth();
+  const handleLogout = async () => {
+    await logout();
     setProfileOpen(false);
     setNotificationOpen(false);
 
