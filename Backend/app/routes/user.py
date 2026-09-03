@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.schemas.auth_schema import UserRegisterSchema
+from app.schemas.security_schema import UserRegisterSchema
 from app.database.db_connection import db
 from app.services.hash_password import hash_password, verify_password
 

@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException
 from app.schemas.login_schema import Login
 from app.database.db_connection import db
 from app.services.hash_password import verify_password
+from app.services.jwt_services import create_access_token
 
 
 router = APIRouter()
@@ -13,9 +14,9 @@ async def login(data: Login):
 
     email = data.email.strip().lower()
 
-    # =========================================================
-    # 1. CHECK ADMIN
-    # =========================================================
+    # =====================================================
+    # CHECK ADMIN
+    # =====================================================
 
     admin = await db.admin.find_one({
         "email": email
@@ -23,20 +24,24 @@ async def login(data: Login):
 
     if admin:
 
-        password_correct = verify_password(
+        if not verify_password(
             data.password,
             admin["password"]
-        )
-
-        if not password_correct:
+        ):
             raise HTTPException(
                 status_code=401,
                 detail="Invalid email or password"
             )
 
+        token = create_access_token(
+            user_id=str(admin["_id"]),
+            email=admin["email"],
+            role="admin"
+        )
+
         return {
             "message": "Admin login successful",
-            "role": "admin",
+            "token": token,
             "user": {
                 "id": str(admin["_id"]),
                 "name": admin["name"],
@@ -45,9 +50,9 @@ async def login(data: Login):
             }
         }
 
-    # =========================================================
-    # 2. CHECK NORMAL USER
-    # =========================================================
+    # =====================================================
+    # CHECK NORMAL USER
+    # =====================================================
 
     user = await db.users.find_one({
         "email": email
@@ -55,20 +60,24 @@ async def login(data: Login):
 
     if user:
 
-        password_correct = verify_password(
+        if not verify_password(
             data.password,
             user["password"]
-        )
-
-        if not password_correct:
+        ):
             raise HTTPException(
                 status_code=401,
                 detail="Invalid email or password"
             )
 
+        token = create_access_token(
+            user_id=str(user["_id"]),
+            email=user["email"],
+            role=user.get("role", "user")
+        )
+
         return {
             "message": "Login successful",
-            "role": "user",
+            "token": token,
             "user": {
                 "id": str(user["_id"]),
                 "name": user["name"],
@@ -77,9 +86,9 @@ async def login(data: Login):
             }
         }
 
-    # =========================================================
-    # 3. EMAIL NOT FOUND
-    # =========================================================
+    # =====================================================
+    # EMAIL NOT FOUND
+    # =====================================================
 
     raise HTTPException(
         status_code=401,
