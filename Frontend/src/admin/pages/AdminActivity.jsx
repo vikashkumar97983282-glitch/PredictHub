@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Activity,
   CheckCircle2,
@@ -143,7 +143,7 @@ const AdminActivity = () => {
                     <span className="flex items-center gap-1 text-xs text-slate-500"><Clock3 size={13} />{event.time}</span>
                   </div>
                   <p className="mt-1 text-sm text-slate-400">{event.action}</p>
-                  <p className="mt-1 text-xs text-slate-600">{event.detail}</p>
+                  <p className="mt-1 text-xs text-slate-500">{event.detail}</p>
                 </div>
               </div>
             ))}

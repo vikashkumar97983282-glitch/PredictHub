@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 
 import {
@@ -151,6 +150,11 @@ const AdminSidebar = ({
                 key={item.path}
                 to={item.path}
                 end={item.path === "/admin/dashboard"}
+                onClick={() => {
+                  if (window.innerWidth < 1024) {
+                    setSidebarOpen(false);
+                  }
+                }}
                 className={({ isActive }) => `
                   group
                   flex

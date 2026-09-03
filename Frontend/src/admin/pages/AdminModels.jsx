@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Brain,
   Plus,
@@ -148,7 +148,7 @@ const AdminModels = () => {
 
             </div>
 
-            <div className="mt-5 flex items-center justify-between border-t border-slate-100 pt-4">
+            <div className="mt-5 flex items-center justify-between border-t border-[#243047] pt-4">
 
               <div>
                 <p className="text-xs text-slate-500">
@@ -163,7 +163,7 @@ const AdminModels = () => {
               <span
                 className={`flex items-center gap-1 text-xs font-semibold ${
                   model.status === "Active"
-                    ? "text-emerald-600"
+                    ? "text-emerald-300"
                     : "text-slate-400"
                 }`}
               >
@@ -200,7 +200,7 @@ const AdminModels = () => {
               <option>Classification</option>
             </select>
           </div>
-          <div className="mt-4 flex justify-end gap-3">
+          <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button type="button" onClick={() => setShowAddForm(false)} className="rounded-lg px-4 py-2 text-sm text-slate-400 transition hover:bg-slate-800 hover:text-white">Cancel</button>
             <button type="submit" className="rounded-lg bg-cyan-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300">Add Model</button>
           </div>

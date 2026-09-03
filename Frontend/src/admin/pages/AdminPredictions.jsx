@@ -1,9 +1,6 @@
-import React from "react";
 import {
-  TrendingUp,
   CheckCircle2,
   Clock,
-  XCircle,
 } from "lucide-react";
 
 const AdminPredictions = () => {
@@ -69,7 +66,7 @@ const AdminPredictions = () => {
             Completed
           </p>
 
-          <h2 className="mt-2 text-2xl font-bold text-emerald-600">
+          <h2 className="mt-2 text-2xl font-bold text-emerald-300">
             47,821
           </h2>
         </div>

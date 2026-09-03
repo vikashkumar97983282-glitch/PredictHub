@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus } from "lucide-react";
 
@@ -60,7 +60,7 @@ const CreateUser = () => {
         className="rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 sm:p-7"
       >
 
-        <div className="mb-6 flex items-center gap-3 border-b border-slate-100 pb-5">
+        <div className="mb-6 flex items-center gap-3 border-b border-[#243047] pb-5">
 
           <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300">
             <UserPlus size={21} />
@@ -81,7 +81,7 @@ const CreateUser = () => {
         <div className="grid gap-5 sm:grid-cols-2">
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Full Name
             </label>
 
@@ -96,7 +96,7 @@ const CreateUser = () => {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Email
             </label>
 
@@ -112,7 +112,7 @@ const CreateUser = () => {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Password
             </label>
 
@@ -128,7 +128,7 @@ const CreateUser = () => {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Role
             </label>
 
@@ -145,7 +145,7 @@ const CreateUser = () => {
 
         </div>
 
-        <div className="mt-7 flex justify-end gap-3 border-t border-slate-100 pt-5">
+        <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[#243047] pt-5 sm:flex-row sm:justify-end">
 
           <Link
             to="/admin/users"

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   User,
   Shield,
@@ -31,7 +31,7 @@ const AdminSettings = () => {
       {/* Profile */}
       <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
-        <div className="border-b border-slate-100 p-5">
+        <div className="border-b border-[#243047] p-5">
 
           <div className="flex items-center gap-3">
 
@@ -56,7 +56,7 @@ const AdminSettings = () => {
         <div className="grid gap-5 p-5 sm:grid-cols-2">
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Name
             </label>
 
@@ -67,7 +67,7 @@ const AdminSettings = () => {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Email
             </label>
 
@@ -85,7 +85,7 @@ const AdminSettings = () => {
       {/* Security */}
       <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
-        <div className="border-b border-slate-100 p-5">
+        <div className="border-b border-[#243047] p-5">
 
           <div className="flex items-center gap-3">
 
@@ -110,7 +110,7 @@ const AdminSettings = () => {
         <div className="grid gap-5 p-5 sm:grid-cols-2">
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               New Password
             </label>
 
@@ -122,7 +122,7 @@ const AdminSettings = () => {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-700">
+            <label className="mb-2 block text-sm font-medium text-slate-300">
               Confirm Password
             </label>
 
@@ -140,7 +140,7 @@ const AdminSettings = () => {
       {/* Notifications */}
       <div className="rounded-xl border border-[#243047] bg-[#111827] shadow-xl shadow-black/20">
 
-        <div className="flex items-center justify-between p-5">
+        <div className="flex items-start justify-between gap-4 p-5 sm:items-center">
 
           <div className="flex items-center gap-3">
 
@@ -181,19 +181,19 @@ const AdminSettings = () => {
 
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-end">
 
         <button
           type="button"
           onClick={handleSave}
-          className="inline-flex items-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
+          className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
         >
           <Save size={17} />
           Save Changes
         </button>
 
         {saveMessage && (
-          <p className="mt-2 text-right text-xs font-medium text-emerald-400">
+          <p className="text-center text-xs font-medium text-emerald-400 sm:text-right">
             {saveMessage}
           </p>
         )}

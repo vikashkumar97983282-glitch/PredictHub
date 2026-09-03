@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Users,
   Brain,
@@ -101,7 +100,7 @@ const AdminDashboard = () => {
                   />
                 )}
 
-                <span className="font-semibold text-emerald-600">
+                <span className="font-semibold text-emerald-300">
                   {stat.change}
                 </span>
 

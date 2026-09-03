@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import AdminHeader from "../components/AdminHeader";
@@ -37,7 +37,7 @@ const AdminLayout = () => {
           setSidebarOpen={setSidebarOpen}
         />
 
-        <main className="min-h-[calc(100vh-128px)] p-4 sm:p-6 lg:p-8">
+        <main className="min-h-[calc(100vh-128px)] p-3 sm:p-6 lg:p-8">
           <Outlet />
         </main>
 

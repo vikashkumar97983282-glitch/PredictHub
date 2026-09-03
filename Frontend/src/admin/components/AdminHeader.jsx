@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Bell,
   Search,
   ChevronDown,
+  Menu,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-const AdminHeader = () => {
+const AdminHeader = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [activePanel, setActivePanel] = useState(null);
@@ -51,7 +52,16 @@ const AdminHeader = () => {
         {/* Left */}
         <div className="flex items-center gap-3">
 
-          <div className="hidden md:block">
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open navigation"
+            className="rounded-lg p-2 text-slate-400 transition hover:bg-slate-800 hover:text-cyan-300 lg:hidden"
+          >
+            <Menu size={21} />
+          </button>
+
+          <div className="hidden sm:block">
             <p className="text-xs font-medium uppercase tracking-wider text-cyan-300">
               PredictHub Admin
             </p>

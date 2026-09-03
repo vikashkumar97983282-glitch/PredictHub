@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -405,15 +405,15 @@ const AdminUsers = () => {
             RESULT COUNT
         ================================================= */}
 
-        <div className="border-b border-slate-100 px-4 py-3">
+        <div className="border-b border-[#243047] px-4 py-3">
 
           <p className="text-xs text-slate-400">
             Showing{" "}
-            <span className="font-semibold text-slate-600">
+            <span className="font-semibold text-slate-200">
               {filteredUsers.length}
             </span>{" "}
             of{" "}
-            <span className="font-semibold text-slate-600">
+            <span className="font-semibold text-slate-200">
               {totalUsers}
             </span>{" "}
             users
@@ -477,7 +477,7 @@ const AdminUsers = () => {
 
                         <div className="min-w-0">
 
-                          <p className="truncate text-sm font-semibold text-slate-800">
+                          <p className="truncate text-sm font-semibold text-slate-200">
                             {user.name}
                           </p>
 
@@ -495,7 +495,7 @@ const AdminUsers = () => {
                     {/* ROLE */}
                     <td className="px-5 py-4">
 
-                      <span className="inline-flex items-center gap-1.5 text-sm text-slate-600">
+                      <span className="inline-flex items-center gap-1.5 text-sm text-slate-300">
 
                         {user.role === "Admin" && (
                           <ShieldCheck
@@ -662,7 +662,7 @@ const AdminUsers = () => {
                       <Search size={20} />
                     </div>
 
-                    <h3 className="mt-4 text-sm font-semibold text-slate-800">
+                    <h3 className="mt-4 text-sm font-semibold text-slate-200">
                       No users found
                     </h3>
 
