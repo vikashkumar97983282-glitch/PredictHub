@@ -6,10 +6,10 @@ import {
   Eye,
   EyeOff,
   LogIn,
-  Brain,
 } from "lucide-react";
 import { requestJson, storeAuth } from "../lib/api";
 import BlinkBlur from "react-loading-indicators/BlinkBlur";
+import predictHubImage from "../assets/predicthub-img.png";
 
 function Login() {
   const navigate = useNavigate();
@@ -100,28 +100,19 @@ function Login() {
         {/* ========================================
             LOGO
         ========================================= */}
-        <div className="flex flex-col items-center mb-8">
+        <div className="mb-3 flex flex-col items-center">
 
-          <div
-            className="
-              flex items-center justify-center
-              h-14 w-14
-              rounded-2xl
-              bg-blue-600
-              shadow-lg shadow-blue-600/30
-              mb-4
-            "
-          >
-            <Brain className="h-8 w-8 text-white" />
+          <div className="mb-1 flex justify-center">
+            <img
+              src={predictHubImage}
+              alt="PredictHub"
+              className="h-24 w-auto object-contain"
+            />
           </div>
 
-          <h1 className="text-3xl font-bold text-white">
-            Predict<span className="text-blue-500">Hub</span>
-          </h1>
-
-          <p className="mt-2 text-sm text-slate-400">
+          {/* <p className="mt-2 text-sm text-slate-400">
             Sign in to your account
-          </p>
+          </p> */}
 
         </div>
 

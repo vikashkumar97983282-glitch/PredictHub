@@ -13,6 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { requestJson, storeAuth } from "../lib/api";
 import Commet from "react-loading-indicators/Commet";
+import predictHubImage from "../assets/predicthub-img.png";
 
 function CreateUser() {
   const navigate = useNavigate();
@@ -123,6 +124,12 @@ function CreateUser() {
       <div className="mx-auto max-w-4xl">
 
         <div className="mb-6 flex items-center gap-3">
+
+          <img
+            src={predictHubImage}
+            alt="PredictHub"
+            className="h-12 w-auto object-contain"
+          />
 
           <button
             type="button"
