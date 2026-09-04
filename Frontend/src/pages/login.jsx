@@ -9,6 +9,7 @@ import {
   Brain,
 } from "lucide-react";
 import { requestJson, storeAuth } from "../lib/api";
+import BlinkBlur from "react-loading-indicators/BlinkBlur";
 
 function Login() {
   const navigate = useNavigate();
@@ -396,20 +397,19 @@ function Login() {
             >
 
               {loading ? (
-                <>
-                  <span
-                    className="
-                      h-5 w-5
-                      animate-spin
-                      rounded-full
-                      border-2
-                      border-white/30
-                      border-t-white
-                    "
+                <span
+                  className="flex h-8 w-10 items-center justify-center overflow-hidden"
+                  role="status"
+                  aria-label="Signing in"
+                >
+                  <BlinkBlur
+                    color="#831f8a"
+                    size="small"
+                    text=""
+                    textColor=""
+                    style={{ fontSize: "7px" }}
                   />
-
-                  Signing in...
-                </>
+                </span>
               ) : (
                 <>
                   <LogIn className="h-5 w-5" />

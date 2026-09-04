@@ -20,6 +20,7 @@ import Header from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
 import { requestJson } from "../lib/api";
+import Commet from "react-loading-indicators/Commet";
 
 const iconOptions = {
   Brain,
@@ -67,6 +68,7 @@ function Prediction() {
   ===================================================== */
 
   const [availableModels, setAvailableModels] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -83,6 +85,10 @@ function Prediction() {
         }
       } catch (error) {
         console.error("Unable to load database models:", error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
@@ -518,7 +524,13 @@ function Prediction() {
 
                   </div>
 
-                  {filteredModels.length > 0 ? (
+                  {loading ? (
+
+                    <div className="flex min-h-75 items-center justify-center">
+                      <Commet color="#32cd32" size="large" text="Loading" textColor="" />
+                    </div>
+
+                  ) : filteredModels.length > 0 ? (
 
                     <div
                       className="

@@ -2,13 +2,13 @@ import { useState } from "react";
 import {
   ArrowLeft,
   Brain,
-  Loader2,
   Sparkles,
   CheckCircle,
   AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL, requestJson } from "../lib/api";
+import Commet from "react-loading-indicators/Commet";
 
 function PlacementForm() {
   const navigate = useNavigate();
@@ -603,12 +603,7 @@ Backend URL: ${API_BASE_URL}`
               >
                 {loading ? (
                   <>
-                    <Loader2
-                      size={19}
-                      className="animate-spin"
-                    />
-
-                    <span>Predicting...</span>
+                    <Commet color="#32cd32" size="small" text="Loading" textColor="" />
                   </>
                 ) : (
                   <>

@@ -15,6 +15,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { requestJson } from "../../lib/api";
+import Commet from "react-loading-indicators/Commet";
 
 const iconOptions = {
   Brain,
@@ -151,7 +152,9 @@ const AdminModels = () => {
         )}
 
         {loading && (
-          <p className="text-sm text-slate-400">Loading models...</p>
+          <div className="col-span-full flex min-h-40 items-center justify-center">
+            <Commet color="#32cd32" size="large" text="Loading" textColor="" />
+          </div>
         )}
 
         {!loading && loadError && (

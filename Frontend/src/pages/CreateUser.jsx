@@ -9,10 +9,10 @@ import {
   ArrowLeft,
   CheckCircle,
   AlertCircle,
-  Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { requestJson, storeAuth } from "../lib/api";
+import Commet from "react-loading-indicators/Commet";
 
 function CreateUser() {
   const navigate = useNavigate();
@@ -586,14 +586,15 @@ function CreateUser() {
               >
 
                 {loading ? (
-                  <>
-                    <Loader2
-                      size={18}
-                      className="animate-spin"
+                  <span className="flex h-7 w-28 items-center justify-center overflow-hidden">
+                    <Commet
+                      color="#32cd32"
+                      size="small"
+                      text="Loading"
+                      textColor="#dbeafe"
+                      style={{ fontSize: "6px" }}
                     />
-
-                    Creating...
-                  </>
+                  </span>
                 ) : (
                   <>
                     <UserPlus size={18} />
