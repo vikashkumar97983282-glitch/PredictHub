@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaGithub, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 import predictHubImage from "../assets/predicthub-img.png";
 
 function Footer() {
@@ -328,8 +329,6 @@ function Footer() {
                   border
                   border-slate-800
                   bg-slate-900
-                  text-xs
-                  font-bold
                   text-slate-400
                   transition
                   duration-200
@@ -339,7 +338,7 @@ function Footer() {
                   hover:text-white
                 "
               >
-                GH
+                <FaGithub size={20} aria-hidden="true" />
               </a>
 
 
@@ -361,8 +360,6 @@ function Footer() {
                   border
                   border-slate-800
                   bg-slate-900
-                  text-sm
-                  font-bold
                   text-slate-400
                   transition
                   duration-200
@@ -372,7 +369,7 @@ function Footer() {
                   hover:text-blue-400
                 "
               >
-                in
+                <FaLinkedinIn size={20} aria-hidden="true" />
               </a>
 
 
@@ -394,8 +391,6 @@ function Footer() {
                   border
                   border-slate-800
                   bg-slate-900
-                  text-sm
-                  font-bold
                   text-slate-400
                   transition
                   duration-200
@@ -405,7 +400,7 @@ function Footer() {
                   hover:text-white
                 "
               >
-                X
+                <FaTwitter size={20} aria-hidden="true" />
               </a>
 
             </div>
@@ -438,7 +433,7 @@ function Footer() {
             DIVIDER
         ====================================================== */}
 
-        <div className="my-10 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+        <div className="my-10 h-px bg-linear-to-r from-transparent via-slate-700 to-transparent" />
 
 
         {/* =====================================================
