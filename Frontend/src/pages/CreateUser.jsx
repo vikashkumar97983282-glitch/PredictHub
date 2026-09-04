@@ -4,6 +4,9 @@ import {
   User,
   Mail,
   Lock,
+  CalendarDays,
+  MapPin,
+  Globe2,
   Eye,
   EyeOff,
   ArrowLeft,
@@ -21,6 +24,9 @@ function CreateUser() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    age: "",
+    address: "",
+    nationality: "",
     password: "",
     confirm_password: "",
   });
@@ -65,10 +71,18 @@ function CreateUser() {
     if (
       !formData.name ||
       !formData.email ||
+      !formData.age ||
+      !formData.address ||
+      !formData.nationality ||
       !formData.password ||
       !formData.confirm_password
     ) {
       setErrorMessage("Please fill in all fields.");
+      return;
+    }
+
+    if (Number(formData.age) < 13 || Number(formData.age) > 120) {
+      setErrorMessage("Age must be between 13 and 120.");
       return;
     }
 
@@ -115,74 +129,51 @@ function CreateUser() {
   // ============================================================
 
   return (
-    <div className="min-h-full bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-slate-950 px-4 py-8 sm:px-6">
 
       {/* ======================================================
           Header
       ======================================================= */}
 
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto w-full max-w-3xl">
 
-        <div className="mb-6 flex items-center gap-3">
-
+        <div className="mb-3 flex justify-center">
           <img
             src={predictHubImage}
             alt="PredictHub"
-            className="h-12 w-auto object-contain"
+            className="h-24 w-auto object-contain sm:h-28"
           />
-
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="
-              flex h-10 w-10 items-center justify-center
-              rounded-lg border border-gray-200
-              bg-white text-gray-600
-              transition hover:bg-gray-100
-            "
-          >
-            <ArrowLeft size={20} />
-          </button>
-
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Create User
-            </h1>
-
-            <p className="mt-1 text-sm text-gray-500">
-              Create a new user account for PredictHub.
-            </p>
-          </div>
-
         </div>
+
+        
 
         {/* ====================================================
             Card
         ===================================================== */}
 
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/90 shadow-2xl shadow-black/20 backdrop-blur">
 
           {/* --------------------------------------------------
               Card Header
           --------------------------------------------------- */}
 
-          <div className="border-b border-gray-200 px-6 py-5">
-            <div className="flex items-center gap-3">
+          <div className="border-b border-slate-800 px-6 py-5">
+            <div className="flex flex-col items-center gap-3 text-center">
 
               <div className="
                 flex h-11 w-11 items-center justify-center
-                rounded-xl bg-blue-50 text-blue-600
+                rounded-xl bg-blue-500/10 text-blue-400
               ">
                 <UserPlus size={22} />
               </div>
 
               <div>
-                <h2 className="font-semibold text-gray-900">
-                  User Information
+                <h2 className="font-semibold text-white">
+                  Register User
                 </h2>
 
-                <p className="text-sm text-gray-500">
-                  Enter the details of the new user.
+                <p className="text-sm text-slate-400">
+                  Create a new user account for PredictHub.
                 </p>
               </div>
 
@@ -205,8 +196,8 @@ function CreateUser() {
             {successMessage && (
               <div className="
                 mb-6 flex items-start gap-3
-                rounded-xl border border-green-200
-                bg-green-50 p-4 text-green-700
+                rounded-xl border border-green-500/30
+                bg-green-500/10 p-4 text-green-300
               ">
                 <CheckCircle
                   size={20}
@@ -232,8 +223,8 @@ function CreateUser() {
             {errorMessage && (
               <div className="
                 mb-6 flex items-start gap-3
-                rounded-xl border border-red-200
-                bg-red-50 p-4 text-red-700
+                rounded-xl border border-red-500/30
+                bg-red-500/10 p-4 text-red-300
               ">
                 <AlertCircle
                   size={20}
@@ -263,7 +254,7 @@ function CreateUser() {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Full Name
                 </label>
@@ -275,7 +266,7 @@ function CreateUser() {
                     className="
                       absolute left-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                     "
                   />
 
@@ -289,15 +280,15 @@ function CreateUser() {
                     autoComplete="name"
                     className="
                       h-11 w-full rounded-lg
-                      border border-gray-300
-                      bg-white pl-10 pr-4
-                      text-sm text-gray-900
+                      border border-slate-700
+                      bg-slate-950 pl-10 pr-4
+                      text-sm text-white
                       outline-none
                       transition
-                      placeholder:text-gray-400
+                      placeholder:text-slate-500
                       focus:border-blue-500
                       focus:ring-2
-                      focus:ring-blue-100
+                      focus:ring-blue-500/20
                     "
                   />
 
@@ -309,7 +300,7 @@ function CreateUser() {
               <div>
                 <label
                   htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Email Address
                 </label>
@@ -321,7 +312,7 @@ function CreateUser() {
                     className="
                       absolute left-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                     "
                   />
 
@@ -335,21 +326,86 @@ function CreateUser() {
                     autoComplete="email"
                     className="
                       h-11 w-full rounded-lg
-                      border border-gray-300
-                      bg-white pl-10 pr-4
-                      text-sm text-gray-900
+                      border border-slate-700
+                      bg-slate-950 pl-10 pr-4
+                      text-sm text-white
                       outline-none
                       transition
-                      placeholder:text-gray-400
+                      placeholder:text-slate-500
                       focus:border-blue-500
                       focus:ring-2
-                      focus:ring-blue-100
+                      focus:ring-blue-500/20
                     "
                   />
 
                 </div>
               </div>
 
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2">
+
+              <div>
+                <label htmlFor="age" className="mb-2 block text-sm font-medium text-slate-300">
+                  Age
+                </label>
+
+                <div className="relative">
+                  <CalendarDays size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    id="age"
+                    name="age"
+                    type="number"
+                    min="13"
+                    max="120"
+                    value={formData.age}
+                    onChange={handleChange}
+                    placeholder="Enter your age"
+                    className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="nationality" className="mb-2 block text-sm font-medium text-slate-300">
+                  Nationality
+                </label>
+
+                <div className="relative">
+                  <Globe2 size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <input
+                    id="nationality"
+                    name="nationality"
+                    type="text"
+                    value={formData.nationality}
+                    onChange={handleChange}
+                    placeholder="Enter your nationality"
+                    autoComplete="country-name"
+                    className="h-11 w-full rounded-lg border border-slate-700 bg-slate-950 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  />
+                </div>
+              </div>
+
+            </div>
+
+            <div className="mt-5">
+              <label htmlFor="address" className="mb-2 block text-sm font-medium text-slate-300">
+                Address
+              </label>
+
+              <div className="relative">
+                <MapPin size={18} className="absolute left-3 top-3 text-slate-500" />
+                <textarea
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  placeholder="Enter your address"
+                  autoComplete="street-address"
+                  rows="3"
+                  className="w-full resize-none rounded-lg border border-slate-700 bg-slate-950 py-3 pl-10 pr-4 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                />
+              </div>
             </div>
 
             {/* ------------------------------------------------
@@ -363,7 +419,7 @@ function CreateUser() {
               <div>
                 <label
                   htmlFor="password"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Password
                 </label>
@@ -375,7 +431,7 @@ function CreateUser() {
                     className="
                       absolute left-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                     "
                   />
 
@@ -393,16 +449,16 @@ function CreateUser() {
                     autoComplete="new-password"
                     className="
                       h-11 w-full rounded-lg
-                      border border-gray-300
-                      bg-white
+                      border border-slate-700
+                      bg-slate-950
                       pl-10 pr-11
-                      text-sm text-gray-900
+                      text-sm text-white
                       outline-none
                       transition
-                      placeholder:text-gray-400
+                      placeholder:text-slate-500
                       focus:border-blue-500
                       focus:ring-2
-                      focus:ring-blue-100
+                      focus:ring-blue-500/20
                     "
                   />
 
@@ -416,9 +472,9 @@ function CreateUser() {
                     className="
                       absolute right-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                       transition
-                      hover:text-gray-600
+                      hover:text-slate-300
                     "
                   >
                     {showPassword ? (
@@ -430,7 +486,7 @@ function CreateUser() {
 
                 </div>
 
-                <p className="mt-2 text-xs text-gray-500">
+                <p className="mt-2 text-xs text-slate-500">
                   Minimum 8 characters.
                 </p>
               </div>
@@ -440,7 +496,7 @@ function CreateUser() {
               <div>
                 <label
                   htmlFor="confirm_password"
-                  className="mb-2 block text-sm font-medium text-gray-700"
+                  className="mb-2 block text-sm font-medium text-slate-300"
                 >
                   Confirm Password
                 </label>
@@ -452,7 +508,7 @@ function CreateUser() {
                     className="
                       absolute left-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                     "
                   />
 
@@ -472,16 +528,16 @@ function CreateUser() {
                     autoComplete="new-password"
                     className="
                       h-11 w-full rounded-lg
-                      border border-gray-300
-                      bg-white
+                      border border-slate-700
+                      bg-slate-950
                       pl-10 pr-11
-                      text-sm text-gray-900
+                      text-sm text-white
                       outline-none
                       transition
-                      placeholder:text-gray-400
+                      placeholder:text-slate-500
                       focus:border-blue-500
                       focus:ring-2
-                      focus:ring-blue-100
+                      focus:ring-blue-500/20
                     "
                   />
 
@@ -495,9 +551,9 @@ function CreateUser() {
                     className="
                       absolute right-3 top-1/2
                       -translate-y-1/2
-                      text-gray-400
+                      text-slate-500
                       transition
-                      hover:text-gray-600
+                      hover:text-slate-300
                     "
                   >
                     {showConfirmPassword ? (
@@ -519,26 +575,26 @@ function CreateUser() {
             <div className="mt-5">
 
               <label
-                className="mb-2 block text-sm font-medium text-gray-700"
+                className="mb-2 block text-sm font-medium text-slate-300"
               >
                 Account Role
               </label>
 
               <div className="
                 flex h-11 items-center
-                rounded-lg border border-gray-200
-                bg-gray-50 px-4
+                rounded-lg border border-slate-700
+                bg-slate-950 px-4
               ">
 
                 <span className="
-                  rounded-full bg-blue-100
+                  rounded-full bg-blue-500/10
                   px-3 py-1 text-xs font-semibold
-                  text-blue-700
+                  text-blue-300
                 ">
                   USER
                 </span>
 
-                <span className="ml-3 text-sm text-gray-500">
+                <span className="ml-3 text-sm text-slate-400">
                   Normal PredictHub user
                 </span>
 
@@ -552,8 +608,8 @@ function CreateUser() {
 
             <div className="
               mt-8 flex flex-col-reverse
-              gap-3 border-t border-gray-200
-              pt-6 sm:flex-row sm:justify-end
+              gap-3 border-t border-slate-800
+              pt-6 sm:flex-row sm:justify-between
             ">
 
               <button
@@ -561,18 +617,19 @@ function CreateUser() {
                 onClick={() => navigate(-1)}
                 disabled={loading}
                 className="
-                  h-11 rounded-lg
-                  border border-gray-300
-                  bg-white px-5
+                  flex h-11 items-center gap-2 rounded-lg
+                  border border-slate-700
+                  bg-slate-900 px-5
                   text-sm font-medium
-                  text-gray-700
+                  text-slate-300
                   transition
-                  hover:bg-gray-50
+                  hover:bg-slate-800
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
               >
-                Cancel
+                <ArrowLeft size={18} />
+                Back
               </button>
 
               <button
