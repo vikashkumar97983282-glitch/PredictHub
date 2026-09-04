@@ -14,7 +14,7 @@ import {
   MoreHorizontal,
   CheckCircle2,
 } from "lucide-react";
-import { getStoredModels } from "../../lib/api";
+import { requestJson } from "../../lib/api";
 
 const iconOptions = {
   Brain,
@@ -33,39 +33,49 @@ const AdminModels = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [models, setModels] = useState(() => [
-    {
-      name: "House Price Prediction",
-      type: "Regression",
-      version: "v1.2",
-      status: "Active",
-      predictions: "12,450",
-    },
-    {
-      name: "Placement Prediction",
-      type: "Classification",
-      version: "v1.0",
-      status: "Active",
-      predictions: "8,240",
-    },
-    {
-      name: "Diabetes Prediction",
-      type: "Classification",
-      version: "v2.1",
-      status: "Active",
-      predictions: "6,820",
-    },
-    {
-      name: "Student Performance",
-      type: "Regression",
-      version: "v1.3",
-      status: "Inactive",
-      predictions: "4,210",
-    },
-    ...getStoredModels(),
-  ]);
+  const [models, setModels] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [openMenu, setOpenMenu] = useState(null);
   const [successMessage, setSuccessMessage] = useState(location.state?.success || "");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadModels = async () => {
+      try {
+        const response = await requestJson("/model/models");
+        const databaseModels = Array.isArray(response.data)
+          ? response.data.map((model) => ({
+            ...model,
+            id: model._id,
+            name: model.title,
+            type: model.model_type,
+            predictions: model.prediction_count ?? 0,
+          }))
+          : [];
+
+        if (isMounted) {
+          setModels(databaseModels);
+          setLoadError("");
+        }
+      } catch (error) {
+        if (isMounted) {
+          setLoadError(error.message || "Unable to load models.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadModels();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!location.state?.success) {
@@ -117,7 +127,19 @@ const AdminModels = () => {
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
 
-        {models.map((model) => (
+        {loading && (
+          <p className="text-sm text-slate-400">Loading models...</p>
+        )}
+
+        {!loading && loadError && (
+          <p role="alert" className="text-sm text-red-300">{loadError}</p>
+        )}
+
+        {!loading && !loadError && models.length === 0 && (
+          <p className="text-sm text-slate-400">No models found.</p>
+        )}
+
+        {!loading && !loadError && models.map((model) => (
           <div
             key={model.name}
             className={`group rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 transition ${model.borderColor || ""}`}
