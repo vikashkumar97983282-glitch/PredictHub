@@ -17,6 +17,10 @@ class AdminModelCreate(BaseModel):
     status: str
     prediction_count: int
     tags: List[str]
+
+
+class AdminModelStatusUpdate(BaseModel):
+    status: str
     
 
 class placement_data(BaseModel):

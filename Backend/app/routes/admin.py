@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from bson import ObjectId
+from fastapi import APIRouter, Depends, HTTPException
 from app.core.jwt_services import get_current_user
 from app.schemas.admin_schema import AdminLoginResponse, AdminCreate
-from app.schemas.model_schema import AdminModelCreate
+from app.schemas.model_schema import AdminModelCreate, AdminModelStatusUpdate
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
 
@@ -65,6 +66,48 @@ async def add_model(data: AdminModelCreate):
     return {
         "message": "Model added successfully",
         "model_id": str(result.inserted_id)
+    }
+
+
+@router.put("/models/{model_id}")
+async def update_model(model_id: str, data: AdminModelCreate):
+    if not ObjectId.is_valid(model_id):
+        raise HTTPException(status_code=400, detail="Invalid model ID.")
+
+    result = await db.models.update_one(
+        {"_id": ObjectId(model_id)},
+        {"$set": data.model_dump()},
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Model not found.")
+
+    return {
+        "message": "Model updated successfully",
+        "model_id": model_id,
+    }
+
+
+@router.patch("/models/{model_id}/status")
+async def update_model_status(model_id: str, data: AdminModelStatusUpdate):
+    if not ObjectId.is_valid(model_id):
+        raise HTTPException(status_code=400, detail="Invalid model ID.")
+
+    if data.status not in {"Active", "Inactive"}:
+        raise HTTPException(status_code=400, detail="Status must be Active or Inactive.")
+
+    result = await db.models.update_one(
+        {"_id": ObjectId(model_id)},
+        {"$set": {"status": data.status}},
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Model not found.")
+
+    return {
+        "message": "Model status updated successfully",
+        "model_id": model_id,
+        "status": data.status,
     }
 
 
