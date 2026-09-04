@@ -43,6 +43,18 @@ const AdminModels = () => {
   const [successMessage, setSuccessMessage] = useState(location.state?.success || "");
 
   useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (!event.target.closest("[data-model-actions]")) {
+        setOpenMenu(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     const loadModels = async () => {
@@ -171,7 +183,7 @@ const AdminModels = () => {
             className={`group rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 transition ${model.borderColor || ""}`}
           >
 
-            <div className="relative flex items-start justify-between">
+            <div className="relative flex items-start justify-between" data-model-actions>
 
               <div className={`rounded-xl p-3 ${model.iconBg || "bg-cyan-400/10"} ${model.iconColor || "text-cyan-300"}`}>
                 {(() => {

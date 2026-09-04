@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   Search,
@@ -7,12 +7,26 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getStoredUser, logout } from "../../lib/api";
+import predictHubImage from "../../assets/predicthub-img.png";
 
 const AdminHeader = ({ setSidebarOpen }) => {
   const navigate = useNavigate();
   const currentUser = getStoredUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [activePanel, setActivePanel] = useState(null);
+  const headerRef = useRef(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setActivePanel(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
 
   const searchItems = [
     ["Dashboard", "/admin/dashboard"],
@@ -47,7 +61,7 @@ const AdminHeader = ({ setSidebarOpen }) => {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-[#243047] bg-[#0f172a]/90 shadow-lg shadow-black/10 backdrop-blur">
+    <header ref={headerRef} className="sticky top-0 z-30 h-16 border-b border-[#243047] bg-[#0f172a]/90 shadow-lg shadow-black/10 backdrop-blur">
 
       <div className="flex h-full items-center justify-between px-4 sm:px-6">
 
@@ -63,11 +77,12 @@ const AdminHeader = ({ setSidebarOpen }) => {
             <Menu size={21} />
           </button>
 
-          <div className="hidden sm:block">
-            <p className="text-xs font-medium uppercase tracking-wider text-cyan-300">
-              PredictHub Admin
-            </p>
-
+          <div className="flex items-center gap-3">
+            <img
+              src={predictHubImage}
+              alt="PredictHub"
+              className="h-10 w-auto object-contain"
+            />
             <h2 className="text-sm font-semibold text-white">
               Admin Dashboard
             </h2>
