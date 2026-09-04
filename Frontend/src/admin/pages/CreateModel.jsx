@@ -109,18 +109,19 @@ const CreateModel = () => {
 
     const route = normalizeRoute(form.route);
     const modelPayload = {
-      model_title: form.title.trim(),
-      model_description: form.description.trim(),
-      model_category: form.category,
-      model_icon: form.icon,
-      model_icon_color: form.iconColor,
-      model_icon_background: form.iconBg,
-      model_background_color: form.borderColor,
-      model_status: form.status,
-      model_routes: route,
-      model_types: form.modelType,
-      model_version: form.version.trim(),
-      model_tags: tags,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      category: form.category,
+      route,
+      icon: form.icon,
+      model_type: form.modelType,
+      icon_color: form.iconColor,
+      icon_background: form.iconBg,
+      border_color: form.borderColor,
+      version: form.version.trim(),
+      status: form.status,
+      prediction_count: Number(form.predictions) || 0,
+      tags,
     };
 
     try {

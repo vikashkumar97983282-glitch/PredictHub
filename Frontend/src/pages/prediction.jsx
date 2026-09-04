@@ -19,7 +19,7 @@ import Sidebar from "../components/sidebar";
 import Header from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
-import { getStoredModels } from "../lib/api";
+import { requestJson } from "../lib/api";
 
 const iconOptions = {
   Brain,
@@ -30,121 +30,18 @@ const iconOptions = {
   TrendingUp,
 };
 
-/* =====================================================
-   PREDICTION MODELS
-===================================================== */
-
-const models = [
-  {
-    id: 1,
-    title: "House Price Prediction",
-    description:
-      "Predict house prices based on location, area, bedrooms, bathrooms, and other important features.",
-    category: "Machine Learning",
-    icon: TrendingUp,
-    iconColor: "text-blue-400",
-    iconBg: "bg-blue-500/10",
-    borderColor: "group-hover:border-blue-500/50",
-    route: "/prediction/house-price",
-    tags: ["Regression", "Random Forest"],
-  },
-
-  {
-    id: 2,
-    title: "Student Performance",
-    description:
-      "Analyze student data and predict academic performance using machine learning.",
-    category: "Machine Learning",
-    icon: Brain,
-    iconColor: "text-purple-400",
-    iconBg: "bg-purple-500/10",
-    borderColor: "group-hover:border-purple-500/50",
-    route: "/prediction/student-performance",
-    tags: ["Classification", "Machine Learning"],
-  },
-
-  {
-    id: 3,
-    title: "Disease Prediction",
-    description:
-      "Predict possible conditions based on selected input data and machine learning models.",
-    category: "Machine Learning",
-    icon: Activity,
-    iconColor: "text-red-400",
-    iconBg: "bg-red-500/10",
-    borderColor: "group-hover:border-red-500/50",
-    route: "/prediction/disease",
-    tags: ["Classification", "Healthcare"],
-  },
-
-  {
-    id: 4,
-    title: "Stock Price Prediction",
-    description:
-      "Analyze historical market data and generate future stock price predictions.",
-    category: "Deep Learning",
-    icon: BarChart3,
-    iconColor: "text-emerald-400",
-    iconBg: "bg-emerald-500/10",
-    borderColor: "group-hover:border-emerald-500/50",
-    route: "/prediction/stock-price",
-    tags: ["LSTM", "Time Series"],
-  },
-
-  {
-    id: 5,
-    title: "Image Classification",
-    description:
-      "Upload an image and let an AI model classify and identify its contents.",
-    category: "Deep Learning",
-    icon: Cpu,
-    iconColor: "text-orange-400",
-    iconBg: "bg-orange-500/10",
-    borderColor: "group-hover:border-orange-500/50",
-    route: "/prediction/image-classification",
-    tags: ["CNN", "Computer Vision"],
-  },
-
-  {
-    id: 6,
-    title: "Data Analytics Prediction",
-    description:
-      "Upload your dataset and explore AI-powered predictions and insights.",
-    category: "Data Science",
-    icon: Database,
-    iconColor: "text-cyan-400",
-    iconBg: "bg-cyan-500/10",
-    borderColor: "group-hover:border-cyan-500/50",
-    route: "/prediction/data-analysis",
-    tags: ["Analytics", "Prediction"],
-  },
-
-  {
-    // FIXED: was id: 2
-    id: 7,
-    title: "Placement Prediction",
-    description:
-      "Analyze student data and predict placement performance using machine learning.",
-    category: "Machine Learning",
-    icon: Brain,
-    iconColor: "text-purple-400",
-    iconBg: "bg-purple-500/10",
-    borderColor: "group-hover:border-purple-500/50",
-    route: "/prediction/placement",
-    tags: ["Regression", "Random Forest"],
-  },
-];
-
-/* =====================================================
-   CATEGORIES
-===================================================== */
-
-const categories = [
-  "All",
-  "Machine Learning",
-  "Deep Learning",
-  "Data Science",
-];
+const normalizeDatabaseModel = (model) => ({
+  id: model._id || model.id,
+  title: model.title,
+  description: model.description,
+  category: model.category,
+  icon: model.icon,
+  iconColor: model.icon_color,
+  iconBg: model.icon_background,
+  borderColor: model.border_color,
+  route: model.route,
+  tags: Array.isArray(model.tags) ? model.tags : [],
+});
 
 /* =====================================================
    PREDICTION PAGE
@@ -169,22 +66,30 @@ function Prediction() {
      SEARCH & CATEGORY
   ===================================================== */
 
-  const [availableModels, setAvailableModels] = useState(() => [
-    ...models,
-    ...getStoredModels(),
-  ]);
+  const [availableModels, setAvailableModels] = useState([]);
 
   useEffect(() => {
-    const refreshModels = () => {
-      setAvailableModels([...models, ...getStoredModels()]);
+    let isMounted = true;
+
+    const loadDatabaseModels = async () => {
+      try {
+        const response = await requestJson("/model/models");
+        const databaseModels = Array.isArray(response.data)
+          ? response.data.map(normalizeDatabaseModel)
+          : [];
+
+        if (isMounted) {
+          setAvailableModels(databaseModels);
+        }
+      } catch (error) {
+        console.error("Unable to load database models:", error);
+      }
     };
 
-    window.addEventListener("model-added", refreshModels);
-    window.addEventListener("storage", refreshModels);
+    loadDatabaseModels();
 
     return () => {
-      window.removeEventListener("model-added", refreshModels);
-      window.removeEventListener("storage", refreshModels);
+      isMounted = false;
     };
   }, []);
 
@@ -192,6 +97,11 @@ function Prediction() {
 
   const [activeCategory, setActiveCategory] =
     useState("All");
+
+  const categories = useMemo(() => [
+    "All",
+    ...new Set(availableModels.map((model) => model.category).filter(Boolean)),
+  ], [availableModels]);
 
   /* =====================================================
      FILTER MODELS
