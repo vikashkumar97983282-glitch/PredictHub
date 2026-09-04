@@ -93,6 +93,9 @@ async def register(
     user_data = {
         "name": data.name,
         "email": email,
+        "age": data.age,
+        "address": data.address,
+        "nationality": data.nationality,
         "password": password_hashed,
         "role": role,
     }
@@ -113,6 +116,9 @@ async def register(
         "id": str(result.inserted_id),
         "name": data.name,
         "email": email,
+        "age": data.age,
+        "address": data.address,
+        "nationality": data.nationality,
         "role": role,
     }
 
