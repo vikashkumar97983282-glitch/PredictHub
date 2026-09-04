@@ -53,6 +53,8 @@ async def create_admin(data: AdminCreate):
     }
 
 
+
+
 @router.post("/add_model")
 async def add_model(data: AdminModelCreate):
 
