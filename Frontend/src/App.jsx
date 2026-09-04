@@ -225,6 +225,11 @@ function App() {
             element={<CreateModel />}
           />
 
+          <Route
+            path="models/:modelId/edit"
+            element={<CreateModel />}
+          />
+
           {/* -----------------------------------------------
               PREDICTIONS
               /admin/predictions

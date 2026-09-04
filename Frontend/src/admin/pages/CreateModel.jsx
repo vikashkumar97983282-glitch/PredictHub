@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Brain, CheckCircle2, Plus, X } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { requestJson, saveModel } from "../../lib/api";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { requestJson } from "../../lib/api";
 
 const iconOptions = [
   "Brain",
@@ -68,11 +68,48 @@ const normalizeRoute = (value) => {
 
 const CreateModel = () => {
   const navigate = useNavigate();
+  const { modelId } = useParams();
+  const isEditing = Boolean(modelId);
   const [form, setForm] = useState(initialForm);
   const [tagInput, setTagInput] = useState("");
   const [tags, setTags] = useState(["Analytics", "Prediction"]);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!modelId) return;
+
+    const loadModel = async () => {
+      try {
+        const response = await requestJson("/model/models");
+        const model = response.data?.find((item) => item._id === modelId);
+
+        if (!model) {
+          throw new Error("Model not found.");
+        }
+
+        setForm({
+          title: model.title || "",
+          description: model.description || "",
+          category: model.category || "Data Science",
+          route: model.route || "/prediction/data-analysis",
+          icon: model.icon || "Database",
+          iconColor: model.icon_color || "text-cyan-400",
+          iconBg: model.icon_background || "bg-cyan-500/10",
+          borderColor: model.border_color || "group-hover:border-cyan-500/50",
+          modelType: model.model_type || "Analytics",
+          version: model.version || "v1.0",
+          status: model.status || "Active",
+          predictions: model.prediction_count || 0,
+        });
+        setTags(Array.isArray(model.tags) ? model.tags : []);
+      } catch (error) {
+        setErrors({ submit: error.message || "Unable to load model." });
+      }
+    };
+
+    loadModel();
+  }, [modelId]);
 
   const updateField = (event) => {
     const { name, value } = event.target;
@@ -125,32 +162,18 @@ const CreateModel = () => {
     };
 
     try {
-      const response = await requestJson("/admin/add_model", {
-        method: "POST",
+      await requestJson(
+        isEditing ? `/admin/models/${modelId}` : "/admin/add_model",
+        {
+        method: isEditing ? "PUT" : "POST",
         body: JSON.stringify(modelPayload),
-      });
+        }
+      );
 
-      const model = {
-        id: response.model_id || crypto.randomUUID(),
-        title: form.title.trim(),
-        name: form.title.trim(),
-        description: form.description.trim(),
-        category: form.category,
-        icon: form.icon,
-        iconColor: form.iconColor,
-        iconBg: form.iconBg,
-        borderColor: form.borderColor,
-        route,
-        tags,
-        modelType: form.modelType,
-        version: form.version.trim(),
-        status: form.status,
-        predictions: Number(form.predictions) || 0,
-      };
-
-      saveModel(model);
       navigate("/admin/models", {
-        state: { success: `${model.title} was created successfully.` },
+        state: {
+          success: `${form.title.trim()} was ${isEditing ? "updated" : "created"} successfully.`,
+        },
       });
     } catch (error) {
       setErrors({ submit: error.message || "Unable to create model." });
@@ -165,8 +188,8 @@ const CreateModel = () => {
           <ArrowLeft size={20} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-white">Add Model</h1>
-          <p className="mt-1 text-sm text-slate-400">Create a prediction model for the PredictHub catalog.</p>
+            <h1 className="text-2xl font-bold text-white">{isEditing ? "Edit Model" : "Add Model"}</h1>
+          <p className="mt-1 text-sm text-slate-400">{isEditing ? "Update this prediction model in the PredictHub catalog." : "Create a prediction model for the PredictHub catalog."}</p>
         </div>
       </div>
 
@@ -175,7 +198,7 @@ const CreateModel = () => {
           <div className="rounded-xl bg-cyan-400/10 p-3 text-cyan-300"><Brain size={21} /></div>
           <div>
             <h2 className="font-semibold text-white">Model Information</h2>
-            <p className="text-xs text-slate-400">All required fields must be completed before creating the model.</p>
+            <p className="text-xs text-slate-400">All required fields must be completed before saving the model.</p>
           </div>
         </div>
 
@@ -269,7 +292,7 @@ const CreateModel = () => {
           <Link to="/admin/models" className="inline-flex justify-center rounded-lg border border-[#243047] px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white">Cancel</Link>
           <button type="submit" disabled={submitting} className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60">
             <CheckCircle2 size={17} />
-            {submitting ? "Creating..." : "Create Model"}
+            {submitting ? "Saving..." : isEditing ? "Save Changes" : "Create Model"}
           </button>
         </div>
       </form>

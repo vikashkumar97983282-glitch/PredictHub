@@ -36,7 +36,9 @@ const AdminModels = () => {
   const [models, setModels] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [actionError, setActionError] = useState("");
   const [openMenu, setOpenMenu] = useState(null);
+  const [updatingModelId, setUpdatingModelId] = useState(null);
   const [successMessage, setSuccessMessage] = useState(location.state?.success || "");
 
   useEffect(() => {
@@ -88,15 +90,30 @@ const AdminModels = () => {
     return () => window.clearTimeout(timeoutId);
   }, [location.state]);
 
-  const toggleModelStatus = (modelName) => {
-    setModels((currentModels) =>
-      currentModels.map((model) =>
-        model.name === modelName
-          ? { ...model, status: model.status === "Active" ? "Inactive" : "Active" }
-          : model
-      )
-    );
-    setOpenMenu(null);
+  const toggleModelStatus = async (model) => {
+    const nextStatus = model.status === "Active" ? "Inactive" : "Active";
+    setUpdatingModelId(model.id);
+    setActionError("");
+
+    try {
+      const response = await requestJson(`/admin/models/${model.id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      setModels((currentModels) =>
+        currentModels.map((currentModel) =>
+          currentModel.id === model.id
+            ? { ...currentModel, status: response.status || nextStatus }
+            : currentModel
+        )
+      );
+      setOpenMenu(null);
+    } catch (error) {
+      setActionError(error.message || "Unable to update model status.");
+    } finally {
+      setUpdatingModelId(null);
+    }
   };
 
   return (
@@ -126,6 +143,12 @@ const AdminModels = () => {
       </div>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+
+        {actionError && (
+          <p role="alert" className="md:col-span-2 xl:col-span-3 text-sm text-red-300">
+            {actionError}
+          </p>
+        )}
 
         {loading && (
           <p className="text-sm text-slate-400">Loading models...</p>
@@ -167,10 +190,20 @@ const AdminModels = () => {
                 <div className="absolute right-0 top-10 z-20 w-40 rounded-lg border border-[#243047] bg-[#111827] p-1 shadow-xl shadow-black/30">
                   <button
                     type="button"
-                    onClick={() => toggleModelStatus(model.name)}
+                    onClick={() => navigate(`/admin/models/${model.id}/edit`)}
                     className="w-full rounded-md px-3 py-2 text-left text-xs text-slate-300 transition hover:bg-slate-800 hover:text-cyan-200"
                   >
-                    {model.status === "Active" ? "Deactivate" : "Activate"}
+                    Edit model
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => toggleModelStatus(model)}
+                    disabled={updatingModelId === model.id}
+                    className="w-full rounded-md px-3 py-2 text-left text-xs text-slate-300 transition hover:bg-slate-800 hover:text-cyan-200"
+                  >
+                    {updatingModelId === model.id
+                      ? "Saving..."
+                      : model.status === "Active" ? "Deactivate" : "Activate"}
                   </button>
                 </div>
               )}
