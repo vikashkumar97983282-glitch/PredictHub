@@ -1,20 +1,22 @@
 from pydantic import BaseModel
+from typing import List
 
 
 
-class AddModelSchema(BaseModel):
-    model_title: str
-    model_description: str
-    model_category: str
-    model_icon: str
-    model_icon_color: str
-    model_icon_background: str
-    model_background_color: str
-    model_status: str
-    model_routes: str
-    model_types: str
-    model_version: str
-    model_tags: list[str]
+class AdminModelCreate(BaseModel):
+    title: str
+    description: str
+    category: str
+    route: str
+    icon: str
+    model_type: str
+    icon_color: str
+    icon_background: str
+    border_color: str
+    version: str
+    status: str
+    prediction_count: int
+    tags: List[str]
     
 
 class placement_data(BaseModel):

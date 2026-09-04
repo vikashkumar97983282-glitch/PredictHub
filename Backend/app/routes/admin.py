@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from app.core.jwt_services import get_current_user
 from app.schemas.admin_schema import AdminLoginResponse, AdminCreate
-from app.schemas.model_schema import AddModelSchema
+from app.schemas.model_schema import AdminModelCreate
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
 
@@ -53,7 +54,7 @@ async def create_admin(data: AdminCreate):
 
 
 @router.post("/add_model")
-async def add_model(data: AddModelSchema):
+async def add_model(data: AdminModelCreate):
 
     model_data = data.model_dump()
 
