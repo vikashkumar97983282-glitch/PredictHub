@@ -619,11 +619,11 @@ function CreateUser() {
                 className="
                   flex h-11 items-center gap-2 rounded-lg
                   border border-slate-700
-                  bg-slate-900 px-5
+                  bg-red-600 px-5
                   text-sm font-medium
                   text-slate-300
                   transition
-                  hover:bg-slate-800
+                  hover:bg-red-800
                   disabled:cursor-not-allowed
                   disabled:opacity-50
                 "
@@ -674,6 +674,10 @@ function CreateUser() {
           </form>
 
         </div>
+
+        <p className="mt-6 text-center text-xs text-slate-600">
+          © 2026 PredictHub. All rights reserved.
+        </p>
 
       </div>
 
