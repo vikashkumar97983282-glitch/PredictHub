@@ -7,9 +7,9 @@ import {
   PieChart,
   Settings,
   Menu,
-  Zap ,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import predictHubImage from "../assets/predicthub-img.png";
 
 function Sidebar({
   isSidebarOpen,
@@ -90,14 +90,16 @@ function Sidebar({
           {/* Logo */}
 
           {isExpanded && (
-            <div className="flex items-center gap-1.2">
-              <Zap
-                size={25}
-                strokeWidth={2.5}
-                className="shrink-0 text-indigo-500"
-              />
-
-              <span className="text-[25px] font-bold leading-none text-indigo-500">
+            <div className="flex h-14 items-center gap-2 text-indigo-400">
+              <span className="flex h-8 w-10 shrink-0 items-start justify-center overflow-hidden">
+                <img
+                  src={predictHubImage}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-14 max-w-none object-contain"
+                />
+              </span>
+              <span className="text-xl font-bold leading-none tracking-tight text-indigo-400">
                 PredictHub
               </span>
             </div>

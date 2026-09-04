@@ -13,6 +13,7 @@ import {
   Menu,
 } from "lucide-react";
 import { getStoredUser, logout } from "../../lib/api";
+import predictHubImage from "../../assets/predicthub-img.png";
 
 const AdminSidebar = ({
   sidebarOpen = true,
@@ -99,8 +100,13 @@ const AdminSidebar = ({
         <div className="flex w-full items-center gap-3">
 
           {/* Logo */}
-          <div className={`${sidebarOpen ? "flex" : "hidden"} h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-400 text-lg font-bold text-slate-950 shadow-lg shadow-cyan-500/20`}>
-            P
+          <div className={`${sidebarOpen ? "flex" : "hidden"} h-10 w-10 shrink-0 items-start justify-center overflow-hidden`}>
+            <img
+              src={predictHubImage}
+              alt=""
+              aria-hidden="true"
+              className="w-14 max-w-none object-contain"
+            />
           </div>
 
           {/* Brand */}

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import predictHubImage from "../assets/predicthub-img.png";
 
 function Footer() {
   return (
@@ -110,18 +111,18 @@ function Footer() {
 
           <div>
 
-            <Link to="/" className="inline-block">
-
-              <h2 className="text-3xl font-extrabold tracking-tight">
-
-                Predict
-
-                <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                  Hub
-                </span>
-
-              </h2>
-
+            <Link to="/" className="inline-flex items-center gap-1">
+              <span className="flex h-14 w-20 shrink-0 items-start justify-center overflow-hidden">
+                <img
+                  src={predictHubImage}
+                  alt=""
+                  aria-hidden="true"
+                  className="w-24 max-w-none object-contain"
+                />
+              </span>
+              <span className="text-3xl font-bold leading-none tracking-tight text-indigo-400">
+                PredictHub
+              </span>
             </Link>
 
             {/* Status badge */}
