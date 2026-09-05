@@ -98,7 +98,7 @@ async def update_admin(data: AdminUpdate, user=Depends(get_current_user)):
 
 
 @router.post("/add_model")
-async def add_model(data: AdminModelCreate):
+async def add_model(data: AdminModelCreate, user=Depends(get_current_user)):
 
     model_data = data.model_dump()
 
@@ -111,7 +111,7 @@ async def add_model(data: AdminModelCreate):
 
 
 @router.put("/models/{model_id}")
-async def update_model(model_id: str, data: AdminModelCreate):
+async def update_model(model_id: str, data: AdminModelCreate, user=Depends(get_current_user)):
     if not ObjectId.is_valid(model_id):
         raise HTTPException(status_code=400, detail="Invalid model ID.")
 
@@ -130,7 +130,7 @@ async def update_model(model_id: str, data: AdminModelCreate):
 
 
 @router.patch("/models/{model_id}/status")
-async def update_model_status(model_id: str, data: AdminModelStatusUpdate):
+async def update_model_status(model_id: str, data: AdminModelStatusUpdate, user=Depends(get_current_user)):
     if not ObjectId.is_valid(model_id):
         raise HTTPException(status_code=400, detail="Invalid model ID.")
 
@@ -154,7 +154,7 @@ async def update_model_status(model_id: str, data: AdminModelStatusUpdate):
 
 
 @router.post("/users")
-async def create_user(data: AdminUserCreate):
+async def create_user(data: AdminUserCreate, user=Depends(get_current_user)):
     email = data.email.lower().strip()
 
     existing_user = await db.users.find_one({"email": email})
@@ -188,7 +188,7 @@ async def create_user(data: AdminUserCreate):
 
 
 @router.get("/users")
-async def get_all_users():
+async def get_all_users(user=Depends(get_current_user)):
     users = []
     async for user in db.users.find():
         user["_id"] = str(user["_id"])  # Convert ObjectId to string

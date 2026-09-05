@@ -116,7 +116,7 @@ async def get_current_user(
             algorithms=[ALGORITHM],
         )
 
-        email = payload.get("sub")
+        email = payload.get("email") or payload.get("sub")
 
         if email is None:
             raise credentials_exception
