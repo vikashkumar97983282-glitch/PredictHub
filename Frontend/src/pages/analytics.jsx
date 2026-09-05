@@ -410,8 +410,10 @@ function Analytics() {
      DATA
   ============================================================ */
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const modelPerformance = analytics?.model_performance || [];
   const recentActivity = analytics?.recent_activity || [];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const chartData = analytics?.chart_data || [];
 
   const totalPredictions = safeNumber(
@@ -486,7 +488,7 @@ function Analytics() {
       ====================================================== */}
 
       {isLoading && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#080f22]/90 backdrop-blur-sm">
+        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#080f22]/90 backdrop-blur-sm">
           <Commet
             color="#32cd32"
             size="large"
@@ -506,9 +508,9 @@ function Analytics() {
           className="
             absolute
             left-[20%]
-            top-[-200px]
-            h-[500px]
-            w-[500px]
+            -top-50
+            h-125
+            w-125
             rounded-full
             bg-blue-600/10
             blur-[150px]
@@ -518,10 +520,10 @@ function Analytics() {
         <div
           className="
             absolute
-            right-[-150px]
-            top-[200px]
-            h-[600px]
-            w-[600px]
+            -right-37.5
+            top-50
+            h-150
+            w-150
             rounded-full
             bg-purple-600/10
             blur-[180px]
@@ -665,7 +667,7 @@ function Analytics() {
 
                       <span
                         className="
-                          bg-gradient-to-r
+                          bg-linear-to-r
                           from-blue-400
                           via-indigo-400
                           to-purple-400
@@ -936,7 +938,7 @@ function Analytics() {
                                     relative
                                     w-full
                                     rounded-t-md
-                                    bg-gradient-to-t
+                                    bg-linear-to-t
                                     from-blue-700
                                     via-blue-500
                                     to-indigo-400
@@ -1085,8 +1087,8 @@ function Analytics() {
                         <div
                           className="
                             flex
-                            h-[160px]
-                            w-[160px]
+                            h-40
+                            w-40
                             items-center
                             justify-center
                             rounded-full
@@ -1239,7 +1241,7 @@ function Analytics() {
                 ) : (
                   <div className="overflow-x-auto">
 
-                    <table className="w-full min-w-[800px]">
+                    <table className="w-full min-w-200">
 
                       <thead>
 
@@ -1366,7 +1368,7 @@ function Analytics() {
                                       className="
                                         h-full
                                         rounded-full
-                                        bg-gradient-to-r
+                                        bg-linear-to-r
                                         from-blue-600
                                         to-indigo-400
                                         transition-all
@@ -1634,7 +1636,7 @@ function Analytics() {
                                 Result
                               </p>
 
-                              <p className="mt-1 max-w-[180px] truncate text-lg font-bold text-white">
+                              <p className="mt-1 max-w-45 truncate text-lg font-bold text-white">
                                 {String(activity.result)}
                               </p>
                             </div>
@@ -1686,7 +1688,7 @@ function Analytics() {
                   rounded-2xl
                   border
                   border-indigo-500/20
-                  bg-gradient-to-r
+                  bg-linear-to-r
                   from-indigo-500/10
                   via-blue-500/5
                   to-purple-500/10
@@ -1699,8 +1701,8 @@ function Analytics() {
                   className="
                     pointer-events-none
                     absolute
-                    right-[-50px]
-                    top-[-50px]
+                    -right-12.5
+                    -top-12.5
                     h-40
                     w-40
                     rounded-full

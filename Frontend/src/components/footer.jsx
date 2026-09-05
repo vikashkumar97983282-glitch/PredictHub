@@ -40,7 +40,7 @@ function Footer() {
             TOP CTA
         ====================================================== */}
 
-        <div className="mb-12 overflow-hidden rounded-2xl border border-blue-500/20 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10">
+        <div className="mb-12 overflow-hidden rounded-2xl border border-blue-500/20 bg-linear-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10">
 
           <div className="flex flex-col gap-5 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
 
