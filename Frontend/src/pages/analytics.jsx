@@ -1,5 +1,4 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -13,6 +12,11 @@ import {
   CalendarDays,
   Sparkles,
   Zap,
+  Wrench,
+  Clock,
+  XCircle,
+  RefreshCw,
+  Database,
 } from "lucide-react";
 import Commet from "react-loading-indicators/Commet";
 import { requestJson } from "../lib/api";
@@ -23,8 +27,165 @@ import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
 
 /* ============================================================
-   DATA
+   HELPERS
 ============================================================ */
+
+const safeNumber = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : 0;
+};
+
+const formatNumber = (value) => {
+  return safeNumber(value).toLocaleString();
+};
+
+const normalizeStatus = (status) => {
+  if (!status) return "Inactive";
+
+  const normalized = String(status)
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ");
+
+  switch (normalized) {
+    case "active":
+    case "available":
+    case "online":
+      return "Active";
+
+    case "maintenance":
+    case "under maintenance":
+      return "Maintenance";
+
+    case "coming soon":
+    case "comingsoon":
+      return "Coming Soon";
+
+    case "inactive":
+    case "disabled":
+    case "unavailable":
+      return "Inactive";
+
+    default:
+      return String(status);
+  }
+};
+
+/* ============================================================
+   STATUS CONFIG
+============================================================ */
+
+const getStatusConfig = (status) => {
+  const normalizedStatus = normalizeStatus(status);
+
+  switch (normalizedStatus) {
+    case "Active":
+      return {
+        label: "Active",
+        icon: CheckCircle2,
+        dotClass: "bg-emerald-400",
+        iconClass: "text-emerald-400",
+        textClass: "text-emerald-400",
+        bgClass: "bg-emerald-500/10",
+        borderClass: "border-emerald-500/20",
+      };
+
+    case "Maintenance":
+      return {
+        label: "Maintenance",
+        icon: Wrench,
+        dotClass: "bg-amber-400",
+        iconClass: "text-amber-400",
+        textClass: "text-amber-400",
+        bgClass: "bg-amber-500/10",
+        borderClass: "border-amber-500/20",
+      };
+
+    case "Coming Soon":
+      return {
+        label: "Coming Soon",
+        icon: Clock,
+        dotClass: "bg-purple-400",
+        iconClass: "text-purple-400",
+        textClass: "text-purple-400",
+        bgClass: "bg-purple-500/10",
+        borderClass: "border-purple-500/20",
+      };
+
+    case "Inactive":
+    default:
+      return {
+        label: normalizedStatus || "Inactive",
+        icon: XCircle,
+        dotClass: "bg-slate-500",
+        iconClass: "text-slate-400",
+        textClass: "text-slate-400",
+        bgClass: "bg-slate-500/10",
+        borderClass: "border-slate-500/20",
+      };
+  }
+};
+
+/* ============================================================
+   ACTIVITY STATUS CONFIG
+============================================================ */
+
+const getActivityStatusConfig = (status) => {
+  const normalized = String(status || "")
+    .trim()
+    .toLowerCase();
+
+  if (
+    normalized === "completed" ||
+    normalized === "complete" ||
+    normalized === "success" ||
+    normalized === "successful"
+  ) {
+    return {
+      label: "Completed",
+      icon: CheckCircle2,
+      textClass: "text-emerald-400",
+      bgClass: "bg-emerald-500/10",
+      borderClass: "border-emerald-500/20",
+    };
+  }
+
+  if (
+    normalized === "pending" ||
+    normalized === "processing" ||
+    normalized === "in progress"
+  ) {
+    return {
+      label: "Processing",
+      icon: Clock,
+      textClass: "text-amber-400",
+      bgClass: "bg-amber-500/10",
+      borderClass: "border-amber-500/20",
+    };
+  }
+
+  if (
+    normalized === "failed" ||
+    normalized === "error"
+  ) {
+    return {
+      label: "Failed",
+      icon: XCircle,
+      textClass: "text-red-400",
+      bgClass: "bg-red-500/10",
+      borderClass: "border-red-500/20",
+    };
+  }
+
+  return {
+    label: status || "Completed",
+    icon: AlertCircle,
+    textClass: "text-slate-400",
+    bgClass: "bg-slate-500/10",
+    borderClass: "border-slate-500/20",
+  };
+};
 
 /* ============================================================
    STAT CARD
@@ -36,6 +197,7 @@ function StatCard({
   subtitle,
   icon,
   iconClass,
+  subtitleClass = "text-emerald-400",
 }) {
   return (
     <div
@@ -53,13 +215,12 @@ function StatCard({
         transition-all
         duration-300
         hover:-translate-y-1
-        hover:border-blue-500/50
+        hover:border-blue-500/40
       "
     >
-      {/* Background Glow */}
-
       <div
         className="
+          pointer-events-none
           absolute
           -right-10
           -top-10
@@ -73,8 +234,8 @@ function StatCard({
         "
       />
 
-      <div className="relative flex items-start justify-between">
-        <div>
+      <div className="relative flex items-start justify-between gap-4">
+        <div className="min-w-0">
           <p className="text-sm font-medium text-slate-400">
             {title}
           </p>
@@ -84,9 +245,9 @@ function StatCard({
           </h2>
 
           <div className="mt-3 flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-emerald-400" />
+            <TrendingUp className={`h-4 w-4 ${subtitleClass}`} />
 
-            <span className="text-sm font-semibold text-emerald-400">
+            <span className={`text-sm font-semibold ${subtitleClass}`}>
               {subtitle}
             </span>
           </div>
@@ -97,6 +258,7 @@ function StatCard({
             flex
             h-12
             w-12
+            shrink-0
             items-center
             justify-center
             rounded-xl
@@ -111,6 +273,49 @@ function StatCard({
 }
 
 /* ============================================================
+   EMPTY STATE
+============================================================ */
+
+function EmptyState({
+  icon: Icon = Database,
+  title,
+  description,
+}) {
+  return (
+    <div className="flex min-h-48 flex-col items-center justify-center px-6 py-10 text-center">
+      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10">
+        <Icon className="h-6 w-6 text-blue-400" />
+      </div>
+
+      <h3 className="text-sm font-semibold text-slate-300">
+        {title}
+      </h3>
+
+      <p className="mt-2 max-w-md text-xs leading-5 text-slate-500">
+        {description}
+      </p>
+    </div>
+  );
+}
+
+/* ============================================================
+   LOADING SKELETON
+============================================================ */
+
+function TableSkeleton() {
+  return (
+    <div className="space-y-4 p-6">
+      {[1, 2, 3, 4].map((item) => (
+        <div
+          key={item}
+          className="h-16 animate-pulse rounded-xl bg-slate-800/60"
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ============================================================
    ANALYTICS
 ============================================================ */
 
@@ -118,37 +323,8 @@ function Analytics() {
   const [analytics, setAnalytics] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    const loadAnalytics = async () => {
-      try {
-        const data = await requestJson("/model/analytics");
-        if (isMounted) setAnalytics(data);
-      } catch (requestError) {
-        if (isMounted) setError(requestError.message || "Unable to load analytics.");
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
-    loadAnalytics();
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  const modelPerformance = analytics?.model_performance || [];
-  const recentActivity = analytics?.recent_activity || [];
-  const chartData = analytics?.chart_data || [];
-  const averageAccuracy = analytics?.average_accuracy ?? 0;
-  const accuracyGrowth = analytics?.accuracy_growth ?? 0;
-  const predictionsGrowth = analytics?.predictions_growth ?? 0;
-  const bestModel = modelPerformance.reduce(
-    (best, model) => (model.accuracy > (best?.accuracy || 0) ? model : best),
-    null
-  );
   const {
     isSidebarOpen,
     isMobileMenuOpen,
@@ -157,17 +333,171 @@ function Analytics() {
     closeMobileMenu,
   } = useSidebar();
 
+  /* ============================================================
+     LOAD ANALYTICS
+  ============================================================ */
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAnalytics = async () => {
+      setIsLoading(true);
+      setError("");
+
+      try {
+        const response = await requestJson("/model/analytics");
+
+        if (!isMounted) return;
+
+        setAnalytics({
+          total_predictions: safeNumber(response?.total_predictions),
+          average_accuracy: safeNumber(response?.average_accuracy),
+          active_models: safeNumber(response?.active_models),
+          model_categories: safeNumber(response?.model_categories),
+          success_rate: safeNumber(response?.success_rate),
+          predictions_growth: safeNumber(response?.predictions_growth),
+          accuracy_growth: safeNumber(response?.accuracy_growth),
+          model_performance: Array.isArray(response?.model_performance)
+            ? response.model_performance.map((model, index) => ({
+                name: model?.name || `Model ${index + 1}`,
+                accuracy: Math.min(
+                  100,
+                  Math.max(0, safeNumber(model?.accuracy))
+                ),
+                predictions: safeNumber(model?.predictions),
+                trend: safeNumber(model?.trend),
+                status: normalizeStatus(model?.status),
+              }))
+            : [],
+          recent_activity: Array.isArray(response?.recent_activity)
+            ? response.recent_activity.map((activity) => ({
+                title: activity?.title || "Prediction",
+                model: activity?.model || "Unknown model",
+                result: activity?.result ?? "-",
+                status: activity?.status || "Completed",
+                time: activity?.time || "Recently",
+              }))
+            : [],
+          chart_data: Array.isArray(response?.chart_data)
+            ? response.chart_data.map((value) =>
+                Math.max(0, safeNumber(value))
+              )
+            : [],
+        });
+      } catch (requestError) {
+        if (!isMounted) return;
+
+        setAnalytics(null);
+        setError(
+          requestError?.message ||
+            "Unable to load analytics."
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadAnalytics();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [reloadToken]);
+
+  /* ============================================================
+     DATA
+  ============================================================ */
+
+  const modelPerformance = analytics?.model_performance || [];
+  const recentActivity = analytics?.recent_activity || [];
+  const chartData = analytics?.chart_data || [];
+
+  const totalPredictions = safeNumber(
+    analytics?.total_predictions
+  );
+
+  const averageAccuracy = Math.min(
+    100,
+    Math.max(0, safeNumber(analytics?.average_accuracy))
+  );
+
+  const activeModels = safeNumber(
+    analytics?.active_models
+  );
+
+  const modelCategories = safeNumber(
+    analytics?.model_categories
+  );
+
+  const successRate = Math.min(
+    100,
+    Math.max(0, safeNumber(analytics?.success_rate))
+  );
+
+  const accuracyGrowth = safeNumber(
+    analytics?.accuracy_growth
+  );
+
+  const predictionsGrowth = safeNumber(
+    analytics?.predictions_growth
+  );
+
+  /* ============================================================
+     BEST MODEL
+  ============================================================ */
+
+  const bestModel = useMemo(() => {
+    if (!modelPerformance.length) {
+      return null;
+    }
+
+    return modelPerformance.reduce((best, model) => {
+      if (!best) return model;
+
+      return model.accuracy > best.accuracy
+        ? model
+        : best;
+    }, null);
+  }, [modelPerformance]);
+
+  /* ============================================================
+     MAX CHART VALUE
+  ============================================================ */
+
+  const maxChartValue = useMemo(() => {
+    if (!chartData.length) return 1;
+
+    const max = Math.max(...chartData);
+
+    return max > 0 ? max : 1;
+  }, [chartData]);
+
+  /* ============================================================
+     RENDER
+  ============================================================ */
+
   return (
     <div className="relative flex min-h-screen bg-[#080f22] text-white">
 
+      {/* ======================================================
+          LOADING
+      ====================================================== */}
+
       {isLoading && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#080f22]/90 backdrop-blur-sm">
-          <Commet color="#32cd32" size="large" text="Loading" textColor="" />
+          <Commet
+            color="#32cd32"
+            size="large"
+            text="Loading"
+            textColor=""
+          />
         </div>
       )}
 
       {/* ======================================================
-          BACKGROUND GLOW
+          BACKGROUND
       ====================================================== */}
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
@@ -200,7 +530,6 @@ function Analytics() {
 
       </div>
 
-
       {/* ======================================================
           SIDEBAR
       ====================================================== */}
@@ -212,46 +541,76 @@ function Analytics() {
         onToggleSidebar={toggleSidebar}
       />
 
-
       {/* ======================================================
           MAIN APPLICATION
       ====================================================== */}
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
 
-        {error && (
-          <p role="alert" className="mx-4 mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300 sm:mx-6 lg:mx-8">
-            {error}
-          </p>
-        )}
-
         {/* ====================================================
             NAVBAR
         ==================================================== */}
 
-        <Navbar
-          onMenuClick={toggleMobileMenu}
-        />
+        <Navbar onMenuClick={toggleMobileMenu} />
 
+        {/* ====================================================
+            ERROR
+        ==================================================== */}
+
+        {error && (
+          <div className="mx-4 mt-4 flex flex-col gap-3 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 sm:mx-6 sm:flex-row sm:items-center sm:justify-between lg:mx-8">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+
+              <p
+                role="alert"
+                className="text-sm text-red-300"
+              >
+                {error}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() =>
+                setReloadToken((value) => value + 1)
+              }
+              className="
+                inline-flex
+                items-center
+                justify-center
+                gap-2
+                rounded-lg
+                border
+                border-red-400/20
+                bg-red-400/10
+                px-3
+                py-2
+                text-xs
+                font-semibold
+                text-red-300
+                transition
+                hover:bg-red-400/20
+              "
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Retry
+            </button>
+          </div>
+        )}
 
         {/* ====================================================
             MAIN CONTENT
         ==================================================== */}
 
-        <main
-          className="
-            flex-1
-            overflow-x-hidden
-          "
-        >
+        <main className="flex-1 overflow-x-hidden">
 
           <div className="px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
 
             <div className="mx-auto w-full max-w-7xl">
 
-
               {/* =================================================
-                  PAGE HEADER
+                  HEADER
               ================================================= */}
 
               <div className="mb-10">
@@ -267,11 +626,7 @@ function Analytics() {
                   "
                 >
 
-                  {/* LEFT */}
-
                   <div>
-
-                    {/* Badge */}
 
                     <div
                       className="
@@ -290,14 +645,10 @@ function Analytics() {
                         text-blue-300
                       "
                     >
-                      <span className="h-2 w-2 rounded-full bg-blue-400" />
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
 
                       ANALYTICS · AI INSIGHTS
-
                     </div>
-
-
-                    {/* Title */}
 
                     <h1
                       className="
@@ -324,11 +675,7 @@ function Analytics() {
                       >
                         Analytics
                       </span>
-
                     </h1>
-
-
-                    {/* Description */}
 
                     <p
                       className="
@@ -346,9 +693,6 @@ function Analytics() {
                     </p>
 
                   </div>
-
-
-                  {/* DATE BUTTON */}
 
                   <button
                     type="button"
@@ -383,12 +727,10 @@ function Analytics() {
                   </button>
 
                 </div>
-
               </div>
 
-
               {/* =================================================
-                  STATISTICS CARDS
+                  STATISTICS
               ================================================= */}
 
               <div
@@ -402,14 +744,13 @@ function Analytics() {
 
                 <StatCard
                   title="Total Predictions"
-                  value={analytics?.total_predictions ?? 0}
+                  value={formatNumber(totalPredictions)}
                   subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
                   icon={
                     <Activity className="h-5 w-5 text-blue-400" />
                   }
                   iconClass="bg-blue-500/10"
                 />
-
 
                 <StatCard
                   title="Average Accuracy"
@@ -421,30 +762,29 @@ function Analytics() {
                   iconClass="bg-emerald-500/10"
                 />
 
-
                 <StatCard
                   title="Active Models"
-                  value={analytics?.active_models ?? 0}
-                  subtitle={`${analytics?.model_categories ?? 0} categories`}
+                  value={formatNumber(activeModels)}
+                  subtitle={`${modelCategories} categories`}
                   icon={
                     <Brain className="h-5 w-5 text-purple-400" />
                   }
                   iconClass="bg-purple-500/10"
+                  subtitleClass="text-purple-400"
                 />
-
 
                 <StatCard
                   title="Success Rate"
-                  value={`${analytics?.success_rate ?? 0}%`}
-                  subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
+                  value={`${successRate}%`}
+                  subtitle="Completed predictions"
                   icon={
                     <CheckCircle2 className="h-5 w-5 text-cyan-400" />
                   }
                   iconClass="bg-cyan-500/10"
+                  subtitleClass="text-cyan-400"
                 />
 
               </div>
-
 
               {/* =================================================
                   CHART SECTION
@@ -459,10 +799,9 @@ function Analytics() {
                 "
               >
 
-
-                {/* =============================================
+                {/* =================================================
                     PREDICTION OVERVIEW
-                ============================================== */}
+                ================================================= */}
 
                 <div
                   className="
@@ -481,8 +820,6 @@ function Analytics() {
                   "
                 >
 
-                  {/* Glow */}
-
                   <div
                     className="
                       pointer-events-none
@@ -499,44 +836,36 @@ function Analytics() {
 
                   <div className="relative">
 
-                    {/* HEADER */}
+                    <div className="flex items-start justify-between gap-4">
 
-                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-3">
 
-                      <div>
+                        <div
+                          className="
+                            flex
+                            h-10
+                            w-10
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-xl
+                            bg-blue-500/10
+                          "
+                        >
+                          <BarChart3 className="h-5 w-5 text-blue-400" />
+                        </div>
 
-                        <div className="flex items-center gap-2">
+                        <div>
+                          <h2 className="text-lg font-bold text-white">
+                            Prediction Overview
+                          </h2>
 
-                          <div
-                            className="
-                              flex
-                              h-9
-                              w-9
-                              items-center
-                              justify-center
-                              rounded-xl
-                              bg-blue-500/10
-                            "
-                          >
-                            <BarChart3 className="h-5 w-5 text-blue-400" />
-                          </div>
-
-                          <div>
-
-                            <h2 className="text-lg font-bold text-white">
-                              Prediction Overview
-                            </h2>
-
-                            <p className="mt-1 text-sm text-slate-400">
-                              Prediction activity over the last 30 days
-                            </p>
-
-                          </div>
-
+                          <p className="mt-1 text-sm text-slate-400">
+                            Prediction activity over the last 30 days
+                          </p>
                         </div>
 
                       </div>
-
 
                       <div
                         className="
@@ -551,11 +880,11 @@ function Analytics() {
                           sm:block
                         "
                       >
-                        {predictionsGrowth >= 0 ? "+" : ""}{predictionsGrowth}% Growth
+                        {predictionsGrowth >= 0 ? "+" : ""}
+                        {predictionsGrowth}% Growth
                       </div>
 
                     </div>
-
 
                     {/* CHART */}
 
@@ -573,73 +902,78 @@ function Analytics() {
                       "
                     >
 
-                      <div
-                        className="
-                          flex
-                          h-full
-                          items-end
-                          gap-1
-                          sm:gap-2
-                        "
-                      >
+                      {chartData.length > 0 ? (
+                        <div className="flex h-full items-end gap-1 sm:gap-2">
 
-                        {chartData.map((height, index) => (
+                          {chartData.map((value, index) => {
 
-                          <div
-                            key={index}
-                            className="
-                              group
-                              flex
-                              h-full
-                              min-w-0
-                              flex-1
-                              items-end
-                            "
-                          >
+                            const percentage =
+                              value > 0
+                                ? Math.max(
+                                    4,
+                                    (value / maxChartValue) * 100
+                                  )
+                                : 2;
 
-                            <div
-                              style={{
-                                height: `${height}%`,
-                              }}
-                              className="
-                                relative
-                                w-full
-                                rounded-t-md
-                                bg-gradient-to-t
-                                from-blue-700
-                                via-blue-500
-                                to-indigo-400
-                                opacity-75
-                                transition-all
-                                duration-300
-                                group-hover:opacity-100
-                                group-hover:brightness-125
-                              "
-                            >
-
+                            return (
                               <div
+                                key={index}
                                 className="
-                                  absolute
-                                  left-0
-                                  right-0
-                                  top-0
-                                  h-px
-                                  bg-white/30
+                                  group
+                                  flex
+                                  h-full
+                                  min-w-0
+                                  flex-1
+                                  items-end
                                 "
-                              />
+                              >
+                                <div
+                                  title={`Day ${index + 1}: ${value} predictions`}
+                                  style={{
+                                    height: `${percentage}%`,
+                                  }}
+                                  className="
+                                    relative
+                                    w-full
+                                    rounded-t-md
+                                    bg-gradient-to-t
+                                    from-blue-700
+                                    via-blue-500
+                                    to-indigo-400
+                                    opacity-75
+                                    transition-all
+                                    duration-300
+                                    group-hover:opacity-100
+                                    group-hover:brightness-125
+                                  "
+                                >
+                                  <div
+                                    className="
+                                      absolute
+                                      left-0
+                                      right-0
+                                      top-0
+                                      h-px
+                                      bg-white/30
+                                    "
+                                  />
+                                </div>
+                              </div>
+                            );
+                          })}
 
-                            </div>
-
-                          </div>
-
-                        ))}
-
-                      </div>
+                        </div>
+                      ) : (
+                        <div className="flex h-full items-center justify-center">
+                          <EmptyState
+                            icon={BarChart3}
+                            title="No prediction activity"
+                            description="Prediction activity will appear here after users make predictions."
+                          />
+                        </div>
+                      )}
 
                     </div>
-
-
-                    {/* DATES */}
 
                     <div
                       className="
@@ -650,25 +984,20 @@ function Analytics() {
                         text-slate-500
                       "
                     >
-                      <span>1 Aug</span>
-
-                      <span>8 Aug</span>
-
-                      <span>15 Aug</span>
-
-                      <span>22 Aug</span>
-
-                      <span>30 Aug</span>
+                      <span>30 days ago</span>
+                      <span>22 days</span>
+                      <span>15 days</span>
+                      <span>7 days</span>
+                      <span>Today</span>
                     </div>
 
                   </div>
 
                 </div>
 
-
-                {/* =============================================
+                {/* =================================================
                     OVERALL ACCURACY
-                ============================================== */}
+                ================================================= */}
 
                 <div
                   className="
@@ -683,8 +1012,6 @@ function Analytics() {
                     backdrop-blur-xl
                   "
                 >
-
-                  {/* Background Glow */}
 
                   <div
                     className="
@@ -711,6 +1038,7 @@ function Analytics() {
                           flex
                           h-10
                           w-10
+                          shrink-0
                           items-center
                           justify-center
                           rounded-xl
@@ -721,7 +1049,6 @@ function Analytics() {
                       </div>
 
                       <div>
-
                         <h2 className="text-lg font-bold text-white">
                           Overall Accuracy
                         </h2>
@@ -729,11 +1056,9 @@ function Analytics() {
                         <p className="mt-1 text-sm text-slate-400">
                           Performance across all models
                         </p>
-
                       </div>
 
                     </div>
-
 
                     {/* CIRCLE */}
 
@@ -750,8 +1075,10 @@ function Analytics() {
                           rounded-full
                         "
                         style={{
-                          background:
-                            "conic-gradient(#6366f1 0deg 336deg, rgba(51,65,85,0.5) 336deg 360deg)",
+                          background: `conic-gradient(
+                            #6366f1 0deg ${averageAccuracy * 3.6}deg,
+                            rgba(51,65,85,0.5) ${averageAccuracy * 3.6}deg 360deg
+                          )`,
                         }}
                       >
 
@@ -785,7 +1112,6 @@ function Analytics() {
 
                       </div>
 
-
                       <div
                         className="
                           mt-7
@@ -805,8 +1131,8 @@ function Analytics() {
                       >
                         <TrendingUp className="h-4 w-4" />
 
+                        {accuracyGrowth >= 0 ? "+" : ""}
                         {accuracyGrowth}% improvement
-
                       </div>
 
                     </div>
@@ -816,7 +1142,6 @@ function Analytics() {
                 </div>
 
               </div>
-
 
               {/* =================================================
                   MODEL PERFORMANCE
@@ -851,44 +1176,39 @@ function Analytics() {
                   "
                 >
 
-                  <div>
+                  <div className="flex items-center gap-3">
 
-                    <div className="flex items-center gap-3">
+                    <div
+                      className="
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-xl
+                        bg-blue-500/10
+                      "
+                    >
+                      <Brain className="h-5 w-5 text-blue-400" />
+                    </div>
 
-                      <div
-                        className="
-                          flex
-                          h-10
-                          w-10
-                          items-center
-                          justify-center
-                          rounded-xl
-                          bg-blue-500/10
-                        "
-                      >
-                        <Brain className="h-5 w-5 text-blue-400" />
-                      </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-white">
+                        Model Performance
+                      </h2>
 
-                      <div>
-
-                        <h2 className="text-lg font-bold text-white">
-                          Model Performance
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Compare prediction models and their performance.
-                        </p>
-
-                      </div>
-
+                      <p className="mt-1 text-sm text-slate-400">
+                        Compare prediction models and their performance.
+                      </p>
                     </div>
 
                   </div>
 
-
                   <div
                     className="
                       inline-flex
+                      w-fit
                       items-center
                       gap-2
                       rounded-full
@@ -901,272 +1221,271 @@ function Analytics() {
                     "
                   >
                     <Sparkles className="h-4 w-4" />
-
                     AI Powered
-
                   </div>
 
                 </div>
 
-
                 {/* TABLE */}
 
-                <div className="overflow-x-auto">
+                {isLoading ? (
+                  <TableSkeleton />
+                ) : modelPerformance.length === 0 ? (
+                  <EmptyState
+                    icon={Brain}
+                    title="No model performance data"
+                    description="Model performance will appear here once prediction models are available."
+                  />
+                ) : (
+                  <div className="overflow-x-auto">
 
-                  <table className="w-full min-w-[750px]">
+                    <table className="w-full min-w-[800px]">
 
-                    <thead>
-
-                      <tr
-                        className="
-                          border-b
-                          border-slate-700/50
-                          bg-[#0d1525]/60
-                          text-left
-                        "
-                      >
-
-                        <th
-                          className="
-                            px-6
-                            py-4
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-wider
-                            text-slate-500
-                          "
-                        >
-                          Model
-                        </th>
-
-                        <th
-                          className="
-                            px-6
-                            py-4
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-wider
-                            text-slate-500
-                          "
-                        >
-                          Accuracy
-                        </th>
-
-                        <th
-                          className="
-                            px-6
-                            py-4
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-wider
-                            text-slate-500
-                          "
-                        >
-                          Predictions
-                        </th>
-
-                        <th
-                          className="
-                            px-6
-                            py-4
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-wider
-                            text-slate-500
-                          "
-                        >
-                          Trend
-                        </th>
-
-                        <th
-                          className="
-                            px-6
-                            py-4
-                            text-xs
-                            font-semibold
-                            uppercase
-                            tracking-wider
-                            text-slate-500
-                          "
-                        >
-                          Status
-                        </th>
-
-                      </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                      {modelPerformance.map((model) => (
+                      <thead>
 
                         <tr
-                          key={model.name}
                           className="
                             border-b
-                            border-slate-700/30
-                            transition
-                            last:border-0
-                            hover:bg-slate-800/40
+                            border-slate-700/50
+                            bg-[#0d1525]/60
+                            text-left
                           "
                         >
 
-                          {/* MODEL */}
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Model
+                          </th>
 
-                          <td className="px-6 py-5">
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Accuracy
+                          </th>
 
-                            <div className="flex items-center gap-3">
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Predictions
+                          </th>
 
-                              <div
-                                className="
-                                  flex
-                                  h-10
-                                  w-10
-                                  items-center
-                                  justify-center
-                                  rounded-xl
-                                  bg-blue-500/10
-                                "
-                              >
-                                <Brain className="h-5 w-5 text-blue-400" />
-                              </div>
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Trend
+                          </th>
 
-                              <span className="font-semibold text-slate-200">
-                                {model.name}
-                              </span>
-
-                            </div>
-
-                          </td>
-
-
-                          {/* ACCURACY */}
-
-                          <td className="px-6 py-5">
-
-                            <div className="flex items-center gap-3">
-
-                              <div
-                                className="
-                                  h-2
-                                  w-28
-                                  overflow-hidden
-                                  rounded-full
-                                  bg-slate-800
-                                "
-                              >
-
-                                <div
-                                  style={{
-                                    width: `${model.accuracy}%`,
-                                  }}
-                                  className="
-                                    h-full
-                                    rounded-full
-                                    bg-gradient-to-r
-                                    from-blue-600
-                                    to-indigo-400
-                                  "
-                                />
-
-                              </div>
-
-                              <span className="text-sm font-semibold text-slate-300">
-                                {model.accuracy}%
-                              </span>
-
-                            </div>
-
-                          </td>
-
-
-                          {/* PREDICTIONS */}
-
-                          <td
-                            className="
-                              px-6
-                              py-5
-                              text-sm
-                              font-medium
-                              text-slate-300
-                            "
-                          >
-                            {model.predictions.toLocaleString()}
-                          </td>
-
-
-                          {/* TREND */}
-
-                          <td className="px-6 py-5">
-
-                            <span
-                              className="
-                                inline-flex
-                                items-center
-                                gap-1
-                                rounded-full
-                                bg-emerald-500/10
-                                px-3
-                                py-1.5
-                                text-sm
-                                font-semibold
-                                text-emerald-400
-                              "
-                            >
-                              <ArrowUpRight className="h-4 w-4" />
-
-                              {model.trend}
-
-                            </span>
-
-                          </td>
-
-
-                          {/* STATUS */}
-
-                          <td className="px-6 py-5">
-
-                            <span
-                              className="
-                                inline-flex
-                                items-center
-                                gap-2
-                                rounded-full
-                                border
-                                border-emerald-500/20
-                                bg-emerald-500/10
-                                px-3
-                                py-1.5
-                                text-xs
-                                font-semibold
-                                text-emerald-400
-                              "
-                            >
-                              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-
-                              Active
-
-                            </span>
-
-                          </td>
+                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                            Status
+                          </th>
 
                         </tr>
 
-                      ))}
+                      </thead>
 
-                    </tbody>
+                      <tbody>
 
-                  </table>
+                        {modelPerformance.map((model, index) => {
 
-                </div>
+                          const statusConfig =
+                            getStatusConfig(model.status);
+
+                          const StatusIcon =
+                            statusConfig.icon;
+
+                          const accuracy = Math.min(
+                            100,
+                            Math.max(
+                              0,
+                              safeNumber(model.accuracy)
+                            )
+                          );
+
+                          const trend =
+                            safeNumber(model.trend);
+
+                          return (
+                            <tr
+                              key={`${model.name}-${index}`}
+                              className="
+                                border-b
+                                border-slate-700/30
+                                transition
+                                last:border-0
+                                hover:bg-slate-800/40
+                              "
+                            >
+
+                              {/* MODEL */}
+
+                              <td className="px-6 py-5">
+
+                                <div className="flex items-center gap-3">
+
+                                  <div
+                                    className="
+                                      flex
+                                      h-10
+                                      w-10
+                                      shrink-0
+                                      items-center
+                                      justify-center
+                                      rounded-xl
+                                      bg-blue-500/10
+                                    "
+                                  >
+                                    <Brain className="h-5 w-5 text-blue-400" />
+                                  </div>
+
+                                  <div className="min-w-0">
+                                    <span className="block font-semibold text-slate-200">
+                                      {model.name}
+                                    </span>
+
+                                    <span className="mt-1 block text-xs text-slate-500">
+                                      Machine Learning Model
+                                    </span>
+                                  </div>
+
+                                </div>
+
+                              </td>
+
+                              {/* ACCURACY */}
+
+                              <td className="px-6 py-5">
+
+                                <div className="flex items-center gap-3">
+
+                                  <div
+                                    className="
+                                      h-2
+                                      w-28
+                                      overflow-hidden
+                                      rounded-full
+                                      bg-slate-800
+                                    "
+                                  >
+                                    <div
+                                      style={{
+                                        width: `${accuracy}%`,
+                                      }}
+                                      className="
+                                        h-full
+                                        rounded-full
+                                        bg-gradient-to-r
+                                        from-blue-600
+                                        to-indigo-400
+                                        transition-all
+                                        duration-500
+                                      "
+                                    />
+                                  </div>
+
+                                  <span className="text-sm font-semibold text-slate-300">
+                                    {accuracy}%
+                                  </span>
+
+                                </div>
+
+                              </td>
+
+                              {/* PREDICTIONS */}
+
+                              <td className="px-6 py-5 text-sm font-medium text-slate-300">
+                                {formatNumber(model.predictions)}
+                              </td>
+
+                              {/* TREND */}
+
+                              <td className="px-6 py-5">
+
+                                {trend !== 0 ? (
+                                  <span
+                                    className={`
+                                      inline-flex
+                                      items-center
+                                      gap-1
+                                      rounded-full
+                                      px-3
+                                      py-1.5
+                                      text-sm
+                                      font-semibold
+                                      ${
+                                        trend >= 0
+                                          ? "bg-emerald-500/10 text-emerald-400"
+                                          : "bg-red-500/10 text-red-400"
+                                      }
+                                    `}
+                                  >
+                                    <ArrowUpRight
+                                      className={`h-4 w-4 ${
+                                        trend < 0
+                                          ? "rotate-90"
+                                          : ""
+                                      }`}
+                                    />
+
+                                    {trend > 0 ? "+" : ""}
+                                    {trend}%
+                                  </span>
+                                ) : (
+                                  <span className="text-sm text-slate-500">
+                                    —
+                                  </span>
+                                )}
+
+                              </td>
+
+                              {/* STATUS */}
+
+                              <td className="px-6 py-5">
+
+                                <span
+                                  className={`
+                                    inline-flex
+                                    items-center
+                                    gap-2
+                                    rounded-full
+                                    border
+                                    px-3
+                                    py-1.5
+                                    text-xs
+                                    font-semibold
+                                    ${statusConfig.borderClass}
+                                    ${statusConfig.bgClass}
+                                    ${statusConfig.textClass}
+                                  `}
+                                >
+
+                                  <span
+                                    className={`
+                                      h-2
+                                      w-2
+                                      rounded-full
+                                      ${statusConfig.dotClass}
+                                      ${
+                                        statusConfig.label ===
+                                        "Active"
+                                          ? "animate-pulse"
+                                          : ""
+                                      }
+                                    `}
+                                  />
+
+                                  <StatusIcon className="h-3.5 w-3.5" />
+
+                                  {statusConfig.label}
+
+                                </span>
+
+                              </td>
+
+                            </tr>
+                          );
+                        })}
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+                )}
 
               </div>
-
 
               {/* =================================================
                   RECENT PREDICTIONS
@@ -1185,21 +1504,21 @@ function Analytics() {
                 "
               >
 
-                {/* HEADER */}
-
                 <div
                   className="
                     flex
-                    items-center
-                    justify-between
+                    flex-col
+                    gap-3
                     border-b
                     border-slate-700/50
                     p-6
+                    sm:flex-row
+                    sm:items-center
+                    sm:justify-between
                   "
                 >
 
                   <div>
-
                     <h2 className="text-lg font-bold text-white">
                       Recent Predictions
                     </h2>
@@ -1207,139 +1526,153 @@ function Analytics() {
                     <p className="mt-1 text-sm text-slate-400">
                       Latest prediction activity from your models.
                     </p>
-
                   </div>
 
-
-                  <button
-                    type="button"
+                  <div
                     className="
-                      rounded-lg
+                      inline-flex
+                      w-fit
+                      items-center
+                      gap-2
+                      rounded-full
+                      bg-slate-800/80
                       px-3
-                      py-2
-                      text-sm
-                      font-semibold
-                      text-blue-400
-                      transition
-                      hover:bg-blue-500/10
-                      hover:text-blue-300
+                      py-1.5
+                      text-xs
+                      font-medium
+                      text-slate-400
                     "
                   >
-                    View All
-                  </button>
+                    <Activity className="h-3.5 w-3.5" />
+                    {recentActivity.length} Recent
+                  </div>
 
                 </div>
 
+                {isLoading ? (
+                  <TableSkeleton />
+                ) : recentActivity.length === 0 ? (
+                  <EmptyState
+                    icon={Activity}
+                    title="No recent predictions"
+                    description="Your latest prediction activity will appear here."
+                  />
+                ) : (
+                  <div className="divide-y divide-slate-700/40">
 
-                {/* ACTIVITY */}
+                    {recentActivity.map((activity, index) => {
 
-                <div className="divide-y divide-slate-700/40">
+                      const activityStatus =
+                        getActivityStatusConfig(
+                          activity.status
+                        );
 
-                  {recentActivity.map((activity, index) => (
+                      const ActivityStatusIcon =
+                        activityStatus.icon;
 
-                    <div
-                      key={index}
-                      className="
-                        flex
-                        flex-col
-                        gap-5
-                        p-5
-                        transition
-                        hover:bg-slate-800/30
-                        sm:flex-row
-                        sm:items-center
-                        sm:justify-between
-                      "
-                    >
-
-                      {/* LEFT */}
-
-                      <div className="flex items-center gap-4">
-
+                      return (
                         <div
+                          key={`${activity.title}-${index}`}
                           className="
                             flex
-                            h-11
-                            w-11
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-xl
-                            bg-blue-500/10
+                            flex-col
+                            gap-5
+                            p-5
+                            transition
+                            hover:bg-slate-800/30
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
                           "
                         >
-                          <Activity className="h-5 w-5 text-blue-400" />
+
+                          {/* LEFT */}
+
+                          <div className="flex min-w-0 items-center gap-4">
+
+                            <div
+                              className="
+                                flex
+                                h-11
+                                w-11
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-blue-500/10
+                              "
+                            >
+                              <Activity className="h-5 w-5 text-blue-400" />
+                            </div>
+
+                            <div className="min-w-0">
+
+                              <h3 className="truncate font-semibold text-slate-200">
+                                {activity.title}
+                              </h3>
+
+                              <p className="mt-1 truncate text-sm text-slate-500">
+                                {activity.model}
+
+                                <span className="mx-2">
+                                  •
+                                </span>
+
+                                {activity.time}
+                              </p>
+
+                            </div>
+
+                          </div>
+
+                          {/* RIGHT */}
+
+                          <div className="flex items-center justify-between gap-6 sm:justify-end">
+
+                            <div>
+                              <p className="text-xs text-slate-500">
+                                Result
+                              </p>
+
+                              <p className="mt-1 max-w-[180px] truncate text-lg font-bold text-white">
+                                {String(activity.result)}
+                              </p>
+                            </div>
+
+                            <span
+                              className={`
+                                inline-flex
+                                shrink-0
+                                items-center
+                                gap-2
+                                rounded-full
+                                border
+                                px-4
+                                py-2
+                                text-xs
+                                font-semibold
+                                ${activityStatus.borderClass}
+                                ${activityStatus.bgClass}
+                                ${activityStatus.textClass}
+                              `}
+                            >
+
+                              <ActivityStatusIcon className="h-4 w-4" />
+
+                              {activityStatus.label}
+
+                            </span>
+
+                          </div>
+
                         </div>
+                      );
+                    })}
 
-
-                        <div>
-
-                          <h3 className="font-semibold text-slate-200">
-                            {activity.title}
-                          </h3>
-
-                          <p className="mt-1 text-sm text-slate-500">
-                            {activity.model}
-
-                            <span className="mx-2">•</span>
-
-                            {activity.time}
-                          </p>
-
-                        </div>
-
-                      </div>
-
-
-                      {/* RIGHT */}
-
-                      <div className="flex items-center gap-6">
-
-                        <div>
-
-                          <p className="text-xs text-slate-500">
-                            Result
-                          </p>
-
-                          <p className="mt-1 text-lg font-bold text-white">
-                            {activity.result}
-                          </p>
-
-                        </div>
-
-
-                        <span
-                          className="
-                            inline-flex
-                            items-center
-                            gap-2
-                            rounded-full
-                            border
-                            border-emerald-500/20
-                            bg-emerald-500/10
-                            px-4
-                            py-2
-                            text-xs
-                            font-semibold
-                            text-emerald-400
-                          "
-                        >
-                          <CheckCircle2 className="h-4 w-4" />
-
-                          {activity.status}
-
-                        </span>
-
-                      </div>
-
-                    </div>
-
-                  ))}
-
-                </div>
+                  </div>
+                )}
 
               </div>
-
 
               {/* =================================================
                   ANALYTICS INSIGHT
@@ -1364,6 +1697,7 @@ function Analytics() {
 
                 <div
                   className="
+                    pointer-events-none
                     absolute
                     right-[-50px]
                     top-[-50px]
@@ -1403,7 +1737,6 @@ function Analytics() {
                     <Zap className="h-6 w-6 text-indigo-400" />
                   </div>
 
-
                   <div>
 
                     <div className="flex items-center gap-2">
@@ -1416,36 +1749,48 @@ function Analytics() {
 
                     </div>
 
+                    {bestModel ? (
+                      <p
+                        className="
+                          mt-3
+                          max-w-3xl
+                          text-sm
+                          leading-7
+                          text-slate-400
+                        "
+                      >
+                        Your current average prediction accuracy
+                        is{" "}
+                        <span className="font-semibold text-emerald-400">
+                          {averageAccuracy}%
+                        </span>
+                        .{" "}
 
-                    <p
-                      className="
-                        mt-3
-                        max-w-3xl
-                        text-sm
-                        leading-7
-                        text-slate-400
-                      "
-                    >
-                      Your prediction accuracy has improved by{" "}
+                        <span className="font-semibold text-purple-300">
+                          {bestModel.name}
+                        </span>{" "}
+                        is currently your best performing model
+                        with an accuracy of{" "}
 
-                      <span className="font-semibold text-emerald-400">
-                        {accuracyGrowth}%
-                      </span>
-
-                      {" "}over the previous period.{" "}
-
-                      <span className="font-semibold text-purple-300">
-                        {bestModel?.name || "No model"}
-                      </span>
-
-                      {" "}is currently your best performing model with an
-                      accuracy of{" "}
-
-                      <span className="font-semibold text-blue-400">
-                        {bestModel?.accuracy || 0}%.
-                      </span>
-
-                    </p>
+                        <span className="font-semibold text-blue-400">
+                          {bestModel.accuracy}%.
+                        </span>
+                      </p>
+                    ) : (
+                      <p
+                        className="
+                          mt-3
+                          max-w-3xl
+                          text-sm
+                          leading-7
+                          text-slate-400
+                        "
+                      >
+                        No model performance data is available
+                        yet. Once predictions are made, PredictHub
+                        will show useful performance insights here.
+                      </p>
+                    )}
 
                   </div>
 
@@ -1453,15 +1798,11 @@ function Analytics() {
 
               </div>
 
-
-              {/* BOTTOM SPACING */}
-
               <div className="h-10" />
 
             </div>
 
           </div>
-
 
           {/* FOOTER */}
 
