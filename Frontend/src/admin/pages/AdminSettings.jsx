@@ -5,16 +5,48 @@ import {
   Bell,
   Save,
 } from "lucide-react";
-import { getStoredUser } from "../../lib/api";
+import { getStoredUser, requestJson } from "../../lib/api";
 
 const AdminSettings = () => {
   const currentUser = getStoredUser();
 
   const [notifications, setNotifications] = useState(true);
   const [saveMessage, setSaveMessage] = useState("");
+  const [form, setForm] = useState({
+    name: currentUser?.name || "Admin",
+    email: currentUser?.email || "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = () => {
-    setSaveMessage("Changes saved successfully.");
+  const handleChange = (event) => {
+    setForm((currentForm) => ({
+      ...currentForm,
+      [event.target.name]: event.target.value,
+    }));
+  };
+
+  const handleSave = async () => {
+    setSaveMessage("");
+    setIsSaving(true);
+
+    try {
+      await requestJson("/admin/update_admin", {
+        method: "PUT",
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+          confirm_password: form.confirmPassword,
+        }),
+      });
+      setSaveMessage("Changes saved successfully.");
+    } catch (error) {
+      setSaveMessage(error.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -63,7 +95,9 @@ const AdminSettings = () => {
             </label>
 
             <input
-              defaultValue={currentUser?.name || "Admin"}
+              name="name"
+              value={form.name}
+              onChange={handleChange}
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
           </div>
@@ -74,7 +108,10 @@ const AdminSettings = () => {
             </label>
 
             <input
-              defaultValue={currentUser?.email || ""}
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              readOnly
               type="email"
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
@@ -118,6 +155,9 @@ const AdminSettings = () => {
 
             <input
               type="password"
+              name="password"
+              value={form.password}
+              onChange={handleChange}
               placeholder="Enter new password"
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
@@ -130,6 +170,9 @@ const AdminSettings = () => {
 
             <input
               type="password"
+              name="confirmPassword"
+              value={form.confirmPassword}
+              onChange={handleChange}
               placeholder="Confirm password"
               className="w-full rounded-lg border border-[#243047] bg-slate-900/60 px-3 py-2.5 text-sm text-slate-200 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
             />
@@ -188,10 +231,11 @@ const AdminSettings = () => {
         <button
           type="button"
           onClick={handleSave}
+          disabled={isSaving}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
         >
           <Save size={17} />
-          Save Changes
+          {isSaving ? "Saving..." : "Save Changes"}
         </button>
 
         {saveMessage && (

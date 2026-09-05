@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus } from "lucide-react";
+import { requestJson } from "../../lib/api";
 
 const CreateUser = () => {
 
@@ -12,6 +13,8 @@ const CreateUser = () => {
     password: "",
     role: "User",
   });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm({
@@ -20,15 +23,25 @@ const CreateUser = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+    setIsSubmitting(true);
 
-    console.log("Create user:", form);
-
-    // Later:
-    // axios.post("/api/admin/users", form)
-
-    navigate("/admin/users");
+    try {
+      await requestJson("/admin/users", {
+        method: "POST",
+        body: JSON.stringify({
+          ...form,
+          role: form.role.toLowerCase(),
+        }),
+      });
+      navigate("/admin/users");
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -147,6 +160,12 @@ const CreateUser = () => {
 
         <div className="mt-7 flex flex-col-reverse gap-3 border-t border-[#243047] pt-5 sm:flex-row sm:justify-end">
 
+          {error && (
+            <p className="self-center text-xs font-medium text-red-400 sm:mr-auto">
+              {error}
+            </p>
+          )}
+
           <Link
             to="/admin/users"
             className="rounded-lg border border-[#243047] px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:bg-slate-800 hover:text-white"
@@ -156,9 +175,10 @@ const CreateUser = () => {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
           >
-            Create User
+            {isSubmitting ? "Creating..." : "Create User"}
           </button>
 
         </div>

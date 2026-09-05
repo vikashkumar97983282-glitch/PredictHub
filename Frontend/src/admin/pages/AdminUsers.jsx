@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Search,
   Plus,
@@ -12,50 +12,14 @@ import {
   X,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { requestJson } from "../../lib/api";
 
 const AdminUsers = () => {
   // =====================================================
   // USERS
   // =====================================================
 
-  const [users, setUsers] = useState([
-    {
-      id: 1,
-      name: "Rahul Kumar",
-      email: "rahul@example.com",
-      role: "User",
-      status: "Active",
-      lastActive: "Active now",
-      predictions: 12,
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      email: "priya@example.com",
-      role: "User",
-      status: "Active",
-      lastActive: "10 min ago",
-      predictions: 8,
-    },
-    {
-      id: 3,
-      name: "Amit Singh",
-      email: "amit@example.com",
-      role: "Admin",
-      status: "Active",
-      lastActive: "24 min ago",
-      predictions: 6,
-    },
-    {
-      id: 4,
-      name: "Neha Gupta",
-      email: "neha@example.com",
-      role: "User",
-      status: "Inactive",
-      lastActive: "32 min ago",
-      predictions: 3,
-    },
-  ]);
+  const [users, setUsers] = useState([]);
 
   // =====================================================
   // STATES
@@ -66,6 +30,29 @@ const AdminUsers = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [openMenu, setOpenMenu] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const data = await requestJson("/admin/users");
+        const apiUsers = [
+          ...(data.users || []).map((user) => ({ ...user, role: "User" })),
+          ...(data.admin || []).map((user) => ({ ...user, role: "Admin" })),
+        ];
+
+        setUsers(apiUsers.map((user) => ({
+          ...user,
+          id: user.id || user._id,
+          status: user.active === false ? "Inactive" : "Active",
+          predictions: user.predictions || 0,
+        })));
+      } catch (error) {
+        console.error("Failed to load admin users:", error);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   // =====================================================
   // FILTER USERS
