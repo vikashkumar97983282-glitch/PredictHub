@@ -1060,7 +1060,7 @@ function PlacementForm() {
                       text-emerald-400
                     "
                   >
-                    {formatPrediction()}
+                    {formatPrediction()}%
                   </p>
                 </div>
 
