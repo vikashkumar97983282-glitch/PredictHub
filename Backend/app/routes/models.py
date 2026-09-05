@@ -3,8 +3,6 @@ from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
 from fastapi.params import Depends
 from app.core.jwt_services import get_optional_current_user
-from app.models.placement_model import placement_prediction
-from app.schemas.model_schema import placement_data
 from app.database.db_connection import db
 
 
@@ -32,33 +30,6 @@ async def get_models():
         "message": "Models retrieved successfully",
         "data": models
     }
-
-@router.post('/')
-async def model(data: placement_data, user=Depends(get_optional_current_user)):
-    prediction = placement_prediction(data)
-    prediction_record = {
-        "user_id": str(user["_id"]) if user else None,
-        "user_name": user.get("name", "User") if user else "Anonymous",
-        "user_email": user.get("email", "") if user else None,
-        "model": "Placement Prediction",
-        "title": "Placement Prediction",
-        "input": {
-            "cgpa": data.cgpa,
-            "resume_score": data.resume_score,
-        },
-        "result": round(float(prediction), 2),
-        "status": "Completed",
-        "created_at": datetime.now(timezone.utc),
-    }
-    result = await db.predictions.insert_one(prediction_record)
-
-    return {
-        "message": "this is model routes for prediction",
-        "data": round(float(prediction), 2),
-        "prediction": round(float(prediction), 2),
-        "prediction_id": str(result.inserted_id),
-    }
-
 
 @router.get("/analytics")
 async def get_user_analytics(user=Depends(get_optional_current_user)):
