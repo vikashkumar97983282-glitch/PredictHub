@@ -157,7 +157,11 @@ const AdminSidebar = ({
               <NavLink
                 key={item.path}
                 to={item.path}
-                end={item.path === "/admin/dashboard"}
+                end={
+                  item.path === "/admin/dashboard" ||
+                  item.path === "/admin/users" ||
+                  item.path === "/admin/users/create"
+                }
                 onClick={() => {
                   if (window.innerWidth < 1024) {
                     setSidebarOpen(false);
