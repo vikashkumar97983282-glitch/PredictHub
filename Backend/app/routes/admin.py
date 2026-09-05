@@ -1,7 +1,13 @@
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.jwt_services import get_current_user
-from app.schemas.admin_schema import AdminLoginResponse, AdminCreate, AdminUpdate, AdminUser
+from app.schemas.admin_schema import (
+    AdminLoginResponse,
+    AdminCreate,
+    AdminUpdate,
+    AdminUser,
+    AdminUserCreate,
+)
 from app.schemas.model_schema import AdminModelCreate, AdminModelStatusUpdate
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
@@ -57,7 +63,10 @@ async def create_admin(data: AdminCreate):
 @router.put("/update_admin")
 async def update_admin(data: AdminUpdate, user=Depends(get_current_user)):
 
-    admin = await db.admin.find_one({"email": data.email.lower()})
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    admin = await db.admin.find_one({"_id": user["_id"]})
 
     if not admin:
         raise HTTPException(status_code=404, detail="Admin not found.")
@@ -76,7 +85,7 @@ async def update_admin(data: AdminUpdate, user=Depends(get_current_user)):
     }
 
     result = await db.admin.update_one(
-        {"email": data.email.lower()},
+        {"_id": user["_id"]},
         {"$set": update_data}
     )
 
@@ -144,16 +153,52 @@ async def update_model_status(model_id: str, data: AdminModelStatusUpdate):
 
 
 
+@router.post("/users")
+async def create_user(data: AdminUserCreate):
+    email = data.email.lower().strip()
+
+    existing_user = await db.users.find_one({"email": email})
+    existing_admin = await db.admin.find_one({"email": email})
+    if existing_user or existing_admin:
+        raise HTTPException(status_code=409, detail="User already exists")
+
+    role = data.role.lower().strip()
+    if role not in {"user", "admin"}:
+        raise HTTPException(status_code=400, detail="Role must be user or admin")
+
+    user = {
+        "name": data.name.strip(),
+        "email": email,
+        "password": hash_password(data.password),
+        "role": role,
+        "active": True,
+    }
+    result = await db.users.insert_one(user)
+
+    return {
+        "message": "User created successfully",
+        "user": {
+            "id": str(result.inserted_id),
+            "name": user["name"],
+            "email": user["email"],
+            "role": role,
+            "active": True,
+        },
+    }
+
+
 @router.get("/users")
 async def get_all_users():
     users = []
     async for user in db.users.find():
         user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        user.pop("password", None)
         users.append(user)
 
     admin = []
     async for user in db.admin.find():
         user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        user.pop("password", None)
         admin.append(user)
 
     total_users = len(users) + len(admin)

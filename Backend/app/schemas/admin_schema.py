@@ -27,6 +27,13 @@ class AdminUpdate(BaseModel):
     role: str = "admin"
 
 
+class AdminUserCreate(BaseModel):
+    name: str = Field(..., min_length=1, description="User name")
+    email: EmailStr = Field(..., description="User email address")
+    password: str = Field(..., min_length=8, description="User password")
+    role: str = Field("user", description="User role")
+
+
 class AdminUser(BaseModel):
     total_users: int = Field(..., description="Total number of users")
     active_users: int = Field(..., description="Number of active users")
