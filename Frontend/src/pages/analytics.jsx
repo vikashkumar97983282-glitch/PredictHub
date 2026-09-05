@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import {
   BarChart3,
   TrendingUp,
@@ -13,6 +14,8 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
+import Commet from "react-loading-indicators/Commet";
+import { requestJson } from "../lib/api";
 
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
@@ -22,73 +25,6 @@ import { useSidebar } from "../contexts/use-sidebar";
 /* ============================================================
    DATA
 ============================================================ */
-
-const modelPerformance = [
-  {
-    name: "Machine Learning",
-    accuracy: 94.8,
-    predictions: 1248,
-    trend: "+12.4%",
-  },
-  {
-    name: "Deep Learning",
-    accuracy: 96.3,
-    predictions: 986,
-    trend: "+18.7%",
-  },
-  {
-    name: "Random Forest",
-    accuracy: 92.7,
-    predictions: 754,
-    trend: "+8.2%",
-  },
-  {
-    name: "Logistic Regression",
-    accuracy: 89.5,
-    predictions: 632,
-    trend: "+5.6%",
-  },
-];
-
-const recentActivity = [
-  {
-    title: "Placement Prediction",
-    model: "Random Forest",
-    result: "92.4%",
-    status: "Completed",
-    time: "2 min ago",
-  },
-  {
-    title: "Student Performance",
-    model: "Deep Learning",
-    result: "96.8%",
-    status: "Completed",
-    time: "15 min ago",
-  },
-  {
-    title: "Loan Prediction",
-    model: "Logistic Regression",
-    result: "88.9%",
-    status: "Completed",
-    time: "32 min ago",
-  },
-  {
-    title: "House Price Prediction",
-    model: "Machine Learning",
-    result: "91.6%",
-    status: "Completed",
-    time: "1 hour ago",
-  },
-];
-
-const chartData = [
-  35, 48, 42, 58, 51,
-  65, 72, 60, 75, 68,
-  82, 73, 88, 79, 92,
-  84, 76, 90, 95, 87,
-  98, 91, 84, 96, 89,
-  94, 86, 92, 97, 100,
-];
 
 /* ============================================================
    STAT CARD
@@ -179,6 +115,40 @@ function StatCard({
 ============================================================ */
 
 function Analytics() {
+  const [analytics, setAnalytics] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAnalytics = async () => {
+      try {
+        const data = await requestJson("/model/analytics");
+        if (isMounted) setAnalytics(data);
+      } catch (requestError) {
+        if (isMounted) setError(requestError.message || "Unable to load analytics.");
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    };
+
+    loadAnalytics();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const modelPerformance = analytics?.model_performance || [];
+  const recentActivity = analytics?.recent_activity || [];
+  const chartData = analytics?.chart_data || [];
+  const averageAccuracy = analytics?.average_accuracy || 0;
+  const accuracyGrowth = analytics?.accuracy_growth || 0;
+  const predictionsGrowth = analytics?.predictions_growth || 0;
+  const bestModel = modelPerformance.reduce(
+    (best, model) => (model.accuracy > (best?.accuracy || 0) ? model : best),
+    null
+  );
   const {
     isSidebarOpen,
     isMobileMenuOpen,
@@ -189,6 +159,12 @@ function Analytics() {
 
   return (
     <div className="relative flex min-h-screen bg-[#080f22] text-white">
+
+      {isLoading && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#080f22]/90 backdrop-blur-sm">
+          <Commet color="#32cd32" size="large" text="Loading" textColor="" />
+        </div>
+      )}
 
       {/* ======================================================
           BACKGROUND GLOW
@@ -242,6 +218,12 @@ function Analytics() {
       ====================================================== */}
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+
+        {error && (
+          <p role="alert" className="mx-4 mt-4 rounded-lg border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300 sm:mx-6 lg:mx-8">
+            {error}
+          </p>
+        )}
 
         {/* ====================================================
             NAVBAR
@@ -420,8 +402,8 @@ function Analytics() {
 
                 <StatCard
                   title="Total Predictions"
-                  value="3,620"
-                  subtitle="+14.8%"
+                  value={analytics?.total_predictions || 0}
+                  subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
                   icon={
                     <Activity className="h-5 w-5 text-blue-400" />
                   }
@@ -431,8 +413,8 @@ function Analytics() {
 
                 <StatCard
                   title="Average Accuracy"
-                  value="93.4%"
-                  subtitle="+6.2%"
+                  value={`${averageAccuracy}%`}
+                  subtitle={`${accuracyGrowth >= 0 ? "+" : ""}${accuracyGrowth}%`}
                   icon={
                     <Target className="h-5 w-5 text-emerald-400" />
                   }
@@ -442,7 +424,7 @@ function Analytics() {
 
                 <StatCard
                   title="Active Models"
-                  value="12"
+                  value={analytics?.active_models || 0}
                   subtitle="4 categories"
                   icon={
                     <Brain className="h-5 w-5 text-purple-400" />
@@ -453,8 +435,8 @@ function Analytics() {
 
                 <StatCard
                   title="Success Rate"
-                  value="98.2%"
-                  subtitle="+3.4%"
+                  value={`${analytics?.success_rate || 0}%`}
+                  subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
                   icon={
                     <CheckCircle2 className="h-5 w-5 text-cyan-400" />
                   }
@@ -569,7 +551,7 @@ function Analytics() {
                           sm:block
                         "
                       >
-                        +14.8% Growth
+                        {predictionsGrowth >= 0 ? "+" : ""}{predictionsGrowth}% Growth
                       </div>
 
                     </div>
@@ -790,7 +772,7 @@ function Analytics() {
                           <div className="text-center">
 
                             <p className="text-4xl font-bold text-white">
-                              93.4%
+                              {averageAccuracy}%
                             </p>
 
                             <p className="mt-2 text-sm text-slate-400">
@@ -823,7 +805,7 @@ function Analytics() {
                       >
                         <TrendingUp className="h-4 w-4" />
 
-                        6.2% improvement
+                        {accuracyGrowth}% improvement
 
                       </div>
 
@@ -1447,20 +1429,20 @@ function Analytics() {
                       Your prediction accuracy has improved by{" "}
 
                       <span className="font-semibold text-emerald-400">
-                        6.2%
+                        {accuracyGrowth}%
                       </span>
 
                       {" "}over the previous period.{" "}
 
                       <span className="font-semibold text-purple-300">
-                        Deep Learning
+                        {bestModel?.name || "No model"}
                       </span>
 
                       {" "}is currently your best performing model with an
                       accuracy of{" "}
 
                       <span className="font-semibold text-blue-400">
-                        96.3%.
+                        {bestModel?.accuracy || 0}%.
                       </span>
 
                     </p>
