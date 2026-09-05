@@ -141,3 +141,10 @@ async def register(
         "token": token,
         "user": user,
     }
+
+
+@router.post("/update")
+def update_user():
+    return {
+        "message": "Update user endpoint"
+    }
