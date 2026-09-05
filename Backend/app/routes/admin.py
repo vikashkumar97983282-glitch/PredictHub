@@ -135,7 +135,7 @@ async def update_model_status(model_id: str, data: AdminModelStatusUpdate, user=
     if not ObjectId.is_valid(model_id):
         raise HTTPException(status_code=400, detail="Invalid model ID.")
 
-    if data.status not in {"Active", "Inactive"}:
+    if data.status not in {"Active", "Maintenance","Coming Soon"}:
         raise HTTPException(status_code=400, detail="Status must be Active or Inactive.")
 
     result = await db.models.update_one(
