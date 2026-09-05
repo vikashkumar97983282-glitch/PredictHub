@@ -1,7 +1,7 @@
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.jwt_services import get_current_user
-from app.schemas.admin_schema import AdminLoginResponse, AdminCreate
+from app.schemas.admin_schema import AdminLoginResponse, AdminCreate, AdminUpdate, AdminUser
 from app.schemas.model_schema import AdminModelCreate, AdminModelStatusUpdate
 from app.database.db_connection import db,collection
 from app.services.hash_password import hash_password
@@ -54,6 +54,38 @@ async def create_admin(data: AdminCreate):
     }
 
 
+@router.put("/update_admin")
+async def update_admin(data: AdminUpdate, user=Depends(get_current_user)):
+
+    admin = await db.admin.find_one({"email": data.email.lower()})
+
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin not found.")
+
+    if data.password != data.confirm_password:
+        raise HTTPException(
+            status_code=400,
+            detail="Password and confirm password do not match"
+        )
+
+    hashed_password = hash_password(data.password)
+
+    update_data = {
+        "name": data.name,
+        "password": hashed_password
+    }
+
+    result = await db.admin.update_one(
+        {"email": data.email.lower()},
+        {"$set": update_data}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Admin not found.")
+
+    return {
+        "message": "Admin updated successfully"
+    }
 
 
 @router.post("/add_model")
@@ -110,4 +142,32 @@ async def update_model_status(model_id: str, data: AdminModelStatusUpdate):
         "status": data.status,
     }
 
+
+
+@router.get("/users")
+async def get_all_users():
+    users = []
+    async for user in db.users.find():
+        user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        users.append(user)
+
+    admin = []
+    async for user in db.admin.find():
+        user["_id"] = str(user["_id"])  # Convert ObjectId to string
+        admin.append(user)
+
+    total_users = len(users) + len(admin)
+    active_users = sum(1 for user in users if user.get("active", False))
+    inactive_users = total_users - active_users
+    admin_users = sum(1 for admin in admin if admin.get("role") == "admin")
+
+    return {
+        "message": "Users retrieved successfully",
+        "total_users": total_users,
+        "active_users": active_users,
+        "inactive_users": inactive_users,
+        "admin_users": admin_users,
+        "users": users,
+        "admin": admin,
+    }
 
