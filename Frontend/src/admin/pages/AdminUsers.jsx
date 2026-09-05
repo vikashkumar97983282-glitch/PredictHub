@@ -67,8 +67,8 @@ const AdminUsers = () => {
       const searchValue = search.toLowerCase().trim();
 
       const matchesSearch =
-        user.name.toLowerCase().includes(searchValue) ||
-        user.email.toLowerCase().includes(searchValue);
+        (user.name || "").toLowerCase().includes(searchValue) ||
+        (user.email || "").toLowerCase().includes(searchValue);
 
       const matchesRole =
         roleFilter === "All" ||
@@ -108,7 +108,7 @@ const AdminUsers = () => {
   // DELETE USER
   // =====================================================
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this user?"
     );
@@ -117,33 +117,35 @@ const AdminUsers = () => {
       return;
     }
 
-    setUsers((prev) =>
-      prev.filter((user) => user.id !== id)
-    );
-
-    setOpenMenu(null);
+    try {
+      await requestJson(`/admin/users/${id}`, { method: "DELETE" });
+      setUsers((prev) => prev.filter((user) => user.id !== id));
+      setOpenMenu(null);
+    } catch (error) {
+      window.alert(error.message);
+    }
   };
 
   // =====================================================
   // TOGGLE STATUS
   // =====================================================
 
-  const handleToggleStatus = (id) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === id
-          ? {
-              ...user,
-              status:
-                user.status === "Active"
-                  ? "Inactive"
-                  : "Active",
-            }
-          : user
-      )
-    );
+  const handleToggleStatus = async (id) => {
+    const selected = users.find((user) => user.id === id);
+    if (!selected) return;
 
-    setOpenMenu(null);
+    try {
+      const response = await requestJson(`/admin/users/${id}/status`, {
+        method: "PATCH",
+        body: JSON.stringify({ active: selected.status !== "Active" }),
+      });
+      setUsers((prev) => prev.map((user) => user.id === id
+        ? { ...user, status: response.active ? "Active" : "Inactive" }
+        : user));
+      setOpenMenu(null);
+    } catch (error) {
+      window.alert(error.message);
+    }
   };
 
   // =====================================================
@@ -159,17 +161,22 @@ const AdminUsers = () => {
     closeMenu();
   };
 
-  const handleEditUser = (event) => {
+  const handleEditUser = async (event) => {
     event.preventDefault();
 
-    setUsers((currentUsers) =>
-      currentUsers.map((user) =>
-        user.id === selectedUser.user.id
-          ? selectedUser.user
-          : user
-      )
-    );
-    setSelectedUser(null);
+    try {
+      await requestJson(`/admin/users/${selectedUser.user.id}`, {
+        method: "PUT",
+        body: JSON.stringify({
+          name: selectedUser.user.name,
+          email: selectedUser.user.email,
+        }),
+      });
+      setUsers((currentUsers) => currentUsers.map((user) => user.id === selectedUser.user.id ? selectedUser.user : user));
+      setSelectedUser(null);
+    } catch (error) {
+      window.alert(error.message);
+    }
   };
 
   return (
@@ -181,8 +188,12 @@ const AdminUsers = () => {
         </div>
       )}
 
-      {!isLoading && (
-        <>
+      {isLoading && (
+        <div className="rounded-lg border border-[#243047] bg-[#111827] px-4 py-3 text-sm text-slate-400">
+          Loading users. Showing default values until data is available.
+        </div>
+      )}
+      <>
 
       {/* =================================================
           HEADER
@@ -472,17 +483,17 @@ const AdminUsers = () => {
                       <div className="flex items-center gap-3">
 
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-400/10 font-semibold text-cyan-300">
-                          {user.name.charAt(0).toUpperCase()}
+                          {(user.name || "-").charAt(0).toUpperCase()}
                         </div>
 
                         <div className="min-w-0">
 
                           <p className="truncate text-sm font-semibold text-slate-200">
-                            {user.name}
+                            {user.name || "-"}
                           </p>
 
                           <p className="truncate text-xs text-slate-400">
-                            {user.email}
+                            {user.email || "-"}
                           </p>
 
                         </div>
@@ -753,8 +764,7 @@ const AdminUsers = () => {
         </div>
       )}
 
-        </>
-      )}
+      </>
     </div>
   );
 };

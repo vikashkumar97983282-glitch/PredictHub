@@ -169,15 +169,15 @@ const AdminModels = () => {
           </div>
         )}
 
-        {!loading && loadError && (
-          <p role="alert" className="text-sm text-red-300">{loadError}</p>
+        {loadError && (
+          <p role="alert" className="md:col-span-2 xl:col-span-3 text-sm text-amber-300">Models unavailable. Showing default values.</p>
         )}
 
-        {!loading && !loadError && models.length === 0 && (
+        {!loading && models.length === 0 && (
           <p className="text-sm text-slate-400">No models found.</p>
         )}
 
-        {!loading && !loadError && models.map((model) => (
+        {models.map((model) => (
           <div
             key={model.name}
             className={`group rounded-xl border border-[#243047] bg-[#111827] p-5 shadow-xl shadow-black/20 transition ${model.borderColor || ""}`}
@@ -226,7 +226,7 @@ const AdminModels = () => {
             </div>
 
             <h2 className="mt-5 font-semibold text-white">
-              {model.name || model.title}
+              {model.name || model.title || "-"}
             </h2>
 
             {model.description && (
@@ -238,11 +238,11 @@ const AdminModels = () => {
             <div className="mt-2 flex items-center gap-2">
 
               <span className="rounded-md bg-slate-800 px-2 py-1 text-xs text-slate-300">
-                {model.category || model.modelType || model.type}
+                {model.category || model.modelType || model.type || "-"}
               </span>
 
               <span className="text-xs text-slate-400">
-                {model.version}
+                {model.version || "-"}
               </span>
 
             </div>
@@ -265,7 +265,7 @@ const AdminModels = () => {
                 </p>
 
                 <p className="mt-1 font-semibold text-slate-200">
-                  {model.predictions}
+                  {model.predictions ?? 0}
                 </p>
               </div>
 
@@ -277,7 +277,7 @@ const AdminModels = () => {
                 }`}
               >
                 <CheckCircle2 size={14} />
-                {model.status}
+                {model.status || "-"}
               </span>
 
             </div>

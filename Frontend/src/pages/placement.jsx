@@ -114,8 +114,8 @@ function PlacementForm() {
       // =================================================
 
       const predictionValue =
-        result?.data ??
         result?.prediction ??
+        result?.data ??
         result?.result ??
         result;
 

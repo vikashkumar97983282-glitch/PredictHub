@@ -142,9 +142,9 @@ function Analytics() {
   const modelPerformance = analytics?.model_performance || [];
   const recentActivity = analytics?.recent_activity || [];
   const chartData = analytics?.chart_data || [];
-  const averageAccuracy = analytics?.average_accuracy || 0;
-  const accuracyGrowth = analytics?.accuracy_growth || 0;
-  const predictionsGrowth = analytics?.predictions_growth || 0;
+  const averageAccuracy = analytics?.average_accuracy ?? 0;
+  const accuracyGrowth = analytics?.accuracy_growth ?? 0;
+  const predictionsGrowth = analytics?.predictions_growth ?? 0;
   const bestModel = modelPerformance.reduce(
     (best, model) => (model.accuracy > (best?.accuracy || 0) ? model : best),
     null
@@ -402,7 +402,7 @@ function Analytics() {
 
                 <StatCard
                   title="Total Predictions"
-                  value={analytics?.total_predictions || 0}
+                  value={analytics?.total_predictions ?? 0}
                   subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
                   icon={
                     <Activity className="h-5 w-5 text-blue-400" />
@@ -424,8 +424,8 @@ function Analytics() {
 
                 <StatCard
                   title="Active Models"
-                  value={analytics?.active_models || 0}
-                  subtitle="4 categories"
+                  value={analytics?.active_models ?? 0}
+                  subtitle={`${analytics?.model_categories ?? 0} categories`}
                   icon={
                     <Brain className="h-5 w-5 text-purple-400" />
                   }
@@ -435,7 +435,7 @@ function Analytics() {
 
                 <StatCard
                   title="Success Rate"
-                  value={`${analytics?.success_rate || 0}%`}
+                  value={`${analytics?.success_rate ?? 0}%`}
                   subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
                   icon={
                     <CheckCircle2 className="h-5 w-5 text-cyan-400" />
