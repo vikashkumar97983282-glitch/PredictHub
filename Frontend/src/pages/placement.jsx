@@ -7,11 +7,17 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL, requestJson } from "../lib/api";
 import Commet from "react-loading-indicators/Commet";
 
 function PlacementForm() {
   const navigate = useNavigate();
+
+  // =====================================================
+  // API
+  // =====================================================
+
+  const API_ENDPOINT =
+    "https://predicthub-g9lj.onrender.com/prediction/placement";
 
   // =====================================================
   // FORM STATE
@@ -28,7 +34,10 @@ function PlacementForm() {
 
   const [loading, setLoading] = useState(false);
   const [prediction, setPrediction] = useState(null);
+  const [predictionInfo, setPredictionInfo] = useState(null);
+
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   // =====================================================
   // HANDLE INPUT
@@ -42,8 +51,25 @@ function PlacementForm() {
       [name]: value,
     }));
 
+    // Clear previous result/messages
     setError("");
+    setSuccessMessage("");
     setPrediction(null);
+    setPredictionInfo(null);
+  };
+
+  // =====================================================
+  // GET TOKEN
+  // =====================================================
+
+  const getToken = () => {
+    return (
+      localStorage.getItem("access_token") ||
+      localStorage.getItem("accessToken") ||
+      localStorage.getItem("token") ||
+      localStorage.getItem("jwt") ||
+      ""
+    );
   };
 
   // =====================================================
@@ -53,8 +79,11 @@ function PlacementForm() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Reset previous state
     setError("");
+    setSuccessMessage("");
     setPrediction(null);
+    setPredictionInfo(null);
 
     // ===================================================
     // VALIDATION
@@ -71,11 +100,13 @@ function PlacementForm() {
     const cgpa = Number(formData.cgpa);
     const resumeScore = Number(formData.resume_score);
 
-    if (
-      !Number.isFinite(cgpa) ||
-      !Number.isFinite(resumeScore)
-    ) {
-      setError("Please enter valid numbers.");
+    if (!Number.isFinite(cgpa)) {
+      setError("Please enter a valid CGPA.");
+      return;
+    }
+
+    if (!Number.isFinite(resumeScore)) {
+      setError("Please enter a valid resume score.");
       return;
     }
 
@@ -84,58 +115,272 @@ function PlacementForm() {
       return;
     }
 
-    if (resumeScore < 0 || resumeScore > 100) {
-      setError("Resume score must be between 0 and 100.");
+    if (resumeScore < 0 || resumeScore > 10) {
+      setError("Resume score must be between 0 and 10.");
       return;
     }
 
     // ===================================================
-    // API REQUEST
+    // TOKEN
     // ===================================================
+
+    const token = getToken();
+
+    // ===================================================
+    // DEBUG
+    // ===================================================
+
+    console.log("=================================");
+    console.log("Placement Prediction Request");
+    console.log("=================================");
+    console.log("URL:", API_ENDPOINT);
+    console.log("CGPA:", cgpa);
+    console.log("Resume Score:", resumeScore);
+    console.log("Token:", token ? "Available" : "Not available");
 
     try {
       setLoading(true);
 
-      const endpoint = `${API_BASE_URL}/model/`;
+      // =================================================
+      // HEADERS
+      // =================================================
 
-      console.log("Prediction API:", endpoint);
+      const headers = {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      };
 
-      const result = await requestJson("/model/", {
+      // Only send Authorization header if token exists
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // =================================================
+      // API CALL
+      // =================================================
+
+      const response = await fetch(API_ENDPOINT, {
         method: "POST",
+        headers,
         body: JSON.stringify({
           cgpa: cgpa,
           resume_score: resumeScore,
         }),
       });
-      console.log("Backend response:", result);
 
       // =================================================
-      // GET PREDICTION
+      // READ RESPONSE
       // =================================================
 
-      const predictionValue =
-        result?.prediction ??
-        result?.data ??
-        result?.result ??
-        result;
+      let result = null;
 
-      setPrediction(predictionValue);
-    } catch (error) {
-      console.error("Prediction error:", error);
+      try {
+        result = await response.json();
+      } catch (jsonError) {
+        console.error("JSON parsing error:", jsonError);
+      }
 
-      // Network / CORS / server connection error
-      if (error instanceof TypeError) {
-        setError(
-          `Unable to connect to the prediction server.
+      console.log("=================================");
+      console.log("Placement Prediction Response");
+      console.log("=================================");
+      console.log("HTTP Status:", response.status);
+      console.log("Response:", result);
 
-Backend URL: ${API_BASE_URL}`
-        );
-      } else {
-        setError(
-          error?.message ||
-            "Unable to connect to prediction server."
+      // =================================================
+      // HTTP ERROR
+      // =================================================
+
+      if (!response.ok) {
+        let errorMessage = "Prediction failed.";
+
+        if (response.status === 401) {
+          errorMessage =
+            result?.detail ||
+            result?.message ||
+            "Unauthorized. Please login again.";
+        } else if (response.status === 403) {
+          errorMessage =
+            result?.detail ||
+            result?.message ||
+            "This prediction model is currently inactive.";
+        } else if (response.status === 404) {
+          errorMessage =
+            result?.detail ||
+            result?.message ||
+            "Prediction endpoint or model not found.";
+        } else if (response.status >= 500) {
+          errorMessage =
+            result?.detail ||
+            result?.message ||
+            "Prediction server error. Please try again.";
+        } else {
+          errorMessage =
+            result?.detail ||
+            result?.message ||
+            "Unable to generate prediction.";
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // =================================================
+      // SUCCESS RESPONSE
+      // =================================================
+
+      /*
+        YOUR ACTUAL API RESPONSE:
+
+        {
+          "message": "Prediction completed successfully",
+          "data": 100,
+          "prediction": 100,
+          "prediction_id": "..."
+        }
+
+        So DO NOT check:
+
+        result.success === true
+
+        because your backend does not return "success".
+      */
+
+      if (!result) {
+        throw new Error(
+          "The server returned an empty response."
         );
       }
+
+      // =================================================
+      // CHECK API MESSAGE
+      // =================================================
+
+      if (
+        result.message &&
+        result.message.toLowerCase().includes("failed")
+      ) {
+        throw new Error(
+          result.message || "Prediction failed."
+        );
+      }
+
+      // =================================================
+      // GET PREDICTION VALUE
+      // =================================================
+
+      /*
+        Supports all of these possible backend formats:
+
+        1. data: 100
+
+        2. prediction: 100
+
+        3. result: 100
+
+        4. data: {
+             prediction: 100
+           }
+      */
+
+      let predictionValue = null;
+
+      if (
+        result?.data !== undefined &&
+        result?.data !== null &&
+        typeof result.data === "object"
+      ) {
+        predictionValue =
+          result.data.prediction ??
+          result.data.result ??
+          result.data.value;
+      } else {
+        predictionValue = result?.data;
+      }
+
+      if (
+        predictionValue === undefined ||
+        predictionValue === null
+      ) {
+        predictionValue =
+          result?.prediction ??
+          result?.result ??
+          result?.value;
+      }
+
+      // =================================================
+      // CHECK PREDICTION
+      // =================================================
+
+      if (
+        predictionValue === undefined ||
+        predictionValue === null
+      ) {
+        throw new Error(
+          "Prediction value was not returned by the server."
+        );
+      }
+
+      // =================================================
+      // CONVERT NUMERIC VALUE
+      // =================================================
+
+      const numericPrediction = Number(predictionValue);
+
+      const finalPrediction = Number.isFinite(
+        numericPrediction
+      )
+        ? numericPrediction
+        : predictionValue;
+
+      console.log(
+        "Final Prediction:",
+        finalPrediction
+      );
+
+      // =================================================
+      // SET PREDICTION
+      // =================================================
+
+      setPrediction(finalPrediction);
+
+      // =================================================
+      // SET PREDICTION INFO
+      // =================================================
+
+      setPredictionInfo({
+        model_id:
+          result?.data?.model_id || null,
+
+        model_key:
+          result?.data?.model_key ||
+          "placement",
+
+        model_name:
+          result?.data?.model_name ||
+          "Placement Prediction",
+
+        prediction_id:
+          result?.prediction_id || null,
+      });
+
+      // =================================================
+      // SUCCESS MESSAGE
+      // =================================================
+
+      setSuccessMessage(
+        result?.message ||
+          "Prediction completed successfully."
+      );
+
+    } catch (err) {
+      console.error(
+        "Placement prediction error:",
+        err
+      );
+
+      setError(
+        err?.message ||
+          "Unable to generate prediction."
+      );
     } finally {
       setLoading(false);
     }
@@ -161,6 +406,73 @@ Backend URL: ${API_BASE_URL}`
   };
 
   // =====================================================
+  // RESULT LABEL
+  // =====================================================
+
+  const getPredictionLabel = () => {
+    const value = Number(prediction);
+
+    /*
+      Supports:
+
+      1   = Likely to be Placed
+      0   = Not Likely to be Placed
+
+      100 = Likely to be Placed
+      0   = Not Likely to be Placed
+    */
+
+    if (value === 1 || value === 100) {
+      return "Likely to be Placed";
+    }
+
+    if (value === 0) {
+      return "Not Likely to be Placed";
+    }
+
+    /*
+      If the model returns a percentage/score
+      between 0 and 100.
+    */
+
+    if (value > 0 && value <= 100) {
+      if (value >= 80) {
+        return "Likely to be Placed";
+      }
+
+      return "Not Likely to be Placed";
+    }
+
+    return "Prediction Result";
+  };
+
+  // =====================================================
+  // RESULT DESCRIPTION
+  // =====================================================
+
+  const getPredictionDescription = () => {
+    const value = Number(prediction);
+
+    if (value === 1 || value === 100) {
+      return "Based on the provided information, the model predicts a positive placement outcome.";
+    }
+
+    if (value === 0) {
+      return "Based on the provided information, the model predicts a negative placement outcome.";
+    }
+
+    if (value > 50 && value <= 100) {
+      return "The model indicates a higher likelihood of placement.";
+    }
+
+    if (value >= 0 && value <= 50) {
+      return "The model indicates a lower likelihood of placement.";
+    }
+
+    return "The prediction has been generated successfully.";
+  };
+
+  // =====================================================
   // UI
   // =====================================================
 
@@ -173,7 +485,6 @@ Backend URL: ${API_BASE_URL}`
         w-full
         overflow-y-auto
         overflow-x-hidden
-        overscroll-contain
         bg-[#070b14]
         text-white
       "
@@ -190,8 +501,6 @@ Backend URL: ${API_BASE_URL}`
           overflow-hidden
         "
       >
-        {/* BLUE GLOW */}
-
         <div
           className="
             absolute
@@ -202,12 +511,8 @@ Backend URL: ${API_BASE_URL}`
             rounded-full
             bg-blue-600/10
             blur-[100px]
-            sm:h-96
-            sm:w-96
           "
         />
-
-        {/* PURPLE GLOW */}
 
         <div
           className="
@@ -219,12 +524,8 @@ Backend URL: ${API_BASE_URL}`
             rounded-full
             bg-purple-600/10
             blur-[100px]
-            sm:h-96
-            sm:w-96
           "
         />
-
-        {/* GRID */}
 
         <div
           className="
@@ -232,13 +533,13 @@ Backend URL: ${API_BASE_URL}`
             inset-0
             opacity-[0.025]
             bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)]
-            bg-[size:40px_40px]
+            bg-size-[40px_40px]
           "
         />
       </div>
 
       {/* =================================================
-          SCROLLABLE CONTENT
+          MAIN
       ================================================= */}
 
       <main
@@ -269,7 +570,7 @@ Backend URL: ${API_BASE_URL}`
               BACK BUTTON
           ================================================= */}
 
-          <div className="shrink-0">
+          <div>
             <button
               type="button"
               onClick={() => navigate("/prediction")}
@@ -286,8 +587,7 @@ Backend URL: ${API_BASE_URL}`
                 text-sm
                 font-medium
                 text-slate-400
-                transition-all
-                duration-200
+                transition
                 hover:border-slate-700
                 hover:bg-[#151f31]
                 hover:text-white
@@ -295,7 +595,9 @@ Backend URL: ${API_BASE_URL}`
             >
               <ArrowLeft size={17} />
 
-              <span>Back to Models</span>
+              <span>
+                Back to Models
+              </span>
             </button>
           </div>
 
@@ -303,9 +605,13 @@ Backend URL: ${API_BASE_URL}`
               HEADER
           ================================================= */}
 
-          <section className="mt-8 text-center sm:mt-10">
-            {/* ICON */}
-
+          <section
+            className="
+              mt-8
+              text-center
+              sm:mt-10
+            "
+          >
             <div
               className="
                 mx-auto
@@ -328,46 +634,38 @@ Backend URL: ${API_BASE_URL}`
               <Brain size={30} />
             </div>
 
-            {/* CATEGORY */}
-
             <div
               className="
                 mx-auto
                 mt-5
                 inline-flex
-                max-w-full
                 items-center
                 gap-2
                 rounded-full
                 border
                 border-purple-500/20
                 bg-purple-500/5
-                px-3
+                px-4
                 py-2
-                text-[10px]
+                text-xs
                 font-semibold
                 uppercase
-                tracking-[0.16em]
+                tracking-[0.18em]
                 text-purple-400
-                sm:px-4
-                sm:text-xs
-                sm:tracking-[0.2em]
               "
             >
               <Sparkles size={13} />
 
-              <span>Machine Learning</span>
+              <span>
+                Machine Learning
+              </span>
             </div>
-
-            {/* TITLE */}
 
             <h1
               className="
                 mt-5
                 text-3xl
                 font-bold
-                leading-tight
-                tracking-tight
                 text-white
                 sm:text-4xl
                 lg:text-5xl
@@ -376,23 +674,20 @@ Backend URL: ${API_BASE_URL}`
               Placement Prediction
             </h1>
 
-            {/* DESCRIPTION */}
-
             <p
               className="
                 mx-auto
                 mt-4
                 max-w-xl
-                px-2
                 text-sm
                 leading-6
                 text-slate-400
                 sm:text-base
               "
             >
-              Enter your academic and resume information
-              to generate a placement prediction using
-              machine learning.
+              Enter your academic and resume
+              information to generate a placement
+              prediction using machine learning.
             </p>
           </section>
 
@@ -406,7 +701,6 @@ Backend URL: ${API_BASE_URL}`
               mt-8
               w-full
               max-w-2xl
-              shrink-0
               rounded-3xl
               border
               border-slate-800
@@ -447,13 +741,12 @@ Backend URL: ${API_BASE_URL}`
                   step="0.01"
                   value={formData.cgpa}
                   onChange={handleChange}
-                  placeholder="Enter your CGPA"
                   disabled={loading}
+                  placeholder="Enter your CGPA"
                   className="
                     box-border
                     block
                     w-full
-                    min-w-0
                     rounded-xl
                     border
                     border-slate-800
@@ -462,8 +755,7 @@ Backend URL: ${API_BASE_URL}`
                     py-3.5
                     text-white
                     outline-none
-                    transition-all
-                    duration-200
+                    transition
                     placeholder:text-slate-600
                     focus:border-purple-500/50
                     focus:ring-4
@@ -473,7 +765,13 @@ Backend URL: ${API_BASE_URL}`
                   "
                 />
 
-                <p className="mt-2 text-xs text-slate-500">
+                <p
+                  className="
+                    mt-2
+                    text-xs
+                    text-slate-500
+                  "
+                >
                   Example: 8.5
                 </p>
               </div>
@@ -505,13 +803,12 @@ Backend URL: ${API_BASE_URL}`
                   step="0.01"
                   value={formData.resume_score}
                   onChange={handleChange}
-                  placeholder="Enter your resume score"
                   disabled={loading}
+                  placeholder="Enter your resume score"
                   className="
                     box-border
                     block
                     w-full
-                    min-w-0
                     rounded-xl
                     border
                     border-slate-800
@@ -520,8 +817,7 @@ Backend URL: ${API_BASE_URL}`
                     py-3.5
                     text-white
                     outline-none
-                    transition-all
-                    duration-200
+                    transition
                     placeholder:text-slate-600
                     focus:border-purple-500/50
                     focus:ring-4
@@ -531,8 +827,14 @@ Backend URL: ${API_BASE_URL}`
                   "
                 />
 
-                <p className="mt-2 text-xs text-slate-500">
-                  Score should be between 0 and 100.
+                <p
+                  className="
+                    mt-2
+                    text-xs
+                    text-slate-500
+                  "
+                >
+                  Score should be between 0 and 10.
                 </p>
               </div>
 
@@ -545,7 +847,6 @@ Backend URL: ${API_BASE_URL}`
                   className="
                     mt-6
                     flex
-                    w-full
                     items-start
                     gap-3
                     rounded-xl
@@ -554,7 +855,6 @@ Backend URL: ${API_BASE_URL}`
                     bg-red-500/10
                     p-4
                     text-sm
-                    leading-5
                     text-red-400
                   "
                 >
@@ -563,14 +863,45 @@ Backend URL: ${API_BASE_URL}`
                     className="mt-0.5 shrink-0"
                   />
 
-                  <span className="min-w-0 whitespace-pre-line break-words">
+                  <span className="wrap-break-word">
                     {error}
                   </span>
                 </div>
               )}
 
               {/* =================================================
-                  SUBMIT
+                  SUCCESS
+              ================================================= */}
+
+              {successMessage && (
+                <div
+                  className="
+                    mt-6
+                    flex
+                    items-start
+                    gap-3
+                    rounded-xl
+                    border
+                    border-emerald-500/20
+                    bg-emerald-500/10
+                    p-4
+                    text-sm
+                    text-emerald-400
+                  "
+                >
+                  <CheckCircle
+                    size={18}
+                    className="mt-0.5 shrink-0"
+                  />
+
+                  <span className="wrap-break-word">
+                    {successMessage}
+                  </span>
+                </div>
+              )}
+
+              {/* =================================================
+                  SUBMIT BUTTON
               ================================================= */}
 
               <button
@@ -592,8 +923,7 @@ Backend URL: ${API_BASE_URL}`
                   text-white
                   shadow-lg
                   shadow-purple-500/20
-                  transition-all
-                  duration-200
+                  transition
                   hover:bg-purple-500
                   hover:shadow-purple-500/30
                   active:scale-[0.99]
@@ -602,28 +932,32 @@ Backend URL: ${API_BASE_URL}`
                 "
               >
                 {loading ? (
-                  <>
-                    <Commet color="#32cd32" size="small" text="Loading" textColor="" />
-                  </>
+                  <Commet
+                    color="#32cd32"
+                    size="small"
+                    text="Loading"
+                    textColor=""
+                  />
                 ) : (
                   <>
                     <Brain size={19} />
 
-                    <span>Predict Placement</span>
+                    <span>
+                      Predict Placement
+                    </span>
                   </>
                 )}
               </button>
             </form>
 
             {/* =================================================
-                RESULT
+                PREDICTION RESULT
             ================================================= */}
 
             {prediction !== null && (
               <div
                 className="
                   mt-8
-                  w-full
                   overflow-hidden
                   rounded-2xl
                   border
@@ -633,9 +967,15 @@ Backend URL: ${API_BASE_URL}`
                   sm:p-6
                 "
               >
-                {/* RESULT HEADER */}
+                {/* HEADER */}
 
-                <div className="flex items-center gap-3">
+                <div
+                  className="
+                    flex
+                    items-center
+                    gap-3
+                  "
+                >
                   <div
                     className="
                       flex
@@ -652,8 +992,13 @@ Backend URL: ${API_BASE_URL}`
                     <CheckCircle size={21} />
                   </div>
 
-                  <div className="min-w-0">
-                    <p className="text-sm text-slate-400">
+                  <div>
+                    <p
+                      className="
+                        text-sm
+                        text-slate-400
+                      "
+                    >
                       Prediction Result
                     </p>
 
@@ -665,24 +1010,35 @@ Backend URL: ${API_BASE_URL}`
                         sm:text-xl
                       "
                     >
-                      Prediction Generated
+                      {getPredictionLabel()}
                     </h2>
                   </div>
                 </div>
 
-                {/* RESULT VALUE */}
+                {/* DESCRIPTION */}
+
+                <p
+                  className="
+                    mt-4
+                    text-sm
+                    leading-6
+                    text-slate-400
+                  "
+                >
+                  {getPredictionDescription()}
+                </p>
+
+                {/* VALUE */}
 
                 <div
                   className="
                     mt-5
-                    w-full
-                    overflow-x-auto
                     rounded-xl
                     border
                     border-slate-800
                     bg-[#070b14]
-                    p-4
-                    sm:p-5
+                    p-5
+                    text-center
                   "
                 >
                   <p
@@ -698,28 +1054,134 @@ Backend URL: ${API_BASE_URL}`
 
                   <p
                     className="
-                      mt-2
-                      max-w-full
-                      break-all
-                      text-2xl
+                      mt-3
+                      text-4xl
                       font-bold
-                      leading-tight
                       text-emerald-400
-                      sm:text-3xl
                     "
                   >
                     {formatPrediction()}
                   </p>
                 </div>
+
+                {/* MODEL INFO */}
+
+                {predictionInfo && (
+                  <div
+                    className="
+                      mt-4
+                      grid
+                      grid-cols-1
+                      gap-3
+                      sm:grid-cols-2
+                    "
+                  >
+                    {/* MODEL */}
+
+                    <div
+                      className="
+                        rounded-xl
+                        border
+                        border-slate-800
+                        bg-[#070b14]
+                        p-3
+                      "
+                    >
+                      <p
+                        className="
+                          text-xs
+                          text-slate-500
+                        "
+                      >
+                        Model
+                      </p>
+
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          font-medium
+                          text-slate-200
+                        "
+                      >
+                        {predictionInfo.model_name}
+                      </p>
+                    </div>
+
+                    {/* STATUS */}
+
+                    <div
+                      className="
+                        rounded-xl
+                        border
+                        border-slate-800
+                        bg-[#070b14]
+                        p-3
+                      "
+                    >
+                      <p
+                        className="
+                          text-xs
+                          text-slate-500
+                        "
+                      >
+                        Status
+                      </p>
+
+                      <p
+                        className="
+                          mt-1
+                          text-sm
+                          font-medium
+                          text-emerald-400
+                        "
+                      >
+                        Completed
+                      </p>
+                    </div>
+
+                    {/* PREDICTION ID */}
+
+                    {predictionInfo.prediction_id && (
+                      <div
+                        className="
+                          rounded-xl
+                          border
+                          border-slate-800
+                          bg-[#070b14]
+                          p-3
+                          sm:col-span-2
+                        "
+                      >
+                        <p
+                          className="
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+                          Prediction ID
+                        </p>
+
+                        <p
+                          className="
+                            mt-1
+                            break-all
+                            text-xs
+                            font-medium
+                            text-slate-400
+                          "
+                        >
+                          {predictionInfo.prediction_id}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {/* =================================================
-              BOTTOM SPACE
-          ================================================= */}
-
-          <div className="h-16 shrink-0 sm:h-24" />
+          <div className="h-20" />
         </div>
       </main>
     </div>
