@@ -216,3 +216,55 @@ async def get_all_users(user=Depends(get_current_user)):
         "admin": admin,
     }
 
+@router.get("/analytics")
+async def get_analytics(user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    users_count = await db.users.count_documents({})
+    admins_count = await db.admin.count_documents({})
+    active_users = await db.users.count_documents({"active": {"$ne": False}})
+    active_admins = await db.admin.count_documents({"active": {"$ne": False}})
+    total_users = users_count + admins_count
+    active_accounts = active_users + active_admins
+
+    total_predictions = await db.predictions.count_documents({})
+    completed_predictions = await db.predictions.count_documents({
+        "status": {"$in": ["completed", "Completed"]}
+    })
+    models = await db.models.find(
+        {},
+        {"title": 1, "prediction_count": 1, "status": 1},
+    ).to_list(length=None)
+
+    model_usage = []
+    total_model_predictions = sum(
+        max(model.get("prediction_count", 0), 0)
+        for model in models
+    )
+    for model in models:
+        prediction_count = max(model.get("prediction_count", 0), 0)
+        model_usage.append({
+            "name": model.get("title", "Unnamed model"),
+            "predictions": prediction_count,
+            "percentage": round(
+                prediction_count / total_model_predictions * 100, 1
+            ) if total_model_predictions else 0,
+        })
+
+    model_usage.sort(key=lambda model: model["predictions"], reverse=True)
+
+    return {
+        "message": "Analytics retrieved successfully",
+        "total_users": total_users,
+        "active_users": active_accounts,
+        "total_predictions": total_predictions or total_model_predictions,
+        "completed_predictions": completed_predictions,
+        "active_models": sum(1 for model in models if model.get("status") == "Active"),
+        "system_activity": round(active_accounts / total_users * 100, 1) if total_users else 0,
+        "users_growth": 0,
+        "predictions_growth": 0,
+        "model_usage_growth": 0,
+        "model_usage": model_usage,
+    }
+
