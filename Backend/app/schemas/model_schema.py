@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List,Literal
 
 
 
@@ -20,7 +20,7 @@ class AdminModelCreate(BaseModel):
 
 
 class AdminModelStatusUpdate(BaseModel):
-    status: str
+    status: Literal["Active", "Maintenance", "Coming Soon"]
     
 
 class placement_data(BaseModel):

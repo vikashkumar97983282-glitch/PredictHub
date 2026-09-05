@@ -131,12 +131,23 @@ async def update_model(model_id: str, data: AdminModelCreate, user=Depends(get_c
 
 
 @router.patch("/models/{model_id}/status")
-async def update_model_status(model_id: str, data: AdminModelStatusUpdate, user=Depends(get_current_user)):
+async def update_model_status(
+    model_id: str,
+    data: AdminModelStatusUpdate,
+    user=Depends(get_current_user)
+):
     if not ObjectId.is_valid(model_id):
-        raise HTTPException(status_code=400, detail="Invalid model ID.")
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid model ID."
+        )
 
-    if data.status not in {"Active", "Maintenance","Coming Soon"}:
-        raise HTTPException(status_code=400, detail="Status must be Active or Inactive.")
+    # Allow these 3 statuses
+    if data.status not in {"Active", "Maintenance", "Coming Soon"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Status must be Active, Maintenance, or Coming Soon."
+        )
 
     result = await db.models.update_one(
         {"_id": ObjectId(model_id)},
@@ -144,7 +155,10 @@ async def update_model_status(model_id: str, data: AdminModelStatusUpdate, user=
     )
 
     if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Model not found.")
+        raise HTTPException(
+            status_code=404,
+            detail="Model not found."
+        )
 
     return {
         "message": "Model status updated successfully",
