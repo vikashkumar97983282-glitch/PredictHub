@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from bson import ObjectId
 from fastapi import APIRouter, Depends, HTTPException
 from app.core.jwt_services import get_current_user
@@ -216,6 +217,60 @@ async def get_all_users(user=Depends(get_current_user)):
         "admin": admin,
     }
 
+
+async def _find_account(account_id: str):
+    if not ObjectId.is_valid(account_id):
+        raise HTTPException(status_code=400, detail="Invalid user ID.")
+
+    object_id = ObjectId(account_id)
+    account = await db.users.find_one({"_id": object_id})
+    if account:
+        return db.users, account
+
+    account = await db.admin.find_one({"_id": object_id})
+    if account:
+        return db.admin, account
+
+    raise HTTPException(status_code=404, detail="User not found.")
+
+
+@router.put("/users/{account_id}")
+async def update_account(account_id: str, data: dict, user=Depends(get_current_user)):
+    collection, account = await _find_account(account_id)
+    update_data = {
+        key: value.strip()
+        for key, value in data.items()
+        if key in {"name", "email"} and isinstance(value, str) and value.strip()
+    }
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No valid account fields provided.")
+
+    if "email" in update_data:
+        update_data["email"] = update_data["email"].lower()
+
+    await collection.update_one({"_id": account["_id"]}, {"$set": update_data})
+    return {"message": "User updated successfully"}
+
+
+@router.patch("/users/{account_id}/status")
+async def update_account_status(account_id: str, data: dict, user=Depends(get_current_user)):
+    collection, account = await _find_account(account_id)
+    if not isinstance(data.get("active"), bool):
+        raise HTTPException(status_code=400, detail="Active must be true or false.")
+
+    await collection.update_one(
+        {"_id": account["_id"]},
+        {"$set": {"active": data["active"]}},
+    )
+    return {"message": "User status updated successfully", "active": data["active"]}
+
+
+@router.delete("/users/{account_id}")
+async def delete_account(account_id: str, user=Depends(get_current_user)):
+    collection, account = await _find_account(account_id)
+    await collection.delete_one({"_id": account["_id"]})
+    return {"message": "User deleted successfully"}
+
 @router.get("/analytics")
 async def get_analytics(user=Depends(get_current_user)):
     if user.get("role", "").lower() != "admin":
@@ -232,25 +287,42 @@ async def get_analytics(user=Depends(get_current_user)):
     completed_predictions = await db.predictions.count_documents({
         "status": {"$in": ["completed", "Completed"]}
     })
+    prediction_documents = await db.predictions.find(
+        {},
+        {"model": 1},
+    ).to_list(length=None)
+    prediction_counts = {}
+    for prediction in prediction_documents:
+        model_name = prediction.get("model", "Unknown model")
+        prediction_counts[model_name] = prediction_counts.get(model_name, 0) + 1
+
     models = await db.models.find(
         {},
         {"title": 1, "prediction_count": 1, "status": 1},
     ).to_list(length=None)
 
     model_usage = []
-    total_model_predictions = sum(
-        max(model.get("prediction_count", 0), 0)
-        for model in models
-    )
+    total_model_predictions = sum(prediction_counts.values())
     for model in models:
-        prediction_count = max(model.get("prediction_count", 0), 0)
+        model_name = model.get("title", "Unnamed model")
+        prediction_count = prediction_counts.get(model_name, 0)
         model_usage.append({
-            "name": model.get("title", "Unnamed model"),
+            "name": model_name,
             "predictions": prediction_count,
             "percentage": round(
                 prediction_count / total_model_predictions * 100, 1
             ) if total_model_predictions else 0,
         })
+
+    for model_name, prediction_count in prediction_counts.items():
+        if not any(model["name"] == model_name for model in model_usage):
+            model_usage.append({
+                "name": model_name,
+                "predictions": prediction_count,
+                "percentage": round(
+                    prediction_count / total_model_predictions * 100, 1
+                ) if total_model_predictions else 0,
+            })
 
     model_usage.sort(key=lambda model: model["predictions"], reverse=True)
 
@@ -258,7 +330,7 @@ async def get_analytics(user=Depends(get_current_user)):
         "message": "Analytics retrieved successfully",
         "total_users": total_users,
         "active_users": active_accounts,
-        "total_predictions": total_predictions or total_model_predictions,
+        "total_predictions": total_predictions,
         "completed_predictions": completed_predictions,
         "active_models": sum(1 for model in models if model.get("status") == "Active"),
         "system_activity": round(active_accounts / total_users * 100, 1) if total_users else 0,
@@ -266,5 +338,99 @@ async def get_analytics(user=Depends(get_current_user)):
         "predictions_growth": 0,
         "model_usage_growth": 0,
         "model_usage": model_usage,
+    }
+
+
+def _serialize_prediction(prediction):
+    prediction["_id"] = str(prediction["_id"])
+    created_at = prediction.get("created_at")
+    prediction["created_at"] = created_at.isoformat() if hasattr(created_at, "isoformat") else None
+    return prediction
+
+
+@router.get("/predictions")
+async def get_predictions(user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    predictions = await db.predictions.find().sort("created_at", -1).limit(100).to_list(length=100)
+    for prediction in predictions:
+        _serialize_prediction(prediction)
+
+    total = await db.predictions.count_documents({})
+    completed = await db.predictions.count_documents({"status": {"$in": ["completed", "Completed"]}})
+
+    return {
+        "total": total,
+        "completed": completed,
+        "processing": max(total - completed, 0),
+        "predictions": predictions,
+    }
+
+
+@router.get("/dashboard")
+async def get_dashboard(user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    total_users = await db.users.count_documents({}) + await db.admin.count_documents({})
+    active_accounts = await db.users.count_documents({"active": {"$ne": False}}) + await db.admin.count_documents({"active": {"$ne": False}})
+    total_predictions = await db.predictions.count_documents({})
+    active_models = await db.models.count_documents({"status": "Active"})
+    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
+    chart_data = []
+    for days_ago in range(6, -1, -1):
+        start = today - timedelta(days=days_ago)
+        end = start + timedelta(days=1)
+        chart_data.append({
+            "label": start.strftime("%a"),
+            "value": await db.predictions.count_documents({"created_at": {"$gte": start, "$lt": end}}),
+        })
+
+    recent = await db.predictions.find().sort("created_at", -1).limit(5).to_list(length=5)
+    recent_activity = []
+    for prediction in recent:
+        _serialize_prediction(prediction)
+        recent_activity.append({
+            "title": f'{prediction.get("user_name", "Anonymous")} completed {prediction.get("model", "prediction")}',
+            "time": prediction.get("created_at"),
+        })
+
+    return {
+        "total_users": total_users,
+        "active_models": active_models,
+        "predictions": total_predictions,
+        "system_usage": round(active_accounts / total_users * 100, 1) if total_users else 0,
+        "chart_data": chart_data,
+        "recent_activity": recent_activity,
+    }
+
+
+@router.get("/activity")
+async def get_activity(user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    predictions = await db.predictions.find().sort("created_at", -1).limit(50).to_list(length=50)
+    events = []
+    for prediction in predictions:
+        _serialize_prediction(prediction)
+        events.append({
+            "id": prediction["_id"],
+            "user": prediction.get("user_name", "Anonymous"),
+            "action": f'Completed a {prediction.get("model", "prediction")}',
+            "detail": f'Result: {prediction.get("result", "-")}',
+            "time": prediction.get("created_at"),
+            "status": prediction.get("status", "Completed"),
+        })
+
+    users = await db.users.find({}, {"name": 1, "active": 1}).limit(20).to_list(length=20)
+    return {
+        "active_users": sum(1 for item in users if item.get("active", True)),
+        "sessions_today": 0,
+        "predictions_today": len([item for item in events if item.get("time", "").startswith(datetime.now(timezone.utc).date().isoformat())]),
+        "needs_review": sum(1 for item in events if item.get("status") not in {"Completed", "Success"}),
+        "events": events,
+        "users": [{"name": item.get("name", "User"), "status": "Online" if item.get("active", True) else "Away"} for item in users],
     }
 

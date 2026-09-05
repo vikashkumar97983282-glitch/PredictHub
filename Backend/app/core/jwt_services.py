@@ -36,6 +36,11 @@ oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/login/"
 )
 
+optional_oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/login/",
+    auto_error=False,
+)
+
 
 # ============================================================
 # CREATE ACCESS TOKEN
@@ -149,6 +154,15 @@ async def get_current_user(
         )
 
     return user
+
+
+async def get_optional_current_user(
+    token: Annotated[Optional[str], Depends(optional_oauth2_scheme)]
+):
+    if not token:
+        return None
+
+    return await get_current_user(token)
 
 
 # ============================================================
