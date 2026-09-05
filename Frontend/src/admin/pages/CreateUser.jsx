@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, UserPlus } from "lucide-react";
 import { requestJson } from "../../lib/api";
+import { LoaderCircle } from "lucide-react";
 
 const CreateUser = () => {
 
@@ -178,7 +179,12 @@ const CreateUser = () => {
             disabled={isSubmitting}
             className="rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
           >
-            {isSubmitting ? "Creating..." : "Create User"}
+            {isSubmitting ? (
+              <>
+                <LoaderCircle size={17} className="animate-spin" />
+                Creating...
+              </>
+            ) : "Create User"}
           </button>
 
         </div>

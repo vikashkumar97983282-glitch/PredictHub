@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { requestJson } from "../../lib/api";
+import Commet from "react-loading-indicators/Commet";
 
 const AdminUsers = () => {
   // =====================================================
@@ -30,6 +31,7 @@ const AdminUsers = () => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [openMenu, setOpenMenu] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadUsers = async () => {
@@ -48,6 +50,8 @@ const AdminUsers = () => {
         })));
       } catch (error) {
         console.error("Failed to load admin users:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -170,6 +174,15 @@ const AdminUsers = () => {
 
   return (
     <div className="space-y-6">
+
+      {isLoading && (
+        <div className="flex min-h-52 items-center justify-center rounded-xl border border-[#243047] bg-[#111827]">
+          <Commet color="#32cd32" size="large" text="Loading" textColor="" />
+        </div>
+      )}
+
+      {!isLoading && (
+        <>
 
       {/* =================================================
           HEADER
@@ -740,6 +753,8 @@ const AdminUsers = () => {
         </div>
       )}
 
+        </>
+      )}
     </div>
   );
 };

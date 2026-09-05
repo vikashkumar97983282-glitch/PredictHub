@@ -4,6 +4,7 @@ import {
   Shield,
   Bell,
   Save,
+  LoaderCircle,
 } from "lucide-react";
 import { getStoredUser, requestJson } from "../../lib/api";
 
@@ -234,7 +235,11 @@ const AdminSettings = () => {
           disabled={isSaving}
           className="inline-flex items-center justify-center gap-2 rounded-lg bg-cyan-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-300"
         >
-          <Save size={17} />
+          {isSaving ? (
+            <LoaderCircle size={17} className="animate-spin" />
+          ) : (
+            <Save size={17} />
+          )}
           {isSaving ? "Saving..." : "Save Changes"}
         </button>
 

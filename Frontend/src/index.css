@@ -18,3 +18,32 @@ body {
   overflow-y: auto;
   background: #030712;
 }
+
+.admin-loader {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 42px;
+  border: 2px solid rgb(34 211 238 / 0.18);
+  border-top-color: #22d3ee;
+  border-right-color: #67e8f9;
+  border-radius: 9999px;
+  animation: admin-loader-spin 0.9s linear infinite;
+  box-shadow: 0 0 24px rgb(34 211 238 / 0.16);
+}
+
+.admin-loader::after {
+  position: absolute;
+  inset: 7px;
+  border: 2px solid rgb(103 232 249 / 0.16);
+  border-bottom-color: #06b6d4;
+  border-radius: 9999px;
+  content: "";
+  animation: admin-loader-spin 0.65s linear infinite reverse;
+}
+
+@keyframes admin-loader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
