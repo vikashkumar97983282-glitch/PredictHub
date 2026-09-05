@@ -164,7 +164,7 @@ async def update_model_status(
         "message": "Model status updated successfully",
         "model_id": model_id,
         "status": data.status,
-    }mo
+    }
 
 
 
