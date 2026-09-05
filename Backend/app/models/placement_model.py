@@ -15,4 +15,4 @@ def placement_prediction(data):
             "resume_score":data.resume_score}
     ])
     prediction = model.predict(features)[0]
-    return prediction
+    return prediction*100
