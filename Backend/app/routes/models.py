@@ -46,6 +46,52 @@ def normalize_model_status(status):
 
 
 # ============================================================
+# NUMBER HELPERS
+# ============================================================
+
+def safe_int(value):
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def safe_float(value):
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+def calculate_growth(current, previous):
+    """
+    Calculate percentage growth.
+
+    Example:
+
+    Previous = 100
+    Current  = 125
+
+    Growth = 25%
+    """
+
+    current = safe_float(current)
+    previous = safe_float(previous)
+
+    if previous == 0:
+
+        if current > 0:
+            return 100.0
+
+        return 0.0
+
+    return round(
+        ((current - previous) / previous) * 100,
+        1,
+    )
+
+
+# ============================================================
 # GET ALL MODELS
 # ============================================================
 
@@ -62,6 +108,7 @@ async def get_models():
 
     # Convert MongoDB ObjectId to string
     for model in models:
+
         model["_id"] = str(model["_id"])
 
         # Normalize model status
@@ -242,7 +289,6 @@ async def get_user_analytics(
             0
         )
 
-        # Make sure accuracy is numeric
         if not isinstance(
             accuracy,
             (int, float)
@@ -377,6 +423,7 @@ async def get_user_analytics(
             datetime
         ):
             time_value = created_at.isoformat()
+
         else:
             time_value = "Recently"
 
@@ -447,7 +494,6 @@ async def get_user_analytics(
         and model["accuracy"] > 0
     ]
 
-    # Don't show accuracy when user has no predictions
     if total_predictions == 0:
         accuracies = []
 
@@ -482,9 +528,6 @@ async def get_user_analytics(
     # --------------------------------------------------------
 
     return {
-        # -----------------------------------------------
-        # BASIC ANALYTICS
-        # -----------------------------------------------
 
         "total_predictions": total_predictions,
 
@@ -494,10 +537,6 @@ async def get_user_analytics(
 
         "success_rate": success_rate,
 
-        # -----------------------------------------------
-        # MODEL COUNTS
-        # -----------------------------------------------
-
         "total_models": total_models,
 
         "active_models": active_models,
@@ -506,39 +545,815 @@ async def get_user_analytics(
 
         "coming_soon_models": coming_soon_models,
 
-        # -----------------------------------------------
-        # STATUS OBJECT
-        # -----------------------------------------------
-
         "model_status_counts": {
             "Active": active_models,
             "Maintenance": maintenance_models,
             "Coming Soon": coming_soon_models,
         },
 
-        # -----------------------------------------------
-        # GROWTH
-        # -----------------------------------------------
-
         "predictions_growth": 0,
 
         "accuracy_growth": 0,
 
-        # -----------------------------------------------
-        # MODEL PERFORMANCE
-        # -----------------------------------------------
-
         "model_performance": model_performance,
-
-        # -----------------------------------------------
-        # RECENT ACTIVITY
-        # -----------------------------------------------
 
         "recent_activity": recent_activity,
 
-        # -----------------------------------------------
-        # CHART
-        # -----------------------------------------------
-
         "chart_data": chart_data,
+    }
+
+
+# ============================================================
+# TRENDING ANALYTICS
+# ============================================================
+
+@router.get("/trending")
+async def get_trending():
+
+    # ========================================================
+    # DATE RANGES
+    # ========================================================
+
+    now = datetime.now(timezone.utc)
+
+    # Current 30 days
+    current_start = (
+        now - timedelta(days=30)
+    )
+
+    # Previous 30 days
+    previous_start = (
+        now - timedelta(days=60)
+    )
+
+    # ========================================================
+    # GET PREDICTIONS
+    # ========================================================
+
+    # We retrieve the previous 60 days so that we can
+    # calculate both current and previous growth.
+
+    all_predictions = await db.predictions.find(
+        {
+            "created_at": {
+                "$gte": previous_start,
+                "$lte": now,
+            }
+        },
+        {
+            "user_id": 1,
+            "model": 1,
+            "title": 1,
+            "created_at": 1,
+        },
+    ).to_list(
+        length=None
+    )
+
+    # ========================================================
+    # SPLIT CURRENT / PREVIOUS
+    # ========================================================
+
+    current_predictions = []
+    previous_predictions = []
+
+    for prediction in all_predictions:
+
+        created_at = prediction.get(
+            "created_at"
+        )
+
+        if not isinstance(
+            created_at,
+            datetime
+        ):
+            continue
+
+        # MongoDB dates are normally timezone-aware.
+        # This protects against old naive datetime values.
+
+        if created_at.tzinfo is None:
+
+            created_at = created_at.replace(
+                tzinfo=timezone.utc
+            )
+
+        else:
+
+            created_at = created_at.astimezone(
+                timezone.utc
+            )
+
+        if created_at >= current_start:
+
+            current_predictions.append(
+                prediction
+            )
+
+        elif created_at >= previous_start:
+
+            previous_predictions.append(
+                prediction
+            )
+
+    # ========================================================
+    # TOTAL PREDICTIONS
+    # ========================================================
+
+    current_total = len(
+        current_predictions
+    )
+
+    previous_total = len(
+        previous_predictions
+    )
+
+    predictions_growth = calculate_growth(
+        current_total,
+        previous_total
+    )
+
+    # ========================================================
+    # ACTIVE USERS
+    # ========================================================
+
+    current_users = set()
+    previous_users = set()
+
+    for prediction in current_predictions:
+
+        user_id = prediction.get(
+            "user_id"
+        )
+
+        if user_id:
+
+            current_users.add(
+                str(user_id)
+            )
+
+    for prediction in previous_predictions:
+
+        user_id = prediction.get(
+            "user_id"
+        )
+
+        if user_id:
+
+            previous_users.add(
+                str(user_id)
+            )
+
+    current_active_users = len(
+        current_users
+    )
+
+    previous_active_users = len(
+        previous_users
+    )
+
+    active_users_growth = calculate_growth(
+        current_active_users,
+        previous_active_users
+    )
+
+    # ========================================================
+    # GET MODEL INFORMATION
+    # ========================================================
+
+    model_documents = await db.models.find(
+        {},
+        {
+            "title": 1,
+            "category": 1,
+            "accuracy": 1,
+            "prediction_count": 1,
+            "status": 1,
+        },
+    ).to_list(
+        length=None
+    )
+
+    model_lookup = {}
+
+    for model in model_documents:
+
+        model_title = model.get(
+            "title"
+        )
+
+        if not model_title:
+            continue
+
+        model_lookup[
+            str(model_title).strip().lower()
+        ] = model
+
+    # ========================================================
+    # MODEL STATISTICS
+    # ========================================================
+
+    current_model_counts = {}
+    previous_model_counts = {}
+
+    current_model_users = {}
+    previous_model_users = {}
+
+    # --------------------------------------------------------
+    # CURRENT MODELS
+    # --------------------------------------------------------
+
+    for prediction in current_predictions:
+
+        model_name = prediction.get(
+            "model"
+        )
+
+        if not model_name:
+            continue
+
+        model_name = str(
+            model_name
+        ).strip()
+
+        model_key = model_name.lower()
+
+        current_model_counts[model_key] = (
+            current_model_counts.get(
+                model_key,
+                0
+            ) + 1
+        )
+
+        if model_key not in current_model_users:
+
+            current_model_users[model_key] = set()
+
+        user_id = prediction.get(
+            "user_id"
+        )
+
+        if user_id:
+
+            current_model_users[
+                model_key
+            ].add(
+                str(user_id)
+            )
+
+    # --------------------------------------------------------
+    # PREVIOUS MODELS
+    # --------------------------------------------------------
+
+    for prediction in previous_predictions:
+
+        model_name = prediction.get(
+            "model"
+        )
+
+        if not model_name:
+            continue
+
+        model_name = str(
+            model_name
+        ).strip()
+
+        model_key = model_name.lower()
+
+        previous_model_counts[model_key] = (
+            previous_model_counts.get(
+                model_key,
+                0
+            ) + 1
+        )
+
+        if model_key not in previous_model_users:
+
+            previous_model_users[model_key] = set()
+
+        user_id = prediction.get(
+            "user_id"
+        )
+
+        if user_id:
+
+            previous_model_users[
+                model_key
+            ].add(
+                str(user_id)
+            )
+
+    # ========================================================
+    # BUILD TRENDING MODELS
+    # ========================================================
+
+    trending_models = []
+
+    for model_key, count in sorted(
+        current_model_counts.items(),
+        key=lambda item: item[1],
+        reverse=True,
+    ):
+
+        # Find display name from actual predictions
+        display_name = model_key
+
+        for prediction in current_predictions:
+
+            prediction_model = prediction.get(
+                "model"
+            )
+
+            if (
+                prediction_model
+                and str(
+                    prediction_model
+                ).strip().lower()
+                == model_key
+            ):
+
+                display_name = str(
+                    prediction_model
+                ).strip()
+
+                break
+
+        model_info = model_lookup.get(
+            model_key,
+            {}
+        )
+
+        category = model_info.get(
+            "category"
+        ) or "Machine Learning"
+
+        accuracy = safe_float(
+            model_info.get(
+                "accuracy",
+                0
+            )
+        )
+
+        previous_count = previous_model_counts.get(
+            model_key,
+            0
+        )
+
+        growth = calculate_growth(
+            count,
+            previous_count
+        )
+
+        users_count = len(
+            current_model_users.get(
+                model_key,
+                set()
+            )
+        )
+
+        trending_models.append(
+            {
+                "rank": len(
+                    trending_models
+                ) + 1,
+
+                "name": display_name,
+
+                "category": category,
+
+                "accuracy": round(
+                    accuracy,
+                    1
+                ),
+
+                "predictions": count,
+
+                "growth": growth,
+
+                "users": users_count,
+            }
+        )
+
+        # Page currently displays 4 models
+        if len(trending_models) >= 4:
+            break
+
+    # ========================================================
+    # POPULAR MODEL
+    # ========================================================
+
+    if trending_models:
+
+        popular_model = trending_models[0]
+
+        popular_model_name = popular_model[
+            "name"
+        ]
+
+        popular_model_accuracy = popular_model[
+            "accuracy"
+        ]
+
+    else:
+
+        popular_model_name = "No data"
+
+        popular_model_accuracy = 0
+
+    # ========================================================
+    # PROJECT STATISTICS
+    # ========================================================
+
+    # In your current prediction schema, "model" is the
+    # prediction/project name, so we use it for projects.
+
+    current_project_counts = {}
+    previous_project_counts = {}
+
+    current_project_users = {}
+
+    for prediction in current_predictions:
+
+        project_name = (
+            prediction.get("title")
+            or prediction.get("model")
+            or "Prediction"
+        )
+
+        project_name = str(
+            project_name
+        ).strip()
+
+        project_key = project_name.lower()
+
+        current_project_counts[
+            project_key
+        ] = (
+            current_project_counts.get(
+                project_key,
+                0
+            ) + 1
+        )
+
+        if project_key not in current_project_users:
+
+            current_project_users[
+                project_key
+            ] = set()
+
+        user_id = prediction.get(
+            "user_id"
+        )
+
+        if user_id:
+
+            current_project_users[
+                project_key
+            ].add(
+                str(user_id)
+            )
+
+    for prediction in previous_predictions:
+
+        project_name = (
+            prediction.get("title")
+            or prediction.get("model")
+            or "Prediction"
+        )
+
+        project_name = str(
+            project_name
+        ).strip()
+
+        project_key = project_name.lower()
+
+        previous_project_counts[
+            project_key
+        ] = (
+            previous_project_counts.get(
+                project_key,
+                0
+            ) + 1
+        )
+
+    # ========================================================
+    # BUILD TRENDING PROJECTS
+    # ========================================================
+
+    trending_projects = []
+
+    for project_key, count in sorted(
+        current_project_counts.items(),
+        key=lambda item: item[1],
+        reverse=True,
+    ):
+
+        display_title = project_key
+
+        for prediction in current_predictions:
+
+            project_name = (
+                prediction.get("title")
+                or prediction.get("model")
+            )
+
+            if (
+                project_name
+                and str(
+                    project_name
+                ).strip().lower()
+                == project_key
+            ):
+
+                display_title = str(
+                    project_name
+                ).strip()
+
+                break
+
+        # Try to get model information
+        model_info = model_lookup.get(
+            project_key,
+            {}
+        )
+
+        # If title doesn't match model title,
+        # try finding by model name.
+
+        if not model_info:
+
+            for model_key, info in model_lookup.items():
+
+                if model_key == project_key:
+
+                    model_info = info
+
+                    break
+
+        category = model_info.get(
+            "category"
+        ) or "Machine Learning"
+
+        accuracy = safe_float(
+            model_info.get(
+                "accuracy",
+                0
+            )
+        )
+
+        previous_count = previous_project_counts.get(
+            project_key,
+            0
+        )
+
+        growth = calculate_growth(
+            count,
+            previous_count
+        )
+
+        users_count = len(
+            current_project_users.get(
+                project_key,
+                set()
+            )
+        )
+
+        trending_projects.append(
+            {
+                "title": display_title,
+
+                "category": category,
+
+                "accuracy": round(
+                    accuracy,
+                    1
+                ),
+
+                "predictions": count,
+
+                "growth": growth,
+
+                "users": users_count,
+            }
+        )
+
+        if len(trending_projects) >= 4:
+            break
+
+    # ========================================================
+    # CATEGORY STATISTICS
+    # ========================================================
+
+    current_category_counts = {}
+    previous_category_counts = {}
+
+    # --------------------------------------------------------
+    # BUILD MODEL -> CATEGORY MAP
+    # --------------------------------------------------------
+
+    model_category_map = {}
+
+    for model in model_documents:
+
+        title = model.get(
+            "title"
+        )
+
+        category = model.get(
+            "category"
+        )
+
+        if title:
+
+            model_category_map[
+                str(title).strip().lower()
+            ] = (
+                category or "Machine Learning"
+            )
+
+    # --------------------------------------------------------
+    # CURRENT CATEGORY COUNTS
+    # --------------------------------------------------------
+
+    for prediction in current_predictions:
+
+        model_name = prediction.get(
+            "model"
+        )
+
+        if not model_name:
+            continue
+
+        model_key = str(
+            model_name
+        ).strip().lower()
+
+        category = model_category_map.get(
+            model_key,
+            "Machine Learning"
+        )
+
+        current_category_counts[
+            category
+        ] = (
+            current_category_counts.get(
+                category,
+                0
+            ) + 1
+        )
+
+    # --------------------------------------------------------
+    # PREVIOUS CATEGORY COUNTS
+    # --------------------------------------------------------
+
+    for prediction in previous_predictions:
+
+        model_name = prediction.get(
+            "model"
+        )
+
+        if not model_name:
+            continue
+
+        model_key = str(
+            model_name
+        ).strip().lower()
+
+        category = model_category_map.get(
+            model_key,
+            "Machine Learning"
+        )
+
+        previous_category_counts[
+            category
+        ] = (
+            previous_category_counts.get(
+                category,
+                0
+            ) + 1
+        )
+
+    # ========================================================
+    # BUILD CATEGORIES
+    # ========================================================
+
+    categories = []
+
+    for category_name, count in sorted(
+        current_category_counts.items(),
+        key=lambda item: item[1],
+        reverse=True,
+    ):
+
+        previous_count = previous_category_counts.get(
+            category_name,
+            0
+        )
+
+        growth = calculate_growth(
+            count,
+            previous_count
+        )
+
+        categories.append(
+            {
+                "name": category_name,
+
+                "predictions": count,
+
+                "growth": growth,
+            }
+        )
+
+        if len(categories) >= 4:
+            break
+
+    # ========================================================
+    # 30 DAY ACTIVITY CHART
+    # ========================================================
+
+    daily_counts = {}
+
+    # Initialize all 30 days with 0
+    for day in range(30):
+
+        date_value = (
+            current_start
+            + timedelta(days=day)
+        ).date()
+
+        daily_counts[
+            date_value.isoformat()
+        ] = 0
+
+    # Count predictions per day
+    for prediction in current_predictions:
+
+        created_at = prediction.get(
+            "created_at"
+        )
+
+        if not isinstance(
+            created_at,
+            datetime
+        ):
+            continue
+
+        if created_at.tzinfo is None:
+
+            created_at = created_at.replace(
+                tzinfo=timezone.utc
+            )
+
+        else:
+
+            created_at = created_at.astimezone(
+                timezone.utc
+            )
+
+        date_key = created_at.date().isoformat()
+
+        if date_key in daily_counts:
+
+            daily_counts[
+                date_key
+            ] += 1
+
+    activity_chart = list(
+        daily_counts.values()
+    )
+
+    # ========================================================
+    # FINAL RESPONSE
+    # ========================================================
+
+    return {
+        "message": "Trending analytics retrieved successfully",
+
+        "overview": {
+            "trending_predictions": current_total,
+
+            "trending_predictions_growth": predictions_growth,
+
+            "active_users": current_active_users,
+
+            "active_users_growth": active_users_growth,
+
+            "popular_model": popular_model_name,
+
+            "popular_model_accuracy": round(
+                popular_model_accuracy,
+                1
+            ),
+
+            "overall_growth": predictions_growth,
+        },
+
+        "trending_models": trending_models,
+
+        "trending_projects": trending_projects,
+
+        "categories": categories,
+
+        "activity_chart": activity_chart,
     }
