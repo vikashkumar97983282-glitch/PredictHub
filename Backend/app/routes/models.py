@@ -68,18 +68,15 @@ def calculate_growth(current, previous):
     Calculate percentage growth.
 
     Example:
-
-    Previous = 100
-    Current  = 125
-
-    Growth = 25%
+        Previous = 100
+        Current  = 125
+        Growth   = 25%
     """
 
     current = safe_float(current)
     previous = safe_float(previous)
 
     if previous == 0:
-
         if current > 0:
             return 100.0
 
@@ -92,13 +89,37 @@ def calculate_growth(current, previous):
 
 
 # ============================================================
+# DATETIME HELPER
+# ============================================================
+
+def normalize_datetime(value):
+    """
+    Convert MongoDB datetime into timezone-aware UTC datetime.
+    """
+
+    if not isinstance(value, datetime):
+        return None
+
+    if value.tzinfo is None:
+        return value.replace(
+            tzinfo=timezone.utc
+        )
+
+    return value.astimezone(
+        timezone.utc
+    )
+
+
+# ============================================================
 # GET ALL MODELS
 # ============================================================
 
 @router.get("/models")
 async def get_models():
 
-    models = await db.models.find().to_list(length=None)
+    models = await db.models.find().to_list(
+        length=None
+    )
 
     if not models:
         return {
@@ -106,12 +127,12 @@ async def get_models():
             "data": [],
         }
 
-    # Convert MongoDB ObjectId to string
     for model in models:
 
-        model["_id"] = str(model["_id"])
+        model["_id"] = str(
+            model["_id"]
+        )
 
-        # Normalize model status
         model["status"] = normalize_model_status(
             model.get("status")
         )
@@ -152,7 +173,9 @@ async def get_user_analytics(
             "prediction_count": 1,
             "status": 1,
         },
-    ).to_list(length=None)
+    ).to_list(
+        length=None
+    )
 
     # --------------------------------------------------------
     # NORMALIZE MODEL DATA
@@ -166,7 +189,7 @@ async def get_user_analytics(
             {
                 "title": model.get(
                     "title",
-                    "Unnamed model"
+                    "Unnamed model",
                 ),
 
                 "category": model.get(
@@ -175,12 +198,12 @@ async def get_user_analytics(
 
                 "accuracy": model.get(
                     "accuracy",
-                    0
+                    0,
                 ),
 
                 "prediction_count": model.get(
                     "prediction_count",
-                    0
+                    0,
                 ),
 
                 "status": normalize_model_status(
@@ -225,7 +248,9 @@ async def get_user_analytics(
         {
             "model": 1,
         },
-    ).to_list(length=None)
+    ).to_list(
+        length=None
+    )
 
     # --------------------------------------------------------
     # COUNT PREDICTIONS BY MODEL
@@ -237,13 +262,15 @@ async def get_user_analytics(
 
         model_name = prediction.get(
             "model",
-            "Unknown model"
+            "Unknown model",
         )
 
-        prediction_counts_by_model[model_name] = (
+        prediction_counts_by_model[
+            model_name
+        ] = (
             prediction_counts_by_model.get(
                 model_name,
-                0
+                0,
             ) + 1
         )
 
@@ -257,15 +284,17 @@ async def get_user_analytics(
 
         model_name = model.get(
             "title",
-            "Unnamed model"
+            "Unnamed model",
         )
 
         count = prediction_counts_by_model.get(
             model_name,
-            0
+            0,
         )
 
-        prediction_counts.append(count)
+        prediction_counts.append(
+            count
+        )
 
     total_model_predictions = sum(
         prediction_counts
@@ -281,23 +310,23 @@ async def get_user_analytics(
 
         model_name = model.get(
             "title",
-            "Unnamed model"
+            "Unnamed model",
         )
 
         accuracy = model.get(
             "accuracy",
-            0
+            0,
         )
 
         if not isinstance(
             accuracy,
-            (int, float)
+            (int, float),
         ):
             accuracy = 0
 
         predictions = prediction_counts_by_model.get(
             model_name,
-            0
+            0,
         )
 
         status = normalize_model_status(
@@ -315,7 +344,7 @@ async def get_user_analytics(
         )
 
     # --------------------------------------------------------
-    # ADD UNKNOWN MODELS FROM USER PREDICTIONS
+    # ADD UNKNOWN MODELS
     # --------------------------------------------------------
 
     existing_model_names = {
@@ -340,7 +369,7 @@ async def get_user_analytics(
             )
 
     # --------------------------------------------------------
-    # SORT MODELS BY PREDICTIONS
+    # SORT MODELS
     # --------------------------------------------------------
 
     model_performance.sort(
@@ -418,12 +447,12 @@ async def get_user_analytics(
             "created_at"
         )
 
-        if isinstance(
-            created_at,
-            datetime
-        ):
-            time_value = created_at.isoformat()
+        created_at = normalize_datetime(
+            created_at
+        )
 
+        if created_at:
+            time_value = created_at.isoformat()
         else:
             time_value = "Recently"
 
@@ -431,22 +460,22 @@ async def get_user_analytics(
             {
                 "title": prediction.get(
                     "title",
-                    "Prediction"
+                    "Prediction",
                 ),
 
                 "model": prediction.get(
                     "model",
-                    "Unknown model"
+                    "Unknown model",
                 ),
 
                 "result": prediction.get(
                     "result",
-                    "-"
+                    "-",
                 ),
 
                 "status": prediction.get(
                     "status",
-                    "Completed"
+                    "Completed",
                 ),
 
                 "time": time_value,
@@ -466,7 +495,7 @@ async def get_user_analytics(
         {
             **user_filter,
             "created_at": {
-                "$gte": since
+                "$gte": since,
             },
         }
     )
@@ -489,7 +518,7 @@ async def get_user_analytics(
         for model in model_performance
         if isinstance(
             model["accuracy"],
-            (int, float)
+            (int, float),
         )
         and model["accuracy"] > 0
     ]
@@ -528,7 +557,6 @@ async def get_user_analytics(
     # --------------------------------------------------------
 
     return {
-
         "total_predictions": total_predictions,
 
         "average_accuracy": average_accuracy,
@@ -576,12 +604,10 @@ async def get_trending():
 
     now = datetime.now(timezone.utc)
 
-    # Current 30 days
     current_start = (
         now - timedelta(days=30)
     )
 
-    # Previous 30 days
     previous_start = (
         now - timedelta(days=60)
     )
@@ -589,9 +615,6 @@ async def get_trending():
     # ========================================================
     # GET PREDICTIONS
     # ========================================================
-
-    # We retrieve the previous 60 days so that we can
-    # calculate both current and previous growth.
 
     all_predictions = await db.predictions.find(
         {
@@ -619,30 +642,12 @@ async def get_trending():
 
     for prediction in all_predictions:
 
-        created_at = prediction.get(
-            "created_at"
+        created_at = normalize_datetime(
+            prediction.get("created_at")
         )
 
-        if not isinstance(
-            created_at,
-            datetime
-        ):
+        if not created_at:
             continue
-
-        # MongoDB dates are normally timezone-aware.
-        # This protects against old naive datetime values.
-
-        if created_at.tzinfo is None:
-
-            created_at = created_at.replace(
-                tzinfo=timezone.utc
-            )
-
-        else:
-
-            created_at = created_at.astimezone(
-                timezone.utc
-            )
 
         if created_at >= current_start:
 
@@ -670,52 +675,46 @@ async def get_trending():
 
     predictions_growth = calculate_growth(
         current_total,
-        previous_total
+        previous_total,
     )
 
     # ========================================================
-    # ACTIVE USERS
+    # ACTIVE USERS FROM USERS COLLECTION
+    # ========================================================
+    #
+    # IMPORTANT:
+    #
+    # Your MongoDB users collection contains:
+    #
+    # role: "user"
+    # active: true
+    #
+    # Therefore Active Users should come directly
+    # from db.users instead of prediction.user_id.
+    #
     # ========================================================
 
-    current_users = set()
-    previous_users = set()
-
-    for prediction in current_predictions:
-
-        user_id = prediction.get(
-            "user_id"
-        )
-
-        if user_id:
-
-            current_users.add(
-                str(user_id)
-            )
-
-    for prediction in previous_predictions:
-
-        user_id = prediction.get(
-            "user_id"
-        )
-
-        if user_id:
-
-            previous_users.add(
-                str(user_id)
-            )
-
-    current_active_users = len(
-        current_users
+    active_users = await db.users.count_documents(
+        {
+            "role": "user",
+            "active": True,
+        }
     )
 
-    previous_active_users = len(
-        previous_users
-    )
+    # ========================================================
+    # ACTIVE USER GROWTH
+    # ========================================================
+    #
+    # Since "active" is a CURRENT account status and
+    # your shown user documents do not contain historical
+    # active-status timestamps, we cannot calculate
+    # previous-month active-user growth accurately.
+    #
+    # Keep it at 0 until you add created_at / activity data.
+    #
+    # ========================================================
 
-    active_users_growth = calculate_growth(
-        current_active_users,
-        previous_active_users
-    )
+    active_users_growth = 0
 
     # ========================================================
     # GET MODEL INFORMATION
@@ -757,11 +756,10 @@ async def get_trending():
     previous_model_counts = {}
 
     current_model_users = {}
-    previous_model_users = {}
 
-    # --------------------------------------------------------
+    # ========================================================
     # CURRENT MODELS
-    # --------------------------------------------------------
+    # ========================================================
 
     for prediction in current_predictions:
 
@@ -778,16 +776,20 @@ async def get_trending():
 
         model_key = model_name.lower()
 
-        current_model_counts[model_key] = (
+        current_model_counts[
+            model_key
+        ] = (
             current_model_counts.get(
                 model_key,
-                0
+                0,
             ) + 1
         )
 
         if model_key not in current_model_users:
 
-            current_model_users[model_key] = set()
+            current_model_users[
+                model_key
+            ] = set()
 
         user_id = prediction.get(
             "user_id"
@@ -801,9 +803,9 @@ async def get_trending():
                 str(user_id)
             )
 
-    # --------------------------------------------------------
+    # ========================================================
     # PREVIOUS MODELS
-    # --------------------------------------------------------
+    # ========================================================
 
     for prediction in previous_predictions:
 
@@ -820,28 +822,14 @@ async def get_trending():
 
         model_key = model_name.lower()
 
-        previous_model_counts[model_key] = (
+        previous_model_counts[
+            model_key
+        ] = (
             previous_model_counts.get(
                 model_key,
-                0
+                0,
             ) + 1
         )
-
-        if model_key not in previous_model_users:
-
-            previous_model_users[model_key] = set()
-
-        user_id = prediction.get(
-            "user_id"
-        )
-
-        if user_id:
-
-            previous_model_users[
-                model_key
-            ].add(
-                str(user_id)
-            )
 
     # ========================================================
     # BUILD TRENDING MODELS
@@ -855,7 +843,6 @@ async def get_trending():
         reverse=True,
     ):
 
-        # Find display name from actual predictions
         display_name = model_key
 
         for prediction in current_predictions:
@@ -890,24 +877,24 @@ async def get_trending():
         accuracy = safe_float(
             model_info.get(
                 "accuracy",
-                0
+                0,
             )
         )
 
         previous_count = previous_model_counts.get(
             model_key,
-            0
+            0,
         )
 
         growth = calculate_growth(
             count,
-            previous_count
+            previous_count,
         )
 
         users_count = len(
             current_model_users.get(
                 model_key,
-                set()
+                set(),
             )
         )
 
@@ -923,7 +910,7 @@ async def get_trending():
 
                 "accuracy": round(
                     accuracy,
-                    1
+                    1,
                 ),
 
                 "predictions": count,
@@ -934,7 +921,6 @@ async def get_trending():
             }
         )
 
-        # Page currently displays 4 models
         if len(trending_models) >= 4:
             break
 
@@ -964,9 +950,6 @@ async def get_trending():
     # PROJECT STATISTICS
     # ========================================================
 
-    # In your current prediction schema, "model" is the
-    # prediction/project name, so we use it for projects.
-
     current_project_counts = {}
     previous_project_counts = {}
 
@@ -991,7 +974,7 @@ async def get_trending():
         ] = (
             current_project_counts.get(
                 project_key,
-                0
+                0,
             ) + 1
         )
 
@@ -1032,7 +1015,7 @@ async def get_trending():
         ] = (
             previous_project_counts.get(
                 project_key,
-                0
+                0,
             ) + 1
         )
 
@@ -1071,24 +1054,10 @@ async def get_trending():
 
                 break
 
-        # Try to get model information
         model_info = model_lookup.get(
             project_key,
             {}
         )
-
-        # If title doesn't match model title,
-        # try finding by model name.
-
-        if not model_info:
-
-            for model_key, info in model_lookup.items():
-
-                if model_key == project_key:
-
-                    model_info = info
-
-                    break
 
         category = model_info.get(
             "category"
@@ -1097,24 +1066,24 @@ async def get_trending():
         accuracy = safe_float(
             model_info.get(
                 "accuracy",
-                0
+                0,
             )
         )
 
         previous_count = previous_project_counts.get(
             project_key,
-            0
+            0,
         )
 
         growth = calculate_growth(
             count,
-            previous_count
+            previous_count,
         )
 
         users_count = len(
             current_project_users.get(
                 project_key,
-                set()
+                set(),
             )
         )
 
@@ -1126,7 +1095,7 @@ async def get_trending():
 
                 "accuracy": round(
                     accuracy,
-                    1
+                    1,
                 ),
 
                 "predictions": count,
@@ -1148,7 +1117,7 @@ async def get_trending():
     previous_category_counts = {}
 
     # --------------------------------------------------------
-    # BUILD MODEL -> CATEGORY MAP
+    # MODEL -> CATEGORY MAP
     # --------------------------------------------------------
 
     model_category_map = {}
@@ -1198,7 +1167,7 @@ async def get_trending():
         ] = (
             current_category_counts.get(
                 category,
-                0
+                0,
             ) + 1
         )
 
@@ -1229,7 +1198,7 @@ async def get_trending():
         ] = (
             previous_category_counts.get(
                 category,
-                0
+                0,
             ) + 1
         )
 
@@ -1247,12 +1216,12 @@ async def get_trending():
 
         previous_count = previous_category_counts.get(
             category_name,
-            0
+            0,
         )
 
         growth = calculate_growth(
             count,
-            previous_count
+            previous_count,
         )
 
         categories.append(
@@ -1274,7 +1243,6 @@ async def get_trending():
 
     daily_counts = {}
 
-    # Initialize all 30 days with 0
     for day in range(30):
 
         date_value = (
@@ -1286,30 +1254,14 @@ async def get_trending():
             date_value.isoformat()
         ] = 0
 
-    # Count predictions per day
     for prediction in current_predictions:
 
-        created_at = prediction.get(
-            "created_at"
+        created_at = normalize_datetime(
+            prediction.get("created_at")
         )
 
-        if not isinstance(
-            created_at,
-            datetime
-        ):
+        if not created_at:
             continue
-
-        if created_at.tzinfo is None:
-
-            created_at = created_at.replace(
-                tzinfo=timezone.utc
-            )
-
-        else:
-
-            created_at = created_at.astimezone(
-                timezone.utc
-            )
 
         date_key = created_at.date().isoformat()
 
@@ -1328,32 +1280,55 @@ async def get_trending():
     # ========================================================
 
     return {
-        "message": "Trending analytics retrieved successfully",
+
+        "message": (
+            "Trending analytics retrieved successfully"
+        ),
 
         "overview": {
+
             "trending_predictions": current_total,
 
-            "trending_predictions_growth": predictions_growth,
+            "trending_predictions_growth": (
+                predictions_growth
+            ),
 
-            "active_users": current_active_users,
+            # IMPORTANT:
+            # This now comes from users collection
+            # where role=user and active=true.
+            "active_users": active_users,
 
-            "active_users_growth": active_users_growth,
+            "active_users_growth": (
+                active_users_growth
+            ),
 
-            "popular_model": popular_model_name,
+            "popular_model": (
+                popular_model_name
+            ),
 
             "popular_model_accuracy": round(
                 popular_model_accuracy,
-                1
+                1,
             ),
 
-            "overall_growth": predictions_growth,
+            "overall_growth": (
+                predictions_growth
+            ),
         },
 
-        "trending_models": trending_models,
+        "trending_models": (
+            trending_models
+        ),
 
-        "trending_projects": trending_projects,
+        "trending_projects": (
+            trending_projects
+        ),
 
-        "categories": categories,
+        "categories": (
+            categories
+        ),
 
-        "activity_chart": activity_chart,
+        "activity_chart": (
+            activity_chart
+        ),
     }

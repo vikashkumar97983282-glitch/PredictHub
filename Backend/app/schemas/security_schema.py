@@ -12,3 +12,4 @@ class UserRegisterSchema(BaseModel):
     password: str = Field(..., description="Admin password", min_length=8, max_length=12)
     confirm_password: str = Field(..., description="Confirm admin password", min_length=8, max_length=12)
     role: str = "user"
+    active_user: bool = True
