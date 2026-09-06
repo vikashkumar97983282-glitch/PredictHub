@@ -1,3 +1,5 @@
+import { useEffect, useMemo, useState } from "react";
+
 import {
   Flame,
   TrendingUp,
@@ -11,129 +13,142 @@ import {
   Clock3,
   Star,
   ChevronRight,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
+
+import Commet from "react-loading-indicators/Commet";
 
 import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
+import { requestJson } from "../lib/api";
+
 
 /* ============================================================
-   TRENDING MODELS
+   HELPERS
 ============================================================ */
 
-const trendingModels = [
-  {
-    rank: 1,
-    name: "Deep Learning",
-    category: "Neural Networks",
-    accuracy: "96.3%",
-    predictions: "986",
-    growth: "+28.7%",
-    users: "2.4K",
-    icon: Brain,
-  },
-  {
-    rank: 2,
-    name: "Random Forest",
-    category: "Machine Learning",
-    accuracy: "92.7%",
-    predictions: "754",
-    growth: "+21.4%",
-    users: "1.9K",
-    icon: Activity,
-  },
-  {
-    rank: 3,
-    name: "Gradient Boosting",
-    category: "Machine Learning",
-    accuracy: "94.1%",
-    predictions: "682",
-    growth: "+18.9%",
-    users: "1.7K",
-    icon: TrendingUp,
-  },
-  {
-    rank: 4,
-    name: "Logistic Regression",
-    category: "Classification",
-    accuracy: "89.5%",
-    predictions: "632",
-    growth: "+15.6%",
-    users: "1.4K",
-    icon: Target,
-  },
-];
+const formatNumber = (value) => {
+  const number = Number(value) || 0;
+
+  if (number >= 1_000_000) {
+    return `${(number / 1_000_000).toFixed(1)}M`;
+  }
+
+  if (number >= 1_000) {
+    return `${(number / 1_000).toFixed(1)}K`;
+  }
+
+  return number.toLocaleString();
+};
+
+
+const formatPredictionCount = (value) => {
+  const number = Number(value) || 0;
+
+  return number.toLocaleString();
+};
+
+
+const formatPercentage = (value) => {
+  const number =
+    typeof value === "string"
+      ? Number(value.replace("%", "").replace("+", "").trim())
+      : Number(value) || 0;
+
+  return `${number > 0 ? "+" : ""}${number.toFixed(1)}%`;
+};
+
+
+const formatAccuracy = (value) => {
+  const number =
+    typeof value === "string"
+      ? Number(value.replace("%", "").trim())
+      : Number(value) || 0;
+
+  return `${number.toFixed(1)}%`;
+};
+
 
 /* ============================================================
-   TRENDING PROJECTS
+   ICON HELPERS
+
+   Backend returns strings/data only.
+   Lucide React components must be selected on frontend.
 ============================================================ */
 
-const trendingProjects = [
-  {
-    title: "Student Placement Prediction",
-    category: "Education",
-    accuracy: "94.8%",
-    predictions: "1,248",
-    growth: "+32.5%",
-    users: "3.2K",
-  },
-  {
-    title: "House Price Prediction",
-    category: "Real Estate",
-    accuracy: "91.6%",
-    predictions: "986",
-    growth: "+26.8%",
-    users: "2.8K",
-  },
-  {
-    title: "Customer Churn Prediction",
-    category: "Business",
-    accuracy: "93.2%",
-    predictions: "845",
-    growth: "+22.4%",
-    users: "2.1K",
-  },
-  {
-    title: "Loan Approval Prediction",
-    category: "Finance",
-    accuracy: "90.7%",
-    predictions: "728",
-    growth: "+19.7%",
-    users: "1.8K",
-  },
-];
+const getModelIcon = (model) => {
+  const name = String(model?.name || "").toLowerCase();
 
-/* ============================================================
-   TRENDING CATEGORIES
-============================================================ */
+  if (
+    name.includes("deep learning") ||
+    name.includes("neural")
+  ) {
+    return Brain;
+  }
 
-const categories = [
-  {
-    name: "Machine Learning",
-    predictions: "8.4K",
-    growth: "+24.6%",
-    icon: Activity,
-  },
-  {
-    name: "Deep Learning",
-    predictions: "6.8K",
-    growth: "+31.2%",
-    icon: Brain,
-  },
-  {
-    name: "Education",
-    predictions: "4.9K",
-    growth: "+27.8%",
-    icon: Users,
-  },
-  {
-    name: "Finance",
-    predictions: "4.2K",
-    growth: "+18.4%",
-    icon: BarChart3,
-  },
-];
+  if (
+    name.includes("random forest") ||
+    name.includes("forest")
+  ) {
+    return Activity;
+  }
+
+  if (
+    name.includes("gradient") ||
+    name.includes("boost")
+  ) {
+    return TrendingUp;
+  }
+
+  if (
+    name.includes("logistic") ||
+    name.includes("classification")
+  ) {
+    return Target;
+  }
+
+  return Brain;
+};
+
+
+const getCategoryIcon = (category) => {
+  const name = String(category?.name || "").toLowerCase();
+
+  if (
+    name.includes("deep") ||
+    name.includes("neural")
+  ) {
+    return Brain;
+  }
+
+  if (
+    name.includes("education") ||
+    name.includes("student")
+  ) {
+    return Users;
+  }
+
+  if (
+    name.includes("finance") ||
+    name.includes("bank") ||
+    name.includes("loan")
+  ) {
+    return BarChart3;
+  }
+
+  if (
+    name.includes("business") ||
+    name.includes("customer")
+  ) {
+    return Users;
+  }
+
+  return Activity;
+};
+
 
 /* ============================================================
    TRENDING PAGE
@@ -148,10 +163,302 @@ function Trending() {
     closeMobileMenu,
   } = useSidebar();
 
+
+  /* ==========================================================
+     STATE
+  ========================================================== */
+
+  const [trendingData, setTrendingData] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
+
+
+  /* ==========================================================
+     FETCH TRENDING DATA
+  ========================================================== */
+
+  const loadTrendingData = async () => {
+    try {
+      setLoading(true);
+
+      setError("");
+
+      const response = await requestJson(
+        "/model/trending"
+      );
+
+      /*
+       * Your backend returns:
+       *
+       * {
+       *   message,
+       *   overview,
+       *   trending_models,
+       *   trending_projects,
+       *   categories,
+       *   activity_chart
+       * }
+       */
+
+      setTrendingData(response);
+
+    } catch (err) {
+
+      console.error(
+        "Failed to load trending data:",
+        err
+      );
+
+      setError(
+        err?.message ||
+        "Unable to load trending data."
+      );
+
+    } finally {
+
+      setLoading(false);
+    }
+  };
+
+
+  /* ==========================================================
+     INITIAL LOAD
+  ========================================================== */
+
+  useEffect(() => {
+
+    loadTrendingData();
+
+  }, []);
+
+
+  /* ==========================================================
+     DATA
+  ========================================================== */
+
+  const overview = trendingData?.overview || {};
+
+  const trendingModels =
+    trendingData?.trending_models || [];
+
+  const trendingProjects =
+    trendingData?.trending_projects || [];
+
+  const categories =
+    trendingData?.categories || [];
+
+  const activityChart =
+    trendingData?.activity_chart || [];
+
+
+  /* ==========================================================
+     MAX CHART VALUE
+  ========================================================== */
+
+  const maxChartValue = useMemo(() => {
+
+    if (!activityChart.length) {
+      return 1;
+    }
+
+    const max = Math.max(
+      ...activityChart.map(
+        (value) => Number(value) || 0
+      )
+    );
+
+    return max || 1;
+
+  }, [activityChart]);
+
+
+  /* ==========================================================
+     CHART LABELS
+  ========================================================== */
+
+  const chartLabels = useMemo(() => {
+
+    const today = new Date();
+
+    const startDate = new Date(today);
+
+    startDate.setDate(
+      today.getDate() - 29
+    );
+
+    const labels = [];
+
+    for (let index = 0; index < 30; index++) {
+
+      const date = new Date(startDate);
+
+      date.setDate(
+        startDate.getDate() + index
+      );
+
+      labels.push(
+        date.toLocaleDateString(
+          "en-US",
+          {
+            day: "numeric",
+            month: "short",
+          }
+        )
+      );
+    }
+
+    return labels;
+
+  }, []);
+
+
+  /* ============================================================
+     LOADING STATE
+  ============================================================ */
+
+  if (loading) {
+
+    return (
+      <div className="relative flex min-h-screen bg-[#080f22] text-white">
+
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onCloseMobileMenu={closeMobileMenu}
+          onToggleSidebar={toggleSidebar}
+        />
+
+        <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+
+          <Navbar
+            onMenuClick={toggleMobileMenu}
+          />
+
+          <main className="flex flex-1 items-center justify-center">
+
+            <div className="flex flex-col items-center justify-center gap-5">
+
+              {/* YOUR OWN LOADING TAG */}
+
+              <Commet
+                color="#32cd32"
+                size="medium"
+                text="Loading"
+                textColor=""
+              />
+
+              <div className="text-center">
+
+                <p className="text-sm font-semibold text-slate-300">
+                  Loading trending insights...
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Fetching the latest PredictHub activity
+                </p>
+
+              </div>
+
+            </div>
+
+          </main>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  /* ============================================================
+     ERROR STATE
+  ============================================================ */
+
+  if (error) {
+
+    return (
+      <div className="relative flex min-h-screen bg-[#080f22] text-white">
+
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          isMobileMenuOpen={isMobileMenuOpen}
+          onCloseMobileMenu={closeMobileMenu}
+          onToggleSidebar={toggleSidebar}
+        />
+
+        <div className="relative z-10 flex min-w-0 flex-1 flex-col">
+
+          <Navbar
+            onMenuClick={toggleMobileMenu}
+          />
+
+          <main className="flex flex-1 items-center justify-center px-4">
+
+            <div className="w-full max-w-md rounded-2xl border border-red-500/20 bg-[#121b2b]/80 p-8 text-center shadow-xl backdrop-blur-xl">
+
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10">
+
+                <AlertCircle className="h-7 w-7 text-red-400" />
+
+              </div>
+
+              <h2 className="mt-5 text-xl font-bold text-white">
+                Unable to load trending data
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-400">
+                {error}
+              </p>
+
+              <button
+                type="button"
+                onClick={loadTrendingData}
+                className="
+                  mt-6
+                  inline-flex
+                  items-center
+                  gap-2
+                  rounded-xl
+                  bg-orange-500
+                  px-5
+                  py-3
+                  text-sm
+                  font-bold
+                  text-white
+                  transition
+                  hover:bg-orange-400
+                "
+              >
+
+                <RefreshCw className="h-4 w-4" />
+
+                Try Again
+
+              </button>
+
+            </div>
+
+          </main>
+
+        </div>
+
+      </div>
+    );
+  }
+
+
+  /* ============================================================
+     MAIN PAGE
+  ============================================================ */
+
   return (
     <div className="relative flex min-h-screen bg-[#080f22] text-white">
 
-      {/* Background Glow */}
+      {/* ======================================================
+          BACKGROUND GLOW
+      ====================================================== */}
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
 
@@ -160,6 +467,7 @@ function Trending() {
         <div className="absolute right-[-150px] top-[200px] h-[600px] w-[600px] rounded-full bg-purple-600/10 blur-[180px]" />
 
       </div>
+
 
       {/* ======================================================
           SIDEBAR
@@ -172,8 +480,9 @@ function Trending() {
         onToggleSidebar={toggleSidebar}
       />
 
+
       {/* ======================================================
-          MAIN APPLICATION AREA
+          MAIN APPLICATION
       ====================================================== */}
 
       <div className="relative z-10 flex min-w-0 flex-1 flex-col">
@@ -181,6 +490,7 @@ function Trending() {
         <Navbar
           onMenuClick={toggleMobileMenu}
         />
+
 
         {/* ====================================================
             SCROLLABLE CONTENT
@@ -192,6 +502,7 @@ function Trending() {
 
             <div className="mx-auto w-full max-w-7xl">
 
+
               {/* =================================================
                   PAGE HEADER
               ================================================== */}
@@ -202,25 +513,27 @@ function Trending() {
 
                   <div>
 
-                    {/* Badge */}
-
                     <div className="inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2 text-xs font-bold tracking-wider text-orange-300">
 
-                      <span className="h-2 w-2 rounded-full bg-orange-400" />
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-orange-400" />
 
                       TRENDING · COMMUNITY INSIGHTS
 
                     </div>
+
 
                     <h1 className="mt-5 text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
 
                       Trending{" "}
 
                       <span className="bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+
                         Predictions
+
                       </span>
 
                     </h1>
+
 
                     <p className="mt-4 max-w-2xl text-sm leading-7 text-slate-400 sm:text-base">
 
@@ -231,10 +544,10 @@ function Trending() {
 
                   </div>
 
+
                   {/* Period */}
 
-                  <button
-                    type="button"
+                  <div
                     className="
                       inline-flex
                       items-center
@@ -252,28 +565,27 @@ function Trending() {
                       text-slate-300
                       shadow-lg
                       backdrop-blur-xl
-                      transition
-                      hover:border-orange-500/40
-                      hover:bg-[#172238]
                       lg:self-auto
                     "
                   >
 
                     <Clock3 className="h-4 w-4 text-orange-400" />
 
-                    This Month
+                    Last 30 Days
 
-                  </button>
+                  </div>
 
                 </div>
 
               </div>
+
 
               {/* =================================================
                   TRENDING OVERVIEW CARDS
               ================================================== */}
 
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+
 
                 {/* Trending Predictions */}
 
@@ -290,14 +602,20 @@ function Trending() {
                       </p>
 
                       <h2 className="mt-3 text-3xl font-bold text-white">
-                        12.8K
+
+                        {formatNumber(
+                          overview.trending_predictions
+                        )}
+
                       </h2>
 
                       <div className="mt-3 flex items-center gap-1 text-sm font-semibold text-emerald-400">
 
                         <ArrowUpRight className="h-4 w-4" />
 
-                        +24.8%
+                        {formatPercentage(
+                          overview.trending_predictions_growth
+                        )}
 
                       </div>
 
@@ -312,6 +630,7 @@ function Trending() {
                   </div>
 
                 </div>
+
 
                 {/* Active Users */}
 
@@ -328,14 +647,20 @@ function Trending() {
                       </p>
 
                       <h2 className="mt-3 text-3xl font-bold text-white">
-                        8.6K
+
+                        {formatNumber(
+                          overview.active_users
+                        )}
+
                       </h2>
 
                       <div className="mt-3 flex items-center gap-1 text-sm font-semibold text-emerald-400">
 
                         <ArrowUpRight className="h-4 w-4" />
 
-                        +18.2%
+                        {formatPercentage(
+                          overview.active_users_growth
+                        )}
 
                       </div>
 
@@ -351,6 +676,7 @@ function Trending() {
 
                 </div>
 
+
                 {/* Popular Model */}
 
                 <div className="group relative overflow-hidden rounded-2xl border border-slate-700/50 bg-[#121b2b]/80 p-5 shadow-xl backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-purple-500/40">
@@ -359,27 +685,33 @@ function Trending() {
 
                   <div className="relative flex items-start justify-between">
 
-                    <div>
+                    <div className="min-w-0">
 
                       <p className="text-sm font-medium text-slate-400">
                         Popular Model
                       </p>
 
-                      <h2 className="mt-3 text-2xl font-bold text-white">
-                        Deep Learning
+                      <h2 className="mt-3 truncate text-2xl font-bold text-white">
+
+                        {overview.popular_model ||
+                          "No data"}
+
                       </h2>
 
                       <div className="mt-3 flex items-center gap-1 text-sm font-semibold text-purple-400">
 
                         <Star className="h-4 w-4" />
 
-                        96.3% accuracy
+                        {formatAccuracy(
+                          overview.popular_model_accuracy
+                        )}{" "}
+                        accuracy
 
                       </div>
 
                     </div>
 
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500/10">
+                    <div className="ml-3 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-500/10">
 
                       <Brain className="h-5 w-5 text-purple-400" />
 
@@ -388,6 +720,7 @@ function Trending() {
                   </div>
 
                 </div>
+
 
                 {/* Growth */}
 
@@ -404,7 +737,11 @@ function Trending() {
                       </p>
 
                       <h2 className="mt-3 text-3xl font-bold text-white">
-                        +27.4%
+
+                        {formatPercentage(
+                          overview.overall_growth
+                        )}
+
                       </h2>
 
                       <div className="mt-3 flex items-center gap-1 text-sm font-semibold text-emerald-400">
@@ -429,11 +766,13 @@ function Trending() {
 
               </div>
 
+
               {/* =================================================
                   TRENDING MODELS
               ================================================== */}
 
               <div className="mt-6 overflow-hidden rounded-2xl border border-slate-700/50 bg-[#121b2b]/80 shadow-xl backdrop-blur-xl">
+
 
                 {/* Header */}
 
@@ -467,155 +806,223 @@ function Trending() {
 
                   <button
                     type="button"
+                    onClick={loadTrendingData}
                     className="hidden items-center gap-1 text-sm font-semibold text-blue-400 transition hover:text-blue-300 sm:flex"
                   >
 
-                    View All
+                    Refresh
 
-                    <ChevronRight className="h-4 w-4" />
+                    <RefreshCw className="h-4 w-4" />
 
                   </button>
 
                 </div>
 
+
                 {/* Models */}
 
-                <div className="divide-y divide-slate-700/40">
+                {trendingModels.length === 0 ? (
 
-                  {trendingModels.map((model) => {
+                  <div className="p-10 text-center">
 
-                    const Icon = model.icon;
+                    <Brain className="mx-auto h-10 w-10 text-slate-600" />
 
-                    return (
+                    <p className="mt-3 text-sm text-slate-400">
+                      No trending models available yet.
+                    </p>
 
-                      <div
-                        key={model.name}
-                        className="
-                          flex
-                          flex-col
-                          gap-5
-                          p-5
-                          transition
-                          hover:bg-slate-800/40
-                          sm:flex-row
-                          sm:items-center
-                        "
-                      >
+                  </div>
 
-                        {/* Rank */}
+                ) : (
 
-                        <div className="flex items-center gap-4 sm:w-72">
+                  <div className="divide-y divide-slate-700/40">
 
-                          <div
-                            className={`
-                              flex
-                              h-9
-                              w-9
-                              shrink-0
-                              items-center
-                              justify-center
-                              rounded-lg
-                              font-bold
-                              ${
-                                model.rank === 1
-                                  ? "bg-orange-500/15 text-orange-400"
-                                  : "bg-slate-700/50 text-slate-300"
-                              }
-                            `}
-                          >
-                            #{model.rank}
+                    {trendingModels.map((model) => {
+
+                      const Icon = getModelIcon(
+                        model
+                      );
+
+                      return (
+
+                        <div
+                          key={`${model.name}-${model.rank}`}
+                          className="
+                            flex
+                            flex-col
+                            gap-5
+                            p-5
+                            transition
+                            hover:bg-slate-800/40
+                            sm:flex-row
+                            sm:items-center
+                          "
+                        >
+
+                          {/* Rank */}
+
+                          <div className="flex items-center gap-4 sm:w-72">
+
+                            <div
+                              className={`
+                                flex
+                                h-9
+                                w-9
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-lg
+                                font-bold
+                                ${
+                                  model.rank === 1
+                                    ? "bg-orange-500/15 text-orange-400"
+                                    : "bg-slate-700/50 text-slate-300"
+                                }
+                              `}
+                            >
+
+                              #{model.rank}
+
+                            </div>
+
+
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
+
+                              <Icon className="h-5 w-5 text-blue-400" />
+
+                            </div>
+
+
+                            <div className="min-w-0">
+
+                              <h3 className="truncate text-sm font-bold text-slate-200">
+
+                                {model.name}
+
+                              </h3>
+
+                              <p className="mt-1 text-xs text-slate-500">
+
+                                {model.category}
+
+                              </p>
+
+                            </div>
+
                           </div>
 
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
 
-                            <Icon className="h-5 w-5 text-blue-400" />
+                          {/* Accuracy */}
 
-                          </div>
+                          <div className="flex-1">
 
-                          <div className="min-w-0">
+                            <p className="text-xs text-slate-500">
+                              Accuracy
+                            </p>
 
-                            <h3 className="truncate text-sm font-bold text-slate-200">
-                              {model.name}
-                            </h3>
+                            <p className="mt-1 text-sm font-bold text-slate-200">
 
-                            <p className="mt-1 text-xs text-slate-500">
-                              {model.category}
+                              {formatAccuracy(
+                                model.accuracy
+                              )}
+
                             </p>
 
                           </div>
 
+
+                          {/* Predictions */}
+
+                          <div className="flex-1">
+
+                            <p className="text-xs text-slate-500">
+                              Predictions
+                            </p>
+
+                            <p className="mt-1 text-sm font-bold text-slate-200">
+
+                              {formatPredictionCount(
+                                model.predictions
+                              )}
+
+                            </p>
+
+                          </div>
+
+
+                          {/* Users */}
+
+                          <div className="flex-1">
+
+                            <p className="text-xs text-slate-500">
+                              Users
+                            </p>
+
+                            <p className="mt-1 text-sm font-bold text-slate-200">
+
+                              {formatNumber(
+                                model.users
+                              )}
+
+                            </p>
+
+                          </div>
+
+
+                          {/* Growth */}
+
+                          <div>
+
+                            <span
+                              className={`
+                                inline-flex
+                                items-center
+                                gap-1
+                                rounded-full
+                                border
+                                px-3
+                                py-1.5
+                                text-xs
+                                font-bold
+                                ${
+                                  Number(
+                                    model.growth
+                                  ) >= 0
+                                    ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                                    : "border-red-500/20 bg-red-500/10 text-red-400"
+                                }
+                              `}
+                            >
+
+                              <ArrowUpRight className="h-3.5 w-3.5" />
+
+                              {formatPercentage(
+                                model.growth
+                              )}
+
+                            </span>
+
+                          </div>
+
                         </div>
 
-                        {/* Accuracy */}
+                      );
 
-                        <div className="flex-1">
+                    })}
 
-                          <p className="text-xs text-slate-500">
-                            Accuracy
-                          </p>
+                  </div>
 
-                          <p className="mt-1 text-sm font-bold text-slate-200">
-                            {model.accuracy}
-                          </p>
-
-                        </div>
-
-                        {/* Predictions */}
-
-                        <div className="flex-1">
-
-                          <p className="text-xs text-slate-500">
-                            Predictions
-                          </p>
-
-                          <p className="mt-1 text-sm font-bold text-slate-200">
-                            {model.predictions}
-                          </p>
-
-                        </div>
-
-                        {/* Users */}
-
-                        <div className="flex-1">
-
-                          <p className="text-xs text-slate-500">
-                            Users
-                          </p>
-
-                          <p className="mt-1 text-sm font-bold text-slate-200">
-                            {model.users}
-                          </p>
-
-                        </div>
-
-                        {/* Growth */}
-
-                        <div>
-
-                          <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-xs font-bold text-emerald-400">
-
-                            <ArrowUpRight className="h-3.5 w-3.5" />
-
-                            {model.growth}
-
-                          </span>
-
-                        </div>
-
-                      </div>
-
-                    );
-                  })}
-
-                </div>
+                )}
 
               </div>
+
 
               {/* =================================================
                   TRENDING PROJECTS + CATEGORIES
               ================================================== */}
 
               <div className="mt-6 grid gap-6 lg:grid-cols-3">
+
 
                 {/* TRENDING PROJECTS */}
 
@@ -647,98 +1054,135 @@ function Trending() {
 
                   </div>
 
-                  <div className="divide-y divide-slate-700/40">
 
-                    {trendingProjects.map((project) => (
+                  {trendingProjects.length === 0 ? (
 
-                      <div
-                        key={project.title}
-                        className="
-                          flex
-                          flex-col
-                          gap-4
-                          p-5
-                          transition
-                          hover:bg-slate-800/40
-                          sm:flex-row
-                          sm:items-center
-                          sm:justify-between
-                        "
-                      >
+                    <div className="p-10 text-center">
 
-                        {/* Project */}
+                      <Target className="mx-auto h-10 w-10 text-slate-600" />
 
-                        <div className="flex min-w-0 items-center gap-4">
+                      <p className="mt-3 text-sm text-slate-400">
+                        No trending predictions available yet.
+                      </p>
 
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
+                    </div>
 
-                            <Target className="h-5 w-5 text-blue-400" />
+                  ) : (
+
+                    <div className="divide-y divide-slate-700/40">
+
+                      {trendingProjects.map((project) => (
+
+                        <div
+                          key={project.title}
+                          className="
+                            flex
+                            flex-col
+                            gap-4
+                            p-5
+                            transition
+                            hover:bg-slate-800/40
+                            sm:flex-row
+                            sm:items-center
+                            sm:justify-between
+                          "
+                        >
+
+                          {/* Project */}
+
+                          <div className="flex min-w-0 items-center gap-4">
+
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
+
+                              <Target className="h-5 w-5 text-blue-400" />
+
+                            </div>
+
+                            <div className="min-w-0">
+
+                              <h3 className="truncate text-sm font-bold text-slate-200">
+
+                                {project.title}
+
+                              </h3>
+
+                              <p className="mt-1 text-xs text-slate-500">
+
+                                {project.category}
+
+                              </p>
+
+                            </div>
 
                           </div>
 
-                          <div className="min-w-0">
 
-                            <h3 className="truncate text-sm font-bold text-slate-200">
-                              {project.title}
-                            </h3>
+                          {/* Stats */}
 
-                            <p className="mt-1 text-xs text-slate-500">
-                              {project.category}
-                            </p>
+                          <div className="grid grid-cols-3 gap-5 sm:flex sm:items-center">
+
+                            <div>
+
+                              <p className="text-xs text-slate-500">
+                                Accuracy
+                              </p>
+
+                              <p className="mt-1 text-sm font-bold text-slate-200">
+
+                                {formatAccuracy(
+                                  project.accuracy
+                                )}
+
+                              </p>
+
+                            </div>
+
+
+                            <div>
+
+                              <p className="text-xs text-slate-500">
+                                Predictions
+                              </p>
+
+                              <p className="mt-1 text-sm font-bold text-slate-200">
+
+                                {formatPredictionCount(
+                                  project.predictions
+                                )}
+
+                              </p>
+
+                            </div>
+
+
+                            <div>
+
+                              <p className="text-xs text-slate-500">
+                                Growth
+                              </p>
+
+                              <p className="mt-1 text-sm font-bold text-emerald-400">
+
+                                {formatPercentage(
+                                  project.growth
+                                )}
+
+                              </p>
+
+                            </div>
 
                           </div>
 
                         </div>
 
-                        {/* Stats */}
+                      ))}
 
-                        <div className="grid grid-cols-3 gap-5 sm:flex sm:items-center">
+                    </div>
 
-                          <div>
-
-                            <p className="text-xs text-slate-500">
-                              Accuracy
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-slate-200">
-                              {project.accuracy}
-                            </p>
-
-                          </div>
-
-                          <div>
-
-                            <p className="text-xs text-slate-500">
-                              Predictions
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-slate-200">
-                              {project.predictions}
-                            </p>
-
-                          </div>
-
-                          <div>
-
-                            <p className="text-xs text-slate-500">
-                              Growth
-                            </p>
-
-                            <p className="mt-1 text-sm font-bold text-emerald-400">
-                              {project.growth}
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                    ))}
-
-                  </div>
+                  )}
 
                 </div>
+
 
                 {/* CATEGORIES */}
 
@@ -756,57 +1200,105 @@ function Trending() {
 
                   </div>
 
-                  <div className="divide-y divide-slate-700/40">
 
-                    {categories.map((category) => {
+                  {categories.length === 0 ? (
 
-                      const Icon = category.icon;
+                    <div className="p-10 text-center">
 
-                      return (
+                      <Activity className="mx-auto h-10 w-10 text-slate-600" />
 
-                        <div
-                          key={category.name}
-                          className="flex items-center gap-3 p-5 transition hover:bg-slate-800/40"
-                        >
+                      <p className="mt-3 text-sm text-slate-400">
+                        No categories available yet.
+                      </p>
 
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700/40">
+                    </div>
 
-                            <Icon className="h-5 w-5 text-blue-400" />
+                  ) : (
 
-                          </div>
+                    <div className="divide-y divide-slate-700/40">
 
-                          <div className="min-w-0 flex-1">
+                      {categories.map((category) => {
 
-                            <h3 className="truncate text-sm font-semibold text-slate-200">
-                              {category.name}
-                            </h3>
+                        const Icon =
+                          getCategoryIcon(
+                            category
+                          );
 
-                            <div className="mt-1 flex items-center gap-2">
+                        return (
 
-                              <span className="text-xs text-slate-500">
-                                {category.predictions} predictions
-                              </span>
+                          <div
+                            key={category.name}
+                            className="flex items-center gap-3 p-5 transition hover:bg-slate-800/40"
+                          >
 
-                              <span className="text-xs font-semibold text-emerald-400">
-                                {category.growth}
-                              </span>
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-700/40">
+
+                              <Icon className="h-5 w-5 text-blue-400" />
 
                             </div>
 
+
+                            <div className="min-w-0 flex-1">
+
+                              <h3 className="truncate text-sm font-semibold text-slate-200">
+
+                                {category.name}
+
+                              </h3>
+
+
+                              <div className="mt-1 flex items-center gap-2">
+
+                                <span className="text-xs text-slate-500">
+
+                                  {formatNumber(
+                                    category.predictions
+                                  )}{" "}
+                                  predictions
+
+                                </span>
+
+                                <span
+                                  className={`
+                                    text-xs
+                                    font-semibold
+                                    ${
+                                      Number(
+                                        category.growth
+                                      ) >= 0
+                                        ? "text-emerald-400"
+                                        : "text-red-400"
+                                    }
+                                  `}
+                                >
+
+                                  {formatPercentage(
+                                    category.growth
+                                  )}
+
+                                </span>
+
+                              </div>
+
+                            </div>
+
+
+                            <ChevronRight className="h-4 w-4 text-slate-500" />
+
                           </div>
 
-                          <ChevronRight className="h-4 w-4 text-slate-500" />
+                        );
 
-                        </div>
+                      })}
 
-                      );
-                    })}
+                    </div>
 
-                  </div>
+                  )}
 
                 </div>
 
               </div>
+
 
               {/* =================================================
                   TRENDING ACTIVITY CHART
@@ -817,6 +1309,9 @@ function Trending() {
                 <div className="pointer-events-none absolute right-0 top-0 h-48 w-48 rounded-full bg-orange-500/10 blur-3xl" />
 
                 <div className="relative">
+
+
+                  {/* Header */}
 
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 
@@ -846,76 +1341,125 @@ function Trending() {
 
                     </div>
 
+
                     <div className="flex items-center gap-2 text-sm font-semibold text-emerald-400">
 
                       <TrendingUp className="h-4 w-4" />
 
-                      +27.4%
+                      {formatPercentage(
+                        overview.overall_growth
+                      )}
 
                     </div>
 
                   </div>
+
 
                   {/* Chart */}
 
                   <div className="mt-8 h-64 w-full rounded-xl border border-slate-800 bg-[#080e1c]/70 p-4">
 
-                    <div className="flex h-full items-end gap-1 sm:gap-2">
+                    {activityChart.length === 0 ? (
 
-                      {[
-                        30, 38, 35, 44, 41,
-                        52, 48, 57, 54, 63,
-                        59, 68, 64, 73, 70,
-                        78, 74, 82, 79, 88,
-                        84, 91, 87, 95, 90,
-                        96, 92, 98, 94, 100,
-                      ].map((height, index) => (
+                      <div className="flex h-full items-center justify-center">
 
-                        <div
-                          key={index}
-                          className="group flex h-full min-w-0 flex-1 items-end"
-                        >
+                        <p className="text-sm text-slate-500">
+                          No activity data available yet.
+                        </p>
 
-                          <div
-                            style={{
-                              height: `${height}%`,
-                            }}
-                            className="
-                              w-full
-                              rounded-t-md
-                              bg-gradient-to-t
-                              from-orange-600
-                              via-orange-500
-                              to-yellow-400
-                              opacity-80
-                              transition-all
-                              duration-300
-                              group-hover:opacity-100
-                              group-hover:brightness-125
-                            "
-                          />
+                      </div>
 
-                        </div>
+                    ) : (
 
-                      ))}
+                      <div className="flex h-full items-end gap-1 sm:gap-2">
 
-                    </div>
+                        {activityChart.map(
+                          (value, index) => {
+
+                            const numericValue =
+                              Number(value) || 0;
+
+                            const height =
+                              numericValue === 0
+                                ? 2
+                                : Math.max(
+                                    (
+                                      numericValue /
+                                      maxChartValue
+                                    ) * 100,
+                                    4
+                                  );
+
+                            return (
+
+                              <div
+                                key={index}
+                                className="group flex h-full min-w-0 flex-1 items-end"
+                                title={`${chartLabels[index] || `Day ${index + 1}`}: ${numericValue} predictions`}
+                              >
+
+                                <div
+                                  style={{
+                                    height: `${height}%`,
+                                  }}
+                                  className="
+                                    w-full
+                                    rounded-t-md
+                                    bg-gradient-to-t
+                                    from-orange-600
+                                    via-orange-500
+                                    to-yellow-400
+                                    opacity-80
+                                    transition-all
+                                    duration-300
+                                    group-hover:opacity-100
+                                    group-hover:brightness-125
+                                  "
+                                />
+
+                              </div>
+
+                            );
+                          }
+                        )}
+
+                      </div>
+
+                    )}
 
                   </div>
 
+
+                  {/* Chart Labels */}
+
                   <div className="mt-4 flex justify-between text-xs text-slate-500">
 
-                    <span>1 Aug</span>
-                    <span>8 Aug</span>
-                    <span>15 Aug</span>
-                    <span>22 Aug</span>
-                    <span>30 Aug</span>
+                    <span>
+                      {chartLabels[0] || "30 days ago"}
+                    </span>
+
+                    <span>
+                      {chartLabels[7] || ""}
+                    </span>
+
+                    <span>
+                      {chartLabels[14] || ""}
+                    </span>
+
+                    <span>
+                      {chartLabels[21] || ""}
+                    </span>
+
+                    <span>
+                      {chartLabels[29] || "Today"}
+                    </span>
 
                   </div>
 
                 </div>
 
               </div>
+
 
               {/* =================================================
                   COMMUNITY INSIGHT
@@ -933,21 +1477,55 @@ function Trending() {
 
                   </div>
 
+
                   <div>
 
                     <h2 className="font-bold text-white">
                       Trending Insight
                     </h2>
 
+
                     <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-400">
 
-                      <span className="font-semibold text-orange-300">
-                        Deep Learning
-                      </span>{" "}
+                      {trendingModels.length > 0 ? (
 
-                      is currently the fastest-growing model on PredictHub.
-                      Education and Machine Learning predictions are also
-                      receiving significantly more activity this month.
+                        <>
+
+                          <span className="font-semibold text-orange-300">
+
+                            {trendingModels[0].name}
+
+                          </span>{" "}
+
+                          is currently the most popular model
+                          based on prediction activity.
+
+                          {categories.length > 0 && (
+
+                            <>
+
+                              {" "}
+
+                              <span className="font-semibold text-orange-300">
+
+                                {categories[0].name}
+
+                              </span>{" "}
+
+                              is currently the most active
+                              category on PredictHub.
+
+                            </>
+
+                          )}
+
+                        </>
+
+                      ) : (
+
+                        "Trending insights will appear here once prediction activity is available."
+
+                      )}
 
                     </p>
 
@@ -957,11 +1535,13 @@ function Trending() {
 
               </div>
 
+
               <div className="h-10" />
 
             </div>
 
           </div>
+
 
           <Footer />
 
@@ -972,5 +1552,6 @@ function Trending() {
     </div>
   );
 }
+
 
 export default Trending;

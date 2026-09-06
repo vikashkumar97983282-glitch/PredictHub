@@ -783,10 +783,11 @@ function Prediction() {
                         py-3
                         text-left
                         transition
+                        cursor-pointer
                         ${
                           activeStatus ===
                           "All"
-                            ? "border-blue-500/30 bg-blue-500/5"
+                            ? "border-blue-500/30 bg-blue-500/10"
                             : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
                         }
                       `}
@@ -796,7 +797,7 @@ function Prediction() {
 
                         <Layers3
                           size={16}
-                          className="text-blue-400"
+                          className="text-blue-800"
                         />
 
                         <span className="text-lg font-bold text-white">
@@ -807,7 +808,7 @@ function Prediction() {
 
                       </div>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-white">
                         Total Models
                       </p>
 
@@ -829,10 +830,11 @@ function Prediction() {
                         py-3
                         text-left
                         transition
+                        cursor-pointer
                         ${
                           activeStatus ===
                           "Active"
-                            ? "border-emerald-500/30 bg-emerald-500/5"
+                            ? "border-emerald-500/30 bg-emerald-500/10"
                             : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
                         }
                       `}
@@ -842,7 +844,7 @@ function Prediction() {
 
                         <CheckCircle2
                           size={16}
-                          className="text-emerald-400"
+                          className="text-emerald-600"
                         />
 
                         <span className="text-lg font-bold text-white">
@@ -853,7 +855,7 @@ function Prediction() {
 
                       </div>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-white">
                         Active Models
                       </p>
 
@@ -875,10 +877,11 @@ function Prediction() {
                         py-3
                         text-left
                         transition
+                        cursor-pointer
                         ${
                           activeStatus ===
                           "Maintenance"
-                            ? "border-amber-500/30 bg-amber-500/5"
+                            ? "border-amber-500/30 bg-amber-500/10"
                             : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
                         }
                       `}
@@ -888,7 +891,7 @@ function Prediction() {
 
                         <Wrench
                           size={16}
-                          className="text-amber-400"
+                          className="text-amber-300"
                         />
 
                         <span className="text-lg font-bold text-white">
@@ -899,7 +902,7 @@ function Prediction() {
 
                       </div>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-white">
                         Maintenance
                       </p>
 
@@ -921,10 +924,11 @@ function Prediction() {
                         py-3
                         text-left
                         transition
+                        cursor-pointer
                         ${
                           activeStatus ===
                           "Coming Soon"
-                            ? "border-purple-500/30 bg-purple-500/5"
+                            ? "border-purple-500/30 bg-purple-500/10"
                             : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
                         }
                       `}
@@ -934,7 +938,7 @@ function Prediction() {
 
                         <Clock3
                           size={16}
-                          className="text-purple-400"
+                          className="text-purple-600"
                         />
 
                         <span className="text-lg font-bold text-white">
@@ -945,7 +949,7 @@ function Prediction() {
 
                       </div>
 
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-white">
                         Coming Soon
                       </p>
 
@@ -991,6 +995,7 @@ function Prediction() {
                         border-slate-800
                         bg-[#101827]
                         text-slate-500
+                        cursor-pointer
                       "
                     >
                       <Filter
@@ -1028,6 +1033,7 @@ function Prediction() {
                               text-sm
                               font-medium
                               transition-all
+                              cursor-pointer
                               ${
                                 activeCategory ===
                                 category
@@ -1633,6 +1639,7 @@ function Prediction() {
                                           hover:border-blue-500/40
                                           hover:bg-blue-500/15
                                           hover:text-blue-300
+                                          cursor-pointer
                                         `
                                         : `
                                           cursor-not-allowed

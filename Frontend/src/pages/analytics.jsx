@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Database,
 } from "lucide-react";
+
 import Commet from "react-loading-indicators/Commet";
 import { requestJson } from "../lib/api";
 
@@ -85,7 +86,6 @@ const getStatusConfig = (status) => {
         label: "Active",
         icon: CheckCircle2,
         dotClass: "bg-emerald-400",
-        iconClass: "text-emerald-400",
         textClass: "text-emerald-400",
         bgClass: "bg-emerald-500/10",
         borderClass: "border-emerald-500/20",
@@ -96,7 +96,6 @@ const getStatusConfig = (status) => {
         label: "Maintenance",
         icon: Wrench,
         dotClass: "bg-amber-400",
-        iconClass: "text-amber-400",
         textClass: "text-amber-400",
         bgClass: "bg-amber-500/10",
         borderClass: "border-amber-500/20",
@@ -107,7 +106,6 @@ const getStatusConfig = (status) => {
         label: "Coming Soon",
         icon: Clock,
         dotClass: "bg-purple-400",
-        iconClass: "text-purple-400",
         textClass: "text-purple-400",
         bgClass: "bg-purple-500/10",
         borderClass: "border-purple-500/20",
@@ -119,7 +117,6 @@ const getStatusConfig = (status) => {
         label: normalizedStatus || "Inactive",
         icon: XCircle,
         dotClass: "bg-slate-500",
-        iconClass: "text-slate-400",
         textClass: "text-slate-400",
         bgClass: "bg-slate-500/10",
         borderClass: "border-slate-500/20",
@@ -188,6 +185,39 @@ const getActivityStatusConfig = (status) => {
 };
 
 /* ============================================================
+   COMMET LOADER
+============================================================ */
+
+function AnalyticsLoader() {
+  return (
+    <div
+      className="
+        flex
+        min-h-[420px]
+        w-full
+        items-center
+        justify-center
+        rounded-2xl
+        border
+        border-slate-700/50
+        bg-[#121b2b]/80
+        shadow-xl
+        backdrop-blur-xl
+      "
+    >
+      <div className="flex flex-col items-center justify-center">
+        <Commet
+          color="#32cd32"
+          size="large"
+          text="Loading"
+          textColor=""
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
    STAT CARD
 ============================================================ */
 
@@ -245,9 +275,13 @@ function StatCard({
           </h2>
 
           <div className="mt-3 flex items-center gap-2">
-            <TrendingUp className={`h-4 w-4 ${subtitleClass}`} />
+            <TrendingUp
+              className={`h-4 w-4 ${subtitleClass}`}
+            />
 
-            <span className={`text-sm font-semibold ${subtitleClass}`}>
+            <span
+              className={`text-sm font-semibold ${subtitleClass}`}
+            >
               {subtitle}
             </span>
           </div>
@@ -282,8 +316,30 @@ function EmptyState({
   description,
 }) {
   return (
-    <div className="flex min-h-48 flex-col items-center justify-center px-6 py-10 text-center">
-      <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/10">
+    <div
+      className="
+        flex
+        min-h-48
+        flex-col
+        items-center
+        justify-center
+        px-6
+        py-10
+        text-center
+      "
+    >
+      <div
+        className="
+          mb-4
+          flex
+          h-12
+          w-12
+          items-center
+          justify-center
+          rounded-2xl
+          bg-blue-500/10
+        "
+      >
         <Icon className="h-6 w-6 text-blue-400" />
       </div>
 
@@ -294,23 +350,6 @@ function EmptyState({
       <p className="mt-2 max-w-md text-xs leading-5 text-slate-500">
         {description}
       </p>
-    </div>
-  );
-}
-
-/* ============================================================
-   LOADING SKELETON
-============================================================ */
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-4 p-6">
-      {[1, 2, 3, 4].map((item) => (
-        <div
-          key={item}
-          className="h-16 animate-pulse rounded-xl bg-slate-800/60"
-        />
-      ))}
     </div>
   );
 }
@@ -345,49 +384,122 @@ function Analytics() {
       setError("");
 
       try {
-        const response = await requestJson("/model/analytics");
+        const response = await requestJson(
+          "/model/analytics"
+        );
 
         if (!isMounted) return;
 
         setAnalytics({
-          total_predictions: safeNumber(response?.total_predictions),
-          average_accuracy: safeNumber(response?.average_accuracy),
-          active_models: safeNumber(response?.active_models),
-          model_categories: safeNumber(response?.model_categories),
-          success_rate: safeNumber(response?.success_rate),
-          predictions_growth: safeNumber(response?.predictions_growth),
-          accuracy_growth: safeNumber(response?.accuracy_growth),
-          model_performance: Array.isArray(response?.model_performance)
-            ? response.model_performance.map((model, index) => ({
-                name: model?.name || `Model ${index + 1}`,
-                accuracy: Math.min(
-                  100,
-                  Math.max(0, safeNumber(model?.accuracy))
-                ),
-                predictions: safeNumber(model?.predictions),
-                trend: safeNumber(model?.trend),
-                status: normalizeStatus(model?.status),
-              }))
-            : [],
-          recent_activity: Array.isArray(response?.recent_activity)
-            ? response.recent_activity.map((activity) => ({
-                title: activity?.title || "Prediction",
-                model: activity?.model || "Unknown model",
-                result: activity?.result ?? "-",
-                status: activity?.status || "Completed",
-                time: activity?.time || "Recently",
-              }))
-            : [],
-          chart_data: Array.isArray(response?.chart_data)
-            ? response.chart_data.map((value) =>
-                Math.max(0, safeNumber(value))
-              )
-            : [],
+          total_predictions: safeNumber(
+            response?.total_predictions
+          ),
+
+          average_accuracy: safeNumber(
+            response?.average_accuracy
+          ),
+
+          active_models: safeNumber(
+            response?.active_models
+          ),
+
+          model_categories: safeNumber(
+            response?.model_categories
+          ),
+
+          success_rate: safeNumber(
+            response?.success_rate
+          ),
+
+          predictions_growth: safeNumber(
+            response?.predictions_growth
+          ),
+
+          accuracy_growth: safeNumber(
+            response?.accuracy_growth
+          ),
+
+          model_performance:
+            Array.isArray(
+              response?.model_performance
+            )
+              ? response.model_performance.map(
+                  (model, index) => ({
+                    name:
+                      model?.name ||
+                      `Model ${index + 1}`,
+
+                    accuracy: Math.min(
+                      100,
+                      Math.max(
+                        0,
+                        safeNumber(
+                          model?.accuracy
+                        )
+                      )
+                    ),
+
+                    predictions: safeNumber(
+                      model?.predictions
+                    ),
+
+                    trend: safeNumber(
+                      model?.trend
+                    ),
+
+                    status: normalizeStatus(
+                      model?.status
+                    ),
+                  })
+                )
+              : [],
+
+          recent_activity:
+            Array.isArray(
+              response?.recent_activity
+            )
+              ? response.recent_activity.map(
+                  (activity) => ({
+                    title:
+                      activity?.title ||
+                      "Prediction",
+
+                    model:
+                      activity?.model ||
+                      "Unknown model",
+
+                    result:
+                      activity?.result ?? "-",
+
+                    status:
+                      activity?.status ||
+                      "Completed",
+
+                    time:
+                      activity?.time ||
+                      "Recently",
+                  })
+                )
+              : [],
+
+          chart_data:
+            Array.isArray(
+              response?.chart_data
+            )
+              ? response.chart_data.map(
+                  (value) =>
+                    Math.max(
+                      0,
+                      safeNumber(value)
+                    )
+                )
+              : [],
         });
       } catch (requestError) {
         if (!isMounted) return;
 
         setAnalytics(null);
+
         setError(
           requestError?.message ||
             "Unable to load analytics."
@@ -410,11 +522,18 @@ function Analytics() {
      DATA
   ============================================================ */
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const modelPerformance = analytics?.model_performance || [];
-  const recentActivity = analytics?.recent_activity || [];
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const chartData = analytics?.chart_data || [];
+  const modelPerformance =
+    analytics?.model_performance || [];
+
+  const recentActivity =
+    analytics?.recent_activity || [];
+
+  const chartData =
+    analytics?.chart_data || [];
+
+  /* ============================================================
+     STATISTICS
+  ============================================================ */
 
   const totalPredictions = safeNumber(
     analytics?.total_predictions
@@ -422,7 +541,12 @@ function Analytics() {
 
   const averageAccuracy = Math.min(
     100,
-    Math.max(0, safeNumber(analytics?.average_accuracy))
+    Math.max(
+      0,
+      safeNumber(
+        analytics?.average_accuracy
+      )
+    )
   );
 
   const activeModels = safeNumber(
@@ -435,7 +559,12 @@ function Analytics() {
 
   const successRate = Math.min(
     100,
-    Math.max(0, safeNumber(analytics?.success_rate))
+    Math.max(
+      0,
+      safeNumber(
+        analytics?.success_rate
+      )
+    )
   );
 
   const accuracyGrowth = safeNumber(
@@ -455,13 +584,17 @@ function Analytics() {
       return null;
     }
 
-    return modelPerformance.reduce((best, model) => {
-      if (!best) return model;
+    return modelPerformance.reduce(
+      (best, model) => {
+        if (!best) return model;
 
-      return model.accuracy > best.accuracy
-        ? model
-        : best;
-    }, null);
+        return model.accuracy >
+          best.accuracy
+          ? model
+          : best;
+      },
+      null
+    );
   }, [modelPerformance]);
 
   /* ============================================================
@@ -469,9 +602,12 @@ function Analytics() {
   ============================================================ */
 
   const maxChartValue = useMemo(() => {
-    if (!chartData.length) return 1;
+    if (!chartData.length) {
+      return 1;
+    }
 
-    const max = Math.max(...chartData);
+    const max =
+      Math.max(...chartData);
 
     return max > 0 ? max : 1;
   }, [chartData]);
@@ -481,29 +617,27 @@ function Analytics() {
   ============================================================ */
 
   return (
-    <div className="relative flex min-h-screen bg-[#080f22] text-white">
-
-      {/* ======================================================
-          LOADING
-      ====================================================== */}
-
-      {isLoading && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center bg-[#080f22]/90 backdrop-blur-sm">
-          <Commet
-            color="#32cd32"
-            size="large"
-            text="Loading"
-            textColor=""
-          />
-        </div>
-      )}
-
+    <div
+      className="
+        relative
+        flex
+        min-h-screen
+        bg-[#080f22]
+        text-white
+      "
+    >
       {/* ======================================================
           BACKGROUND
       ====================================================== */}
 
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-
+      <div
+        className="
+          pointer-events-none
+          fixed
+          inset-0
+          overflow-hidden
+        "
+      >
         <div
           className="
             absolute
@@ -529,7 +663,6 @@ function Analytics() {
             blur-[180px]
           "
         />
-
       </div>
 
       {/* ======================================================
@@ -547,22 +680,58 @@ function Analytics() {
           MAIN APPLICATION
       ====================================================== */}
 
-      <div className="relative z-10 flex min-w-0 flex-1 flex-col">
-
+      <div
+        className="
+          relative
+          z-10
+          flex
+          min-w-0
+          flex-1
+          flex-col
+        "
+      >
         {/* ====================================================
             NAVBAR
         ==================================================== */}
 
-        <Navbar onMenuClick={toggleMobileMenu} />
+        <Navbar
+          onMenuClick={toggleMobileMenu}
+        />
 
         {/* ====================================================
             ERROR
         ==================================================== */}
 
         {error && (
-          <div className="mx-4 mt-4 flex flex-col gap-3 rounded-xl border border-red-400/20 bg-red-400/10 px-4 py-3 sm:mx-6 sm:flex-row sm:items-center sm:justify-between lg:mx-8">
+          <div
+            className="
+              mx-4
+              mt-4
+              flex
+              flex-col
+              gap-3
+              rounded-xl
+              border
+              border-red-400/20
+              bg-red-400/10
+              px-4
+              py-3
+              sm:mx-6
+              sm:flex-row
+              sm:items-center
+              sm:justify-between
+              lg:mx-8
+            "
+          >
             <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+              <AlertCircle
+                className="
+                  h-4
+                  w-4
+                  shrink-0
+                  text-red-400
+                "
+              />
 
               <p
                 role="alert"
@@ -575,7 +744,9 @@ function Analytics() {
             <button
               type="button"
               onClick={() =>
-                setReloadToken((value) => value + 1)
+                setReloadToken(
+                  (value) => value + 1
+                )
               }
               className="
                 inline-flex
@@ -606,17 +777,27 @@ function Analytics() {
         ==================================================== */}
 
         <main className="flex-1 overflow-x-hidden">
-
-          <div className="px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
-
-            <div className="mx-auto w-full max-w-7xl">
-
+          <div
+            className="
+              px-4
+              py-6
+              sm:px-6
+              lg:px-8
+              xl:px-10
+            "
+          >
+            <div
+              className="
+                mx-auto
+                w-full
+                max-w-7xl
+              "
+            >
               {/* =================================================
                   HEADER
               ================================================= */}
 
               <div className="mb-10">
-
                 <div
                   className="
                     flex
@@ -627,9 +808,7 @@ function Analytics() {
                     lg:justify-between
                   "
                 >
-
                   <div>
-
                     <div
                       className="
                         inline-flex
@@ -647,7 +826,15 @@ function Analytics() {
                         text-blue-300
                       "
                     >
-                      <span className="h-2 w-2 animate-pulse rounded-full bg-blue-400" />
+                      <span
+                        className="
+                          h-2
+                          w-2
+                          animate-pulse
+                          rounded-full
+                          bg-blue-400
+                        "
+                      />
 
                       ANALYTICS · AI INSIGHTS
                     </div>
@@ -689,11 +876,12 @@ function Analytics() {
                         sm:text-base
                       "
                     >
-                      Monitor your prediction performance,
-                      model accuracy, and activity from one
-                      intelligent analytics dashboard.
+                      Monitor your prediction
+                      performance, model
+                      accuracy, and activity
+                      from one intelligent
+                      analytics dashboard.
                     </p>
-
                   </div>
 
                   <button
@@ -721,127 +909,567 @@ function Analytics() {
                       lg:self-auto
                     "
                   >
-                    <CalendarDays className="h-4 w-4 text-blue-400" />
+                    <CalendarDays
+                      className="
+                        h-4
+                        w-4
+                        text-blue-400
+                      "
+                    />
 
                     Last 30 Days
 
-                    <Clock3 className="h-4 w-4 text-slate-500" />
+                    <Clock3
+                      className="
+                        h-4
+                        w-4
+                        text-slate-500
+                      "
+                    />
                   </button>
-
                 </div>
               </div>
 
               {/* =================================================
-                  STATISTICS
+                  LOADING STATE
+                  
+                  IMPORTANT:
+                  Commet is now rendered ONLY here.
+                  No fixed/full-page overlay.
               ================================================= */}
 
-              <div
-                className="
-                  grid
-                  gap-5
-                  sm:grid-cols-2
-                  xl:grid-cols-4
-                "
-              >
-
-                <StatCard
-                  title="Total Predictions"
-                  value={formatNumber(totalPredictions)}
-                  subtitle={`${predictionsGrowth >= 0 ? "+" : ""}${predictionsGrowth}%`}
-                  icon={
-                    <Activity className="h-5 w-5 text-blue-400" />
-                  }
-                  iconClass="bg-blue-500/10"
-                />
-
-                <StatCard
-                  title="Average Accuracy"
-                  value={`${averageAccuracy}%`}
-                  subtitle={`${accuracyGrowth >= 0 ? "+" : ""}${accuracyGrowth}%`}
-                  icon={
-                    <Target className="h-5 w-5 text-emerald-400" />
-                  }
-                  iconClass="bg-emerald-500/10"
-                />
-
-                <StatCard
-                  title="Active Models"
-                  value={formatNumber(activeModels)}
-                  subtitle={`${modelCategories} categories`}
-                  icon={
-                    <Brain className="h-5 w-5 text-purple-400" />
-                  }
-                  iconClass="bg-purple-500/10"
-                  subtitleClass="text-purple-400"
-                />
-
-                <StatCard
-                  title="Success Rate"
-                  value={`${successRate}%`}
-                  subtitle="Completed predictions"
-                  icon={
-                    <CheckCircle2 className="h-5 w-5 text-cyan-400" />
-                  }
-                  iconClass="bg-cyan-500/10"
-                  subtitleClass="text-cyan-400"
-                />
-
-              </div>
-
-              {/* =================================================
-                  CHART SECTION
-              ================================================= */}
-
-              <div
-                className="
-                  mt-6
-                  grid
-                  gap-6
-                  lg:grid-cols-3
-                "
-              >
-
-                {/* =================================================
-                    PREDICTION OVERVIEW
-                ================================================= */}
-
-                <div
-                  className="
-                    relative
-                    min-w-0
-                    overflow-hidden
-                    rounded-2xl
-                    border
-                    border-slate-700/50
-                    bg-[#121b2b]/80
-                    p-5
-                    shadow-xl
-                    backdrop-blur-xl
-                    sm:p-6
-                    lg:col-span-2
-                  "
-                >
+              {isLoading ? (
+                <AnalyticsLoader />
+              ) : (
+                <>
+                  {/* ===============================================
+                      STATISTICS
+                  =============================================== */}
 
                   <div
                     className="
-                      pointer-events-none
-                      absolute
-                      right-0
-                      top-0
-                      h-40
-                      w-40
-                      rounded-full
-                      bg-blue-600/10
-                      blur-3xl
+                      grid
+                      gap-5
+                      sm:grid-cols-2
+                      xl:grid-cols-4
                     "
-                  />
+                  >
+                    <StatCard
+                      title="Total Predictions"
+                      value={formatNumber(
+                        totalPredictions
+                      )}
+                      subtitle={`${
+                        predictionsGrowth >= 0
+                          ? "+"
+                          : ""
+                      }${predictionsGrowth}%`}
+                      icon={
+                        <Activity
+                          className="
+                            h-5
+                            w-5
+                            text-blue-400
+                          "
+                        />
+                      }
+                      iconClass="bg-blue-500/10"
+                    />
 
-                  <div className="relative">
+                    <StatCard
+                      title="Average Accuracy"
+                      value={`${averageAccuracy}%`}
+                      subtitle={`${
+                        accuracyGrowth >= 0
+                          ? "+"
+                          : ""
+                      }${accuracyGrowth}%`}
+                      icon={
+                        <Target
+                          className="
+                            h-5
+                            w-5
+                            text-emerald-400
+                          "
+                        />
+                      }
+                      iconClass="bg-emerald-500/10"
+                    />
 
-                    <div className="flex items-start justify-between gap-4">
+                    <StatCard
+                      title="Active Models"
+                      value={formatNumber(
+                        activeModels
+                      )}
+                      subtitle={`${modelCategories} categories`}
+                      icon={
+                        <Brain
+                          className="
+                            h-5
+                            w-5
+                            text-purple-400
+                          "
+                        />
+                      }
+                      iconClass="bg-purple-500/10"
+                      subtitleClass="text-purple-400"
+                    />
 
+                    <StatCard
+                      title="Success Rate"
+                      value={`${successRate}%`}
+                      subtitle="Completed predictions"
+                      icon={
+                        <CheckCircle2
+                          className="
+                            h-5
+                            w-5
+                            text-cyan-400
+                          "
+                        />
+                      }
+                      iconClass="bg-cyan-500/10"
+                      subtitleClass="text-cyan-400"
+                    />
+                  </div>
+
+                  {/* ===============================================
+                      CHART SECTION
+                  =============================================== */}
+
+                  <div
+                    className="
+                      mt-6
+                      grid
+                      gap-6
+                      lg:grid-cols-3
+                    "
+                  >
+                    {/* =============================================
+                        PREDICTION OVERVIEW
+                    ============================================= */}
+
+                    <div
+                      className="
+                        relative
+                        min-w-0
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-slate-700/50
+                        bg-[#121b2b]/80
+                        p-5
+                        shadow-xl
+                        backdrop-blur-xl
+                        sm:p-6
+                        lg:col-span-2
+                      "
+                    >
+                      <div
+                        className="
+                          pointer-events-none
+                          absolute
+                          right-0
+                          top-0
+                          h-40
+                          w-40
+                          rounded-full
+                          bg-blue-600/10
+                          blur-3xl
+                        "
+                      />
+
+                      <div className="relative">
+                        <div
+                          className="
+                            flex
+                            items-start
+                            justify-between
+                            gap-4
+                          "
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="
+                                flex
+                                h-10
+                                w-10
+                                shrink-0
+                                items-center
+                                justify-center
+                                rounded-xl
+                                bg-blue-500/10
+                              "
+                            >
+                              <BarChart3
+                                className="
+                                  h-5
+                                  w-5
+                                  text-blue-400
+                                "
+                              />
+                            </div>
+
+                            <div>
+                              <h2
+                                className="
+                                  text-lg
+                                  font-bold
+                                  text-white
+                                "
+                              >
+                                Prediction Overview
+                              </h2>
+
+                              <p
+                                className="
+                                  mt-1
+                                  text-sm
+                                  text-slate-400
+                                "
+                              >
+                                Prediction activity
+                                over the last 30
+                                days
+                              </p>
+                            </div>
+                          </div>
+
+                          <div
+                            className="
+                              hidden
+                              rounded-full
+                              bg-emerald-500/10
+                              px-3
+                              py-1.5
+                              text-xs
+                              font-semibold
+                              text-emerald-400
+                              sm:block
+                            "
+                          >
+                            {predictionsGrowth >= 0
+                              ? "+"
+                              : ""}
+                            {predictionsGrowth}% Growth
+                          </div>
+                        </div>
+
+                        {/* CHART */}
+
+                        <div
+                          className="
+                            mt-8
+                            h-64
+                            w-full
+                            overflow-hidden
+                            rounded-xl
+                            border
+                            border-slate-800
+                            bg-[#080e1c]/80
+                            p-4
+                          "
+                        >
+                          {chartData.length > 0 ? (
+                            <div
+                              className="
+                                flex
+                                h-full
+                                items-end
+                                gap-1
+                                sm:gap-2
+                              "
+                            >
+                              {chartData.map(
+                                (
+                                  value,
+                                  index
+                                ) => {
+                                  const percentage =
+                                    value > 0
+                                      ? Math.max(
+                                          4,
+                                          (value /
+                                            maxChartValue) *
+                                            100
+                                        )
+                                      : 2;
+
+                                  return (
+                                    <div
+                                      key={
+                                        index
+                                      }
+                                      className="
+                                        group
+                                        flex
+                                        h-full
+                                        min-w-0
+                                        flex-1
+                                        items-end
+                                      "
+                                    >
+                                      <div
+                                        title={`Day ${
+                                          index + 1
+                                        }: ${value} predictions`}
+                                        style={{
+                                          height: `${percentage}%`,
+                                        }}
+                                        className="
+                                          relative
+                                          w-full
+                                          rounded-t-md
+                                          bg-linear-to-t
+                                          from-blue-700
+                                          via-blue-500
+                                          to-indigo-400
+                                          opacity-75
+                                          transition-all
+                                          duration-300
+                                          group-hover:opacity-100
+                                          group-hover:brightness-125
+                                        "
+                                      >
+                                        <div
+                                          className="
+                                            absolute
+                                            left-0
+                                            right-0
+                                            top-0
+                                            h-px
+                                            bg-white/30
+                                          "
+                                        />
+                                      </div>
+                                    </div>
+                                  );
+                                }
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex h-full items-center justify-center">
+                              <EmptyState
+                                icon={BarChart3}
+                                title="No prediction activity"
+                                description="Prediction activity will appear here after users make predictions."
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        <div
+                          className="
+                            mt-4
+                            flex
+                            justify-between
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+                          <span>30 days ago</span>
+                          <span>22 days</span>
+                          <span>15 days</span>
+                          <span>7 days</span>
+                          <span>Today</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* =============================================
+                        OVERALL ACCURACY
+                    ============================================= */}
+
+                    <div
+                      className="
+                        relative
+                        overflow-hidden
+                        rounded-2xl
+                        border
+                        border-slate-700/50
+                        bg-[#121b2b]/80
+                        p-6
+                        shadow-xl
+                        backdrop-blur-xl
+                      "
+                    >
+                      <div
+                        className="
+                          pointer-events-none
+                          absolute
+                          left-1/2
+                          top-1/2
+                          h-40
+                          w-40
+                          -translate-x-1/2
+                          -translate-y-1/2
+                          rounded-full
+                          bg-purple-500/10
+                          blur-3xl
+                        "
+                      />
+
+                      <div className="relative">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="
+                              flex
+                              h-10
+                              w-10
+                              shrink-0
+                              items-center
+                              justify-center
+                              rounded-xl
+                              bg-purple-500/10
+                            "
+                          >
+                            <Target
+                              className="
+                                h-5
+                                w-5
+                                text-purple-400
+                              "
+                            />
+                          </div>
+
+                          <div>
+                            <h2
+                              className="
+                                text-lg
+                                font-bold
+                                text-white
+                              "
+                            >
+                              Overall Accuracy
+                            </h2>
+
+                            <p
+                              className="
+                                mt-1
+                                text-sm
+                                text-slate-400
+                              "
+                            >
+                              Performance across
+                              all models
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-center py-9">
+                          <div
+                            className="
+                              relative
+                              flex
+                              h-48
+                              w-48
+                              items-center
+                              justify-center
+                              rounded-full
+                            "
+                            style={{
+                              background: `conic-gradient(
+                                #6366f1 0deg ${averageAccuracy * 3.6}deg,
+                                rgba(51,65,85,0.5) ${averageAccuracy * 3.6}deg 360deg
+                              )`,
+                            }}
+                          >
+                            <div
+                              className="
+                                flex
+                                h-40
+                                w-40
+                                items-center
+                                justify-center
+                                rounded-full
+                                border
+                                border-slate-700/50
+                                bg-[#101827]
+                              "
+                            >
+                              <div className="text-center">
+                                <p
+                                  className="
+                                    text-4xl
+                                    font-bold
+                                    text-white
+                                  "
+                                >
+                                  {averageAccuracy}%
+                                </p>
+
+                                <p
+                                  className="
+                                    mt-2
+                                    text-sm
+                                    text-slate-400
+                                  "
+                                >
+                                  Accuracy
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div
+                            className="
+                              mt-7
+                              flex
+                              items-center
+                              gap-2
+                              rounded-full
+                              border
+                              border-emerald-500/20
+                              bg-emerald-500/10
+                              px-4
+                              py-2
+                              text-sm
+                              font-semibold
+                              text-emerald-400
+                            "
+                          >
+                            <TrendingUp className="h-4 w-4" />
+
+                            {accuracyGrowth >= 0
+                              ? "+"
+                              : ""}
+                            {accuracyGrowth}% improvement
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ===============================================
+                      MODEL PERFORMANCE
+                  =============================================== */}
+
+                  <div
+                    className="
+                      mt-6
+                      overflow-hidden
+                      rounded-2xl
+                      border
+                      border-slate-700/50
+                      bg-[#121b2b]/80
+                      shadow-xl
+                      backdrop-blur-xl
+                    "
+                  >
+                    <div
+                      className="
+                        flex
+                        flex-col
+                        gap-4
+                        border-b
+                        border-slate-700/50
+                        p-6
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                      "
+                    >
                       <div className="flex items-center gap-3">
-
                         <div
                           className="
                             flex
@@ -854,474 +1482,509 @@ function Analytics() {
                             bg-blue-500/10
                           "
                         >
-                          <BarChart3 className="h-5 w-5 text-blue-400" />
+                          <Brain
+                            className="
+                              h-5
+                              w-5
+                              text-blue-400
+                            "
+                          />
                         </div>
 
                         <div>
-                          <h2 className="text-lg font-bold text-white">
-                            Prediction Overview
+                          <h2
+                            className="
+                              text-lg
+                              font-bold
+                              text-white
+                            "
+                          >
+                            Model Performance
                           </h2>
 
-                          <p className="mt-1 text-sm text-slate-400">
-                            Prediction activity over the last 30 days
+                          <p
+                            className="
+                              mt-1
+                              text-sm
+                              text-slate-400
+                            "
+                          >
+                            Compare prediction
+                            models and their
+                            performance.
                           </p>
                         </div>
-
                       </div>
 
                       <div
                         className="
-                          hidden
+                          inline-flex
+                          w-fit
+                          items-center
+                          gap-2
                           rounded-full
-                          bg-emerald-500/10
+                          bg-blue-500/10
+                          px-4
+                          py-2
+                          text-xs
+                          font-semibold
+                          text-blue-400
+                        "
+                      >
+                        <Sparkles className="h-4 w-4" />
+                        AI Powered
+                      </div>
+                    </div>
+
+                    {modelPerformance.length ===
+                    0 ? (
+                      <EmptyState
+                        icon={Brain}
+                        title="No model performance data"
+                        description="Model performance will appear here once prediction models are available."
+                      />
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[800px]">
+                          <thead>
+                            <tr
+                              className="
+                                border-b
+                                border-slate-700/50
+                                bg-[#0d1525]/60
+                                text-left
+                              "
+                            >
+                              <th
+                                className="
+                                  px-6
+                                  py-4
+                                  text-xs
+                                  font-semibold
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-500
+                                "
+                              >
+                                Model
+                              </th>
+
+                              <th
+                                className="
+                                  px-6
+                                  py-4
+                                  text-xs
+                                  font-semibold
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-500
+                                "
+                              >
+                                Accuracy
+                              </th>
+
+                              <th
+                                className="
+                                  px-6
+                                  py-4
+                                  text-xs
+                                  font-semibold
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-500
+                                "
+                              >
+                                Predictions
+                              </th>
+
+                              <th
+                                className="
+                                  px-6
+                                  py-4
+                                  text-xs
+                                  font-semibold
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-500
+                                "
+                              >
+                                Trend
+                              </th>
+
+                              <th
+                                className="
+                                  px-6
+                                  py-4
+                                  text-xs
+                                  font-semibold
+                                  uppercase
+                                  tracking-wider
+                                  text-slate-500
+                                "
+                              >
+                                Status
+                              </th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            {modelPerformance.map(
+                              (
+                                model,
+                                index
+                              ) => {
+                                const statusConfig =
+                                  getStatusConfig(
+                                    model.status
+                                  );
+
+                                const StatusIcon =
+                                  statusConfig.icon;
+
+                                const accuracy =
+                                  Math.min(
+                                    100,
+                                    Math.max(
+                                      0,
+                                      safeNumber(
+                                        model.accuracy
+                                      )
+                                    )
+                                  );
+
+                                const trend =
+                                  safeNumber(
+                                    model.trend
+                                  );
+
+                                return (
+                                  <tr
+                                    key={`${model.name}-${index}`}
+                                    className="
+                                      border-b
+                                      border-slate-700/30
+                                      transition
+                                      last:border-0
+                                      hover:bg-slate-800/40
+                                    "
+                                  >
+                                    <td className="px-6 py-5">
+                                      <div className="flex items-center gap-3">
+                                        <div
+                                          className="
+                                            flex
+                                            h-10
+                                            w-10
+                                            shrink-0
+                                            items-center
+                                            justify-center
+                                            rounded-xl
+                                            bg-blue-500/10
+                                          "
+                                        >
+                                          <Brain
+                                            className="
+                                              h-5
+                                              w-5
+                                              text-blue-400
+                                            "
+                                          />
+                                        </div>
+
+                                        <div className="min-w-0">
+                                          <span
+                                            className="
+                                              block
+                                              font-semibold
+                                              text-slate-200
+                                            "
+                                          >
+                                            {model.name}
+                                          </span>
+
+                                          <span
+                                            className="
+                                              mt-1
+                                              block
+                                              text-xs
+                                              text-slate-500
+                                            "
+                                          >
+                                            Machine
+                                            Learning
+                                            Model
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                      <div className="flex items-center gap-3">
+                                        <div
+                                          className="
+                                            h-2
+                                            w-28
+                                            overflow-hidden
+                                            rounded-full
+                                            bg-slate-800
+                                          "
+                                        >
+                                          <div
+                                            style={{
+                                              width: `${accuracy}%`,
+                                            }}
+                                            className="
+                                              h-full
+                                              rounded-full
+                                              bg-linear-to-r
+                                              from-blue-600
+                                              to-indigo-400
+                                              transition-all
+                                              duration-500
+                                            "
+                                          />
+                                        </div>
+
+                                        <span
+                                          className="
+                                            text-sm
+                                            font-semibold
+                                            text-slate-300
+                                          "
+                                        >
+                                          {accuracy}%
+                                        </span>
+                                      </div>
+                                    </td>
+
+                                    <td
+                                      className="
+                                        px-6
+                                        py-5
+                                        text-sm
+                                        font-medium
+                                        text-slate-300
+                                      "
+                                    >
+                                      {formatNumber(
+                                        model.predictions
+                                      )}
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                      {trend !== 0 ? (
+                                        <span
+                                          className={`
+                                            inline-flex
+                                            items-center
+                                            gap-1
+                                            rounded-full
+                                            px-3
+                                            py-1.5
+                                            text-sm
+                                            font-semibold
+                                            ${
+                                              trend >= 0
+                                                ? "bg-emerald-500/10 text-emerald-400"
+                                                : "bg-red-500/10 text-red-400"
+                                            }
+                                          `}
+                                        >
+                                          <ArrowUpRight
+                                            className={`
+                                              h-4
+                                              w-4
+                                              ${
+                                                trend < 0
+                                                  ? "rotate-90"
+                                                  : ""
+                                              }
+                                            `}
+                                          />
+
+                                          {trend > 0
+                                            ? "+"
+                                            : ""}
+                                          {trend}%
+                                        </span>
+                                      ) : (
+                                        <span className="text-sm text-slate-500">
+                                          —
+                                        </span>
+                                      )}
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                      <span
+                                        className={`
+                                          inline-flex
+                                          items-center
+                                          gap-2
+                                          rounded-full
+                                          border
+                                          px-3
+                                          py-1.5
+                                          text-xs
+                                          font-semibold
+                                          ${statusConfig.borderClass}
+                                          ${statusConfig.bgClass}
+                                          ${statusConfig.textClass}
+                                        `}
+                                      >
+                                        <span
+                                          className={`
+                                            h-2
+                                            w-2
+                                            rounded-full
+                                            ${statusConfig.dotClass}
+                                            ${
+                                              statusConfig.label ===
+                                              "Active"
+                                                ? "animate-pulse"
+                                                : ""
+                                            }
+                                          `}
+                                        />
+
+                                        <StatusIcon className="h-3.5 w-3.5" />
+
+                                        {statusConfig.label}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                );
+                              }
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ===============================================
+                      RECENT PREDICTIONS
+                  =============================================== */}
+
+                  <div
+                    className="
+                      mt-6
+                      overflow-hidden
+                      rounded-2xl
+                      border
+                      border-slate-700/50
+                      bg-[#121b2b]/80
+                      shadow-xl
+                      backdrop-blur-xl
+                    "
+                  >
+                    <div
+                      className="
+                        flex
+                        flex-col
+                        gap-3
+                        border-b
+                        border-slate-700/50
+                        p-6
+                        sm:flex-row
+                        sm:items-center
+                        sm:justify-between
+                      "
+                    >
+                      <div>
+                        <h2
+                          className="
+                            text-lg
+                            font-bold
+                            text-white
+                          "
+                        >
+                          Recent Predictions
+                        </h2>
+
+                        <p
+                          className="
+                            mt-1
+                            text-sm
+                            text-slate-400
+                          "
+                        >
+                          Latest prediction
+                          activity from your
+                          models.
+                        </p>
+                      </div>
+
+                      <div
+                        className="
+                          inline-flex
+                          w-fit
+                          items-center
+                          gap-2
+                          rounded-full
+                          bg-slate-800/80
                           px-3
                           py-1.5
                           text-xs
-                          font-semibold
-                          text-emerald-400
-                          sm:block
+                          font-medium
+                          text-slate-400
                         "
                       >
-                        {predictionsGrowth >= 0 ? "+" : ""}
-                        {predictionsGrowth}% Growth
-                      </div>
+                        <Activity className="h-3.5 w-3.5" />
 
+                        {recentActivity.length} Recent
+                      </div>
                     </div>
 
-                    {/* CHART */}
+                    {recentActivity.length ===
+                    0 ? (
+                      <EmptyState
+                        icon={Activity}
+                        title="No recent predictions"
+                        description="Your latest prediction activity will appear here."
+                      />
+                    ) : (
+                      <div className="divide-y divide-slate-700/40">
+                        {recentActivity.map(
+                          (
+                            activity,
+                            index
+                          ) => {
+                            const activityStatus =
+                              getActivityStatusConfig(
+                                activity.status
+                              );
 
-                    <div
-                      className="
-                        mt-8
-                        h-64
-                        w-full
-                        overflow-hidden
-                        rounded-xl
-                        border
-                        border-slate-800
-                        bg-[#080e1c]/80
-                        p-4
-                      "
-                    >
-
-                      {chartData.length > 0 ? (
-                        <div className="flex h-full items-end gap-1 sm:gap-2">
-
-                          {chartData.map((value, index) => {
-
-                            const percentage =
-                              value > 0
-                                ? Math.max(
-                                    4,
-                                    (value / maxChartValue) * 100
-                                  )
-                                : 2;
+                            const ActivityStatusIcon =
+                              activityStatus.icon;
 
                             return (
                               <div
-                                key={index}
+                                key={`${activity.title}-${index}`}
                                 className="
-                                  group
                                   flex
-                                  h-full
-                                  min-w-0
-                                  flex-1
-                                  items-end
+                                  flex-col
+                                  gap-5
+                                  p-5
+                                  transition
+                                  hover:bg-slate-800/30
+                                  sm:flex-row
+                                  sm:items-center
+                                  sm:justify-between
                                 "
                               >
                                 <div
-                                  title={`Day ${index + 1}: ${value} predictions`}
-                                  style={{
-                                    height: `${percentage}%`,
-                                  }}
                                   className="
-                                    relative
-                                    w-full
-                                    rounded-t-md
-                                    bg-linear-to-t
-                                    from-blue-700
-                                    via-blue-500
-                                    to-indigo-400
-                                    opacity-75
-                                    transition-all
-                                    duration-300
-                                    group-hover:opacity-100
-                                    group-hover:brightness-125
+                                    flex
+                                    min-w-0
+                                    items-center
+                                    gap-4
                                   "
                                 >
                                   <div
                                     className="
-                                      absolute
-                                      left-0
-                                      right-0
-                                      top-0
-                                      h-px
-                                      bg-white/30
-                                    "
-                                  />
-                                </div>
-                              </div>
-                            );
-                          })}
-
-                        </div>
-                      ) : (
-                        <div className="flex h-full items-center justify-center">
-                          <EmptyState
-                            icon={BarChart3}
-                            title="No prediction activity"
-                            description="Prediction activity will appear here after users make predictions."
-                          />
-                        </div>
-                      )}
-
-                    </div>
-
-                    <div
-                      className="
-                        mt-4
-                        flex
-                        justify-between
-                        text-xs
-                        text-slate-500
-                      "
-                    >
-                      <span>30 days ago</span>
-                      <span>22 days</span>
-                      <span>15 days</span>
-                      <span>7 days</span>
-                      <span>Today</span>
-                    </div>
-
-                  </div>
-
-                </div>
-
-                {/* =================================================
-                    OVERALL ACCURACY
-                ================================================= */}
-
-                <div
-                  className="
-                    relative
-                    overflow-hidden
-                    rounded-2xl
-                    border
-                    border-slate-700/50
-                    bg-[#121b2b]/80
-                    p-6
-                    shadow-xl
-                    backdrop-blur-xl
-                  "
-                >
-
-                  <div
-                    className="
-                      pointer-events-none
-                      absolute
-                      left-1/2
-                      top-1/2
-                      h-40
-                      w-40
-                      -translate-x-1/2
-                      -translate-y-1/2
-                      rounded-full
-                      bg-purple-500/10
-                      blur-3xl
-                    "
-                  />
-
-                  <div className="relative">
-
-                    <div className="flex items-center gap-3">
-
-                      <div
-                        className="
-                          flex
-                          h-10
-                          w-10
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-xl
-                          bg-purple-500/10
-                        "
-                      >
-                        <Target className="h-5 w-5 text-purple-400" />
-                      </div>
-
-                      <div>
-                        <h2 className="text-lg font-bold text-white">
-                          Overall Accuracy
-                        </h2>
-
-                        <p className="mt-1 text-sm text-slate-400">
-                          Performance across all models
-                        </p>
-                      </div>
-
-                    </div>
-
-                    {/* CIRCLE */}
-
-                    <div className="flex flex-col items-center py-9">
-
-                      <div
-                        className="
-                          relative
-                          flex
-                          h-48
-                          w-48
-                          items-center
-                          justify-center
-                          rounded-full
-                        "
-                        style={{
-                          background: `conic-gradient(
-                            #6366f1 0deg ${averageAccuracy * 3.6}deg,
-                            rgba(51,65,85,0.5) ${averageAccuracy * 3.6}deg 360deg
-                          )`,
-                        }}
-                      >
-
-                        <div
-                          className="
-                            flex
-                            h-40
-                            w-40
-                            items-center
-                            justify-center
-                            rounded-full
-                            border
-                            border-slate-700/50
-                            bg-[#101827]
-                          "
-                        >
-
-                          <div className="text-center">
-
-                            <p className="text-4xl font-bold text-white">
-                              {averageAccuracy}%
-                            </p>
-
-                            <p className="mt-2 text-sm text-slate-400">
-                              Accuracy
-                            </p>
-
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                      <div
-                        className="
-                          mt-7
-                          flex
-                          items-center
-                          gap-2
-                          rounded-full
-                          border
-                          border-emerald-500/20
-                          bg-emerald-500/10
-                          px-4
-                          py-2
-                          text-sm
-                          font-semibold
-                          text-emerald-400
-                        "
-                      >
-                        <TrendingUp className="h-4 w-4" />
-
-                        {accuracyGrowth >= 0 ? "+" : ""}
-                        {accuracyGrowth}% improvement
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-              </div>
-
-              {/* =================================================
-                  MODEL PERFORMANCE
-              ================================================= */}
-
-              <div
-                className="
-                  mt-6
-                  overflow-hidden
-                  rounded-2xl
-                  border
-                  border-slate-700/50
-                  bg-[#121b2b]/80
-                  shadow-xl
-                  backdrop-blur-xl
-                "
-              >
-
-                {/* HEADER */}
-
-                <div
-                  className="
-                    flex
-                    flex-col
-                    gap-4
-                    border-b
-                    border-slate-700/50
-                    p-6
-                    sm:flex-row
-                    sm:items-center
-                    sm:justify-between
-                  "
-                >
-
-                  <div className="flex items-center gap-3">
-
-                    <div
-                      className="
-                        flex
-                        h-10
-                        w-10
-                        shrink-0
-                        items-center
-                        justify-center
-                        rounded-xl
-                        bg-blue-500/10
-                      "
-                    >
-                      <Brain className="h-5 w-5 text-blue-400" />
-                    </div>
-
-                    <div>
-                      <h2 className="text-lg font-bold text-white">
-                        Model Performance
-                      </h2>
-
-                      <p className="mt-1 text-sm text-slate-400">
-                        Compare prediction models and their performance.
-                      </p>
-                    </div>
-
-                  </div>
-
-                  <div
-                    className="
-                      inline-flex
-                      w-fit
-                      items-center
-                      gap-2
-                      rounded-full
-                      bg-blue-500/10
-                      px-4
-                      py-2
-                      text-xs
-                      font-semibold
-                      text-blue-400
-                    "
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    AI Powered
-                  </div>
-
-                </div>
-
-                {/* TABLE */}
-
-                {isLoading ? (
-                  <TableSkeleton />
-                ) : modelPerformance.length === 0 ? (
-                  <EmptyState
-                    icon={Brain}
-                    title="No model performance data"
-                    description="Model performance will appear here once prediction models are available."
-                  />
-                ) : (
-                  <div className="overflow-x-auto">
-
-                    <table className="w-full min-w-200">
-
-                      <thead>
-
-                        <tr
-                          className="
-                            border-b
-                            border-slate-700/50
-                            bg-[#0d1525]/60
-                            text-left
-                          "
-                        >
-
-                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Model
-                          </th>
-
-                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Accuracy
-                          </th>
-
-                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Predictions
-                          </th>
-
-                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Trend
-                          </th>
-
-                          <th className="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                            Status
-                          </th>
-
-                        </tr>
-
-                      </thead>
-
-                      <tbody>
-
-                        {modelPerformance.map((model, index) => {
-
-                          const statusConfig =
-                            getStatusConfig(model.status);
-
-                          const StatusIcon =
-                            statusConfig.icon;
-
-                          const accuracy = Math.min(
-                            100,
-                            Math.max(
-                              0,
-                              safeNumber(model.accuracy)
-                            )
-                          );
-
-                          const trend =
-                            safeNumber(model.trend);
-
-                          return (
-                            <tr
-                              key={`${model.name}-${index}`}
-                              className="
-                                border-b
-                                border-slate-700/30
-                                transition
-                                last:border-0
-                                hover:bg-slate-800/40
-                              "
-                            >
-
-                              {/* MODEL */}
-
-                              <td className="px-6 py-5">
-
-                                <div className="flex items-center gap-3">
-
-                                  <div
-                                    className="
                                       flex
-                                      h-10
-                                      w-10
+                                      h-11
+                                      w-11
                                       shrink-0
                                       items-center
                                       justify-center
@@ -1329,491 +1992,275 @@ function Analytics() {
                                       bg-blue-500/10
                                     "
                                   >
-                                    <Brain className="h-5 w-5 text-blue-400" />
-                                  </div>
-
-                                  <div className="min-w-0">
-                                    <span className="block font-semibold text-slate-200">
-                                      {model.name}
-                                    </span>
-
-                                    <span className="mt-1 block text-xs text-slate-500">
-                                      Machine Learning Model
-                                    </span>
-                                  </div>
-
-                                </div>
-
-                              </td>
-
-                              {/* ACCURACY */}
-
-                              <td className="px-6 py-5">
-
-                                <div className="flex items-center gap-3">
-
-                                  <div
-                                    className="
-                                      h-2
-                                      w-28
-                                      overflow-hidden
-                                      rounded-full
-                                      bg-slate-800
-                                    "
-                                  >
-                                    <div
-                                      style={{
-                                        width: `${accuracy}%`,
-                                      }}
+                                    <Activity
                                       className="
-                                        h-full
-                                        rounded-full
-                                        bg-linear-to-r
-                                        from-blue-600
-                                        to-indigo-400
-                                        transition-all
-                                        duration-500
+                                        h-5
+                                        w-5
+                                        text-blue-400
                                       "
                                     />
                                   </div>
 
-                                  <span className="text-sm font-semibold text-slate-300">
-                                    {accuracy}%
-                                  </span>
+                                  <div className="min-w-0">
+                                    <h3
+                                      className="
+                                        truncate
+                                        font-semibold
+                                        text-slate-200
+                                      "
+                                    >
+                                      {activity.title}
+                                    </h3>
 
+                                    <p
+                                      className="
+                                        mt-1
+                                        truncate
+                                        text-sm
+                                        text-slate-500
+                                      "
+                                    >
+                                      {activity.model}
+
+                                      <span className="mx-2">
+                                        •
+                                      </span>
+
+                                      {activity.time}
+                                    </p>
+                                  </div>
                                 </div>
 
-                              </td>
+                                <div
+                                  className="
+                                    flex
+                                    items-center
+                                    justify-between
+                                    gap-6
+                                    sm:justify-end
+                                  "
+                                >
+                                  <div>
+                                    <p
+                                      className="
+                                        text-xs
+                                        text-slate-500
+                                      "
+                                    >
+                                      Result
+                                    </p>
 
-                              {/* PREDICTIONS */}
+                                    <p
+                                      className="
+                                        mt-1
+                                        max-w-45
+                                        truncate
+                                        text-lg
+                                        font-bold
+                                        text-white
+                                      "
+                                    >
+                                      {String(
+                                        activity.result
+                                      )}
+                                    </p>
+                                  </div>
 
-                              <td className="px-6 py-5 text-sm font-medium text-slate-300">
-                                {formatNumber(model.predictions)}
-                              </td>
-
-                              {/* TREND */}
-
-                              <td className="px-6 py-5">
-
-                                {trend !== 0 ? (
                                   <span
                                     className={`
                                       inline-flex
+                                      shrink-0
                                       items-center
-                                      gap-1
+                                      gap-2
                                       rounded-full
-                                      px-3
-                                      py-1.5
-                                      text-sm
+                                      border
+                                      px-4
+                                      py-2
+                                      text-xs
                                       font-semibold
-                                      ${
-                                        trend >= 0
-                                          ? "bg-emerald-500/10 text-emerald-400"
-                                          : "bg-red-500/10 text-red-400"
-                                      }
+                                      ${activityStatus.borderClass}
+                                      ${activityStatus.bgClass}
+                                      ${activityStatus.textClass}
                                     `}
                                   >
-                                    <ArrowUpRight
-                                      className={`h-4 w-4 ${
-                                        trend < 0
-                                          ? "rotate-90"
-                                          : ""
-                                      }`}
-                                    />
+                                    <ActivityStatusIcon className="h-4 w-4" />
 
-                                    {trend > 0 ? "+" : ""}
-                                    {trend}%
+                                    {activityStatus.label}
                                   </span>
-                                ) : (
-                                  <span className="text-sm text-slate-500">
-                                    —
-                                  </span>
-                                )}
-
-                              </td>
-
-                              {/* STATUS */}
-
-                              <td className="px-6 py-5">
-
-                                <span
-                                  className={`
-                                    inline-flex
-                                    items-center
-                                    gap-2
-                                    rounded-full
-                                    border
-                                    px-3
-                                    py-1.5
-                                    text-xs
-                                    font-semibold
-                                    ${statusConfig.borderClass}
-                                    ${statusConfig.bgClass}
-                                    ${statusConfig.textClass}
-                                  `}
-                                >
-
-                                  <span
-                                    className={`
-                                      h-2
-                                      w-2
-                                      rounded-full
-                                      ${statusConfig.dotClass}
-                                      ${
-                                        statusConfig.label ===
-                                        "Active"
-                                          ? "animate-pulse"
-                                          : ""
-                                      }
-                                    `}
-                                  />
-
-                                  <StatusIcon className="h-3.5 w-3.5" />
-
-                                  {statusConfig.label}
-
-                                </span>
-
-                              </td>
-
-                            </tr>
-                          );
-                        })}
-
-                      </tbody>
-
-                    </table>
-
+                                </div>
+                              </div>
+                            );
+                          }
+                        )}
+                      </div>
+                    )}
                   </div>
-                )}
 
-              </div>
-
-              {/* =================================================
-                  RECENT PREDICTIONS
-              ================================================= */}
-
-              <div
-                className="
-                  mt-6
-                  overflow-hidden
-                  rounded-2xl
-                  border
-                  border-slate-700/50
-                  bg-[#121b2b]/80
-                  shadow-xl
-                  backdrop-blur-xl
-                "
-              >
-
-                <div
-                  className="
-                    flex
-                    flex-col
-                    gap-3
-                    border-b
-                    border-slate-700/50
-                    p-6
-                    sm:flex-row
-                    sm:items-center
-                    sm:justify-between
-                  "
-                >
-
-                  <div>
-                    <h2 className="text-lg font-bold text-white">
-                      Recent Predictions
-                    </h2>
-
-                    <p className="mt-1 text-sm text-slate-400">
-                      Latest prediction activity from your models.
-                    </p>
-                  </div>
+                  {/* ===============================================
+                      ANALYTICS INSIGHT
+                  =============================================== */}
 
                   <div
                     className="
-                      inline-flex
-                      w-fit
-                      items-center
-                      gap-2
-                      rounded-full
-                      bg-slate-800/80
-                      px-3
-                      py-1.5
-                      text-xs
-                      font-medium
-                      text-slate-400
-                    "
-                  >
-                    <Activity className="h-3.5 w-3.5" />
-                    {recentActivity.length} Recent
-                  </div>
-
-                </div>
-
-                {isLoading ? (
-                  <TableSkeleton />
-                ) : recentActivity.length === 0 ? (
-                  <EmptyState
-                    icon={Activity}
-                    title="No recent predictions"
-                    description="Your latest prediction activity will appear here."
-                  />
-                ) : (
-                  <div className="divide-y divide-slate-700/40">
-
-                    {recentActivity.map((activity, index) => {
-
-                      const activityStatus =
-                        getActivityStatusConfig(
-                          activity.status
-                        );
-
-                      const ActivityStatusIcon =
-                        activityStatus.icon;
-
-                      return (
-                        <div
-                          key={`${activity.title}-${index}`}
-                          className="
-                            flex
-                            flex-col
-                            gap-5
-                            p-5
-                            transition
-                            hover:bg-slate-800/30
-                            sm:flex-row
-                            sm:items-center
-                            sm:justify-between
-                          "
-                        >
-
-                          {/* LEFT */}
-
-                          <div className="flex min-w-0 items-center gap-4">
-
-                            <div
-                              className="
-                                flex
-                                h-11
-                                w-11
-                                shrink-0
-                                items-center
-                                justify-center
-                                rounded-xl
-                                bg-blue-500/10
-                              "
-                            >
-                              <Activity className="h-5 w-5 text-blue-400" />
-                            </div>
-
-                            <div className="min-w-0">
-
-                              <h3 className="truncate font-semibold text-slate-200">
-                                {activity.title}
-                              </h3>
-
-                              <p className="mt-1 truncate text-sm text-slate-500">
-                                {activity.model}
-
-                                <span className="mx-2">
-                                  •
-                                </span>
-
-                                {activity.time}
-                              </p>
-
-                            </div>
-
-                          </div>
-
-                          {/* RIGHT */}
-
-                          <div className="flex items-center justify-between gap-6 sm:justify-end">
-
-                            <div>
-                              <p className="text-xs text-slate-500">
-                                Result
-                              </p>
-
-                              <p className="mt-1 max-w-45 truncate text-lg font-bold text-white">
-                                {String(activity.result)}
-                              </p>
-                            </div>
-
-                            <span
-                              className={`
-                                inline-flex
-                                shrink-0
-                                items-center
-                                gap-2
-                                rounded-full
-                                border
-                                px-4
-                                py-2
-                                text-xs
-                                font-semibold
-                                ${activityStatus.borderClass}
-                                ${activityStatus.bgClass}
-                                ${activityStatus.textClass}
-                              `}
-                            >
-
-                              <ActivityStatusIcon className="h-4 w-4" />
-
-                              {activityStatus.label}
-
-                            </span>
-
-                          </div>
-
-                        </div>
-                      );
-                    })}
-
-                  </div>
-                )}
-
-              </div>
-
-              {/* =================================================
-                  ANALYTICS INSIGHT
-              ================================================= */}
-
-              <div
-                className="
-                  relative
-                  mt-6
-                  overflow-hidden
-                  rounded-2xl
-                  border
-                  border-indigo-500/20
-                  bg-linear-to-r
-                  from-indigo-500/10
-                  via-blue-500/5
-                  to-purple-500/10
-                  p-6
-                  backdrop-blur-xl
-                "
-              >
-
-                <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    -right-12.5
-                    -top-12.5
-                    h-40
-                    w-40
-                    rounded-full
-                    bg-purple-500/10
-                    blur-3xl
-                  "
-                />
-
-                <div
-                  className="
-                    relative
-                    flex
-                    flex-col
-                    gap-5
-                    sm:flex-row
-                    sm:items-start
-                  "
-                >
-
-                  <div
-                    className="
-                      flex
-                      h-12
-                      w-12
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-xl
+                      relative
+                      mt-6
+                      overflow-hidden
+                      rounded-2xl
                       border
                       border-indigo-500/20
-                      bg-indigo-500/10
+                      bg-linear-to-r
+                      from-indigo-500/10
+                      via-blue-500/5
+                      to-purple-500/10
+                      p-6
+                      backdrop-blur-xl
                     "
                   >
-                    <Zap className="h-6 w-6 text-indigo-400" />
-                  </div>
+                    <div
+                      className="
+                        pointer-events-none
+                        absolute
+                        -right-12.5
+                        -top-12.5
+                        h-40
+                        w-40
+                        rounded-full
+                        bg-purple-500/10
+                        blur-3xl
+                      "
+                    />
 
-                  <div>
+                    <div
+                      className="
+                        relative
+                        flex
+                        flex-col
+                        gap-5
+                        sm:flex-row
+                        sm:items-start
+                      "
+                    >
+                      <div
+                        className="
+                          flex
+                          h-12
+                          w-12
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-xl
+                          border
+                          border-indigo-500/20
+                          bg-indigo-500/10
+                        "
+                      >
+                        <Zap
+                          className="
+                            h-6
+                            w-6
+                            text-indigo-400
+                          "
+                        />
+                      </div>
 
-                    <div className="flex items-center gap-2">
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <AlertCircle
+                            className="
+                              h-5
+                              w-5
+                              text-blue-400
+                            "
+                          />
 
-                      <AlertCircle className="h-5 w-5 text-blue-400" />
+                          <h2
+                            className="
+                              font-bold
+                              text-white
+                            "
+                          >
+                            Analytics Insight
+                          </h2>
+                        </div>
 
-                      <h2 className="font-bold text-white">
-                        Analytics Insight
-                      </h2>
+                        {bestModel ? (
+                          <p
+                            className="
+                              mt-3
+                              max-w-3xl
+                              text-sm
+                              leading-7
+                              text-slate-400
+                            "
+                          >
+                            Your current average
+                            prediction accuracy
+                            is{" "}
 
+                            <span
+                              className="
+                                font-semibold
+                                text-emerald-400
+                              "
+                            >
+                              {averageAccuracy}%
+                            </span>
+                            .{" "}
+
+                            <span
+                              className="
+                                font-semibold
+                                text-purple-300
+                              "
+                            >
+                              {bestModel.name}
+                            </span>{" "}
+                            is currently your
+                            best performing model
+                            with an accuracy of{" "}
+
+                            <span
+                              className="
+                                font-semibold
+                                text-blue-400
+                              "
+                            >
+                              {bestModel.accuracy}%.
+                            </span>
+                          </p>
+                        ) : (
+                          <p
+                            className="
+                              mt-3
+                              max-w-3xl
+                              text-sm
+                              leading-7
+                              text-slate-400
+                            "
+                          >
+                            No model performance
+                            data is available yet.
+                            Once predictions are
+                            made, PredictHub will
+                            show useful performance
+                            insights here.
+                          </p>
+                        )}
+                      </div>
                     </div>
-
-                    {bestModel ? (
-                      <p
-                        className="
-                          mt-3
-                          max-w-3xl
-                          text-sm
-                          leading-7
-                          text-slate-400
-                        "
-                      >
-                        Your current average prediction accuracy
-                        is{" "}
-                        <span className="font-semibold text-emerald-400">
-                          {averageAccuracy}%
-                        </span>
-                        .{" "}
-
-                        <span className="font-semibold text-purple-300">
-                          {bestModel.name}
-                        </span>{" "}
-                        is currently your best performing model
-                        with an accuracy of{" "}
-
-                        <span className="font-semibold text-blue-400">
-                          {bestModel.accuracy}%.
-                        </span>
-                      </p>
-                    ) : (
-                      <p
-                        className="
-                          mt-3
-                          max-w-3xl
-                          text-sm
-                          leading-7
-                          text-slate-400
-                        "
-                      >
-                        No model performance data is available
-                        yet. Once predictions are made, PredictHub
-                        will show useful performance insights here.
-                      </p>
-                    )}
-
                   </div>
 
-                </div>
-
-              </div>
-
-              <div className="h-10" />
-
+                  <div className="h-10" />
+                </>
+              )}
             </div>
-
           </div>
 
           {/* FOOTER */}
 
           <Footer />
-
         </main>
-
       </div>
-
     </div>
   );
 }
