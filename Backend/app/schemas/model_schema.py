@@ -22,6 +22,7 @@ class AdminModelCreate(BaseModel):
 class AdminModelStatusUpdate(BaseModel):
     status: Literal["Active", "Maintenance", "Coming Soon"]
     
+    
 
 class placement_data(BaseModel):
     cgpa: float 
