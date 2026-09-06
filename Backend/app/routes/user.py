@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.security_schema import UserRegisterSchema
@@ -89,6 +91,7 @@ async def register(
     # --------------------------------------------------------
 
     role = data.role.lower().strip()
+    active = True
 
     user_data = {
         "name": data.name,
@@ -98,6 +101,10 @@ async def register(
         "nationality": data.nationality,
         "password": password_hashed,
         "role": role,
+        "active":active,
+        "created_at": datetime.now(
+            timezone.utc
+        ),
     }
 
     # --------------------------------------------------------
@@ -120,6 +127,7 @@ async def register(
         "address": data.address,
         "nationality": data.nationality,
         "role": role,
+        "active":active
     }
 
     # --------------------------------------------------------
