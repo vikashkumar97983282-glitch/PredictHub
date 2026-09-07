@@ -7,6 +7,7 @@ import {
   UserPlus,
   Brain,
   TrendingUp,
+  MessageSquare,
   BarChart3,
   Settings,
   LogOut,
@@ -52,6 +53,11 @@ const AdminSidebar = ({
       name: "Predictions",
       path: "/admin/predictions",
       icon: TrendingUp,
+    },
+    {
+      name: "Community Posts",
+      path: "/admin/community-posts",
+      icon: MessageSquare,
     },
     {
       name: "Analytics",

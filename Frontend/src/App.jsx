@@ -35,6 +35,7 @@ import AdminDashboard from "./admin/pages/AdminDashboard";
 import AdminUsers from "./admin/pages/AdminUsers";
 import AdminModels from "./admin/pages/AdminModels";
 import AdminPredictions from "./admin/pages/AdminPredictions";
+import AdminCommunityPosts from "./admin/pages/AdminCommunityPosts";
 import AdminAnalytics from "./admin/pages/AdminAnalytics";
 import AdminSettings from "./admin/pages/AdminSettings";
 import AdminActivity from "./admin/pages/AdminActivity";
@@ -231,6 +232,11 @@ function App() {
           <Route
             path="predictions"
             element={<AdminPredictions />}
+          />
+
+          <Route
+            path="community-posts"
+            element={<AdminCommunityPosts />}
           />
 
           {/* -----------------------------------------------

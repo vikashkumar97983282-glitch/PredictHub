@@ -35,6 +35,7 @@ const AdminHeader = ({ setSidebarOpen }) => {
     ["Create User", "/admin/users/create"],
     ["Models", "/admin/models"],
     ["Predictions", "/admin/predictions"],
+    ["Community Posts", "/admin/community-posts"],
     ["Analytics", "/admin/analytics"],
     ["Settings", "/admin/settings"],
   ];
