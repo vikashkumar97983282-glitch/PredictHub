@@ -1,0 +1,32 @@
+{
+  "models": {
+    "placement": {
+      "model_name": "Placement Prediction",
+      "description": "Predict whether a student is likely to be placed.",
+      "endpoint": "/prediction/placement",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "cgpa",
+          "label": "CGPA",
+          "type": "number",
+          "placeholder": "Enter your CGPA",
+          "required": true,
+          "min": 0,
+          "max": 10,
+          "step": 0.01
+        },
+        {
+          "name": "resume_score",
+          "label": "Resume Score",
+          "type": "number",
+          "placeholder": "Enter your Resume Score",
+          "required": true,
+          "min": 0,
+          "max": 10,
+          "step": 0.01
+        }
+      ]
+    }
+  }
+}
