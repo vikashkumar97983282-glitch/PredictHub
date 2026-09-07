@@ -412,15 +412,27 @@ function Prediction() {
         model.status
       );
 
-    if (
-      !statusConfig.available ||
-      !model.route ||
-      model.route === "#"
-    ) {
+    const modelSlug = String(
+      model.route || model.title || "model"
+    )
+      .split("/")
+      .filter(Boolean)
+      .pop()
+      .replace(/\s+/g, "-")
+      .toLowerCase();
+
+    if (statusConfig.label === "Coming Soon") {
+      navigate(`/prediction/coming-soon/${modelSlug}`);
       return;
     }
 
-    navigate(model.route);
+    if (!statusConfig.available) {
+      return;
+    }
+
+    // Route by the selected model itself so DynamicPredictionForm can load
+    // the matching backend field configuration.
+    navigate(`/prediction/${modelSlug}`);
   };
 
   /* =======================================================
@@ -1296,6 +1308,15 @@ function Prediction() {
                           return (
                             <article
                               key={model.id}
+                              onClick={() => {
+                                if (
+                                  isAvailable ||
+                                  statusConfig.label ===
+                                    "Coming Soon"
+                                ) {
+                                  handleStartPrediction(model);
+                                }
+                              }}
                               className={`
                                 group
                                 relative
@@ -1314,7 +1335,7 @@ function Prediction() {
                                 duration-300
                                 ${
                                   isAvailable
-                                    ? "border-slate-800 hover:-translate-y-1.5 hover:border-blue-500/30 hover:shadow-blue-950/20"
+                                    ? "cursor-pointer border-slate-800 hover:-translate-y-1.5 hover:border-blue-500/30 hover:shadow-blue-950/20"
                                     : "border-slate-800/70"
                                 }
                               `}
@@ -1609,12 +1630,12 @@ function Prediction() {
                                 <button
                                   type="button"
                                   disabled={
-                                    !isAvailable
+                                    !isAvailable &&
+                                    statusConfig.label !==
+                                      "Coming Soon"
                                   }
                                   onClick={() =>
-                                    handleStartPrediction(
-                                      model
-                                    )
+                                    handleStartPrediction(model)
                                   }
                                   className={`
                                     mt-auto
@@ -1642,7 +1663,12 @@ function Prediction() {
                                           cursor-pointer
                                         `
                                         : `
-                                          cursor-not-allowed
+                                          ${
+                                            statusConfig.label ===
+                                            "Coming Soon"
+                                              ? "cursor-pointer hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-300"
+                                              : "cursor-not-allowed"
+                                          }
                                           border-slate-800
                                           bg-slate-900/50
                                           text-slate-600
