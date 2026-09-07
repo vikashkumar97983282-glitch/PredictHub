@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Search,
@@ -208,12 +208,14 @@ const contributors = [
   },
 ];
 
-const categories = [
-  "All",
-  "Predictions",
-  "Discussions",
-  "Questions",
-];
+const categories = ["All", "Predictions", "Discussions", "Questions"];
+
+/* ============================================================
+   TAILWIND FORM STYLES
+============================================================ */
+
+const inputClasses =
+  "w-full rounded-xl border border-slate-700 bg-slate-800/70 px-3.5 py-3 text-sm text-slate-200 outline-none transition placeholder:text-slate-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10";
 
 /* ============================================================
    HELPERS
@@ -249,15 +251,19 @@ function Community({ initialPrediction = null }) {
   } = useSidebar();
 
   const [posts, setPosts] = useState(initialPosts);
+
   const [activeCategory, setActiveCategory] = useState("All");
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const [loading, setLoading] = useState(true);
 
   const [showShareModal, setShowShareModal] = useState(false);
+
   const [showQuestionModal, setShowQuestionModal] = useState(false);
 
   const [expandedComments, setExpandedComments] = useState({});
+
   const [commentText, setCommentText] = useState({});
 
   const [shareForm, setShareForm] = useState({
@@ -289,7 +295,7 @@ function Community({ initialPrediction = null }) {
   }, []);
 
   /* ============================================================
-     PREDICTION PAGE INTEGRATION
+     PREDICTION INTEGRATION
   ============================================================ */
 
   useEffect(() => {
@@ -297,57 +303,41 @@ function Community({ initialPrediction = null }) {
 
     setShareForm((previous) => ({
       ...previous,
+
       predictionType:
-        initialPrediction.predictionType ||
-        previous.predictionType,
+        initialPrediction.predictionType || previous.predictionType,
 
-      model:
-        initialPrediction.model ||
-        previous.model,
+      model: initialPrediction.model || previous.model,
 
-      result:
-        initialPrediction.result ||
-        previous.result,
+      result: initialPrediction.result || previous.result,
 
-      title:
-        initialPrediction.title ||
-        previous.title,
+      title: initialPrediction.title || previous.title,
 
-      description:
-        initialPrediction.description ||
-        previous.description,
+      description: initialPrediction.description || previous.description,
 
-      tags:
-        initialPrediction.tags ||
-        previous.tags,
+      tags: initialPrediction.tags || previous.tags,
     }));
 
     setShowShareModal(true);
   }, [initialPrediction]);
 
   /* ============================================================
-     FILTER
+     FILTER POSTS
   ============================================================ */
 
   const filteredPosts = useMemo(() => {
     let result = [...posts];
 
     if (activeCategory === "Predictions") {
-      result = result.filter(
-        (post) => post.type === "prediction"
-      );
+      result = result.filter((post) => post.type === "prediction");
     }
 
     if (activeCategory === "Discussions") {
-      result = result.filter(
-        (post) => post.type === "discussion"
-      );
+      result = result.filter((post) => post.type === "discussion");
     }
 
     if (activeCategory === "Questions") {
-      result = result.filter(
-        (post) => post.type === "question"
-      );
+      result = result.filter((post) => post.type === "question");
     }
 
     if (searchQuery.trim()) {
@@ -356,14 +346,10 @@ function Community({ initialPrediction = null }) {
       result = result.filter((post) => {
         return (
           post.title?.toLowerCase().includes(query) ||
-          post.description
-            ?.toLowerCase()
-            .includes(query) ||
+          post.description?.toLowerCase().includes(query) ||
           post.user?.toLowerCase().includes(query) ||
           post.model?.toLowerCase().includes(query) ||
-          post.tags?.some((tag) =>
-            tag.toLowerCase().includes(query)
-          )
+          post.tags?.some((tag) => tag.toLowerCase().includes(query))
         );
       });
     }
@@ -382,9 +368,7 @@ function Community({ initialPrediction = null }) {
           ? {
               ...post,
               liked: !post.liked,
-              likes:
-                post.likes +
-                (post.liked ? -1 : 1),
+              likes: post.likes + (post.liked ? -1 : 1),
             }
           : post
       )
@@ -413,16 +397,12 @@ function Community({ initialPrediction = null }) {
   ============================================================ */
 
   const handleShare = async (postId) => {
-    const post = posts.find(
-      (item) => item.id === postId
-    );
+    const post = posts.find((item) => item.id === postId);
 
     if (!post) return;
 
     try {
-      await navigator.clipboard.writeText(
-        window.location.href
-      );
+      await navigator.clipboard.writeText(window.location.href);
 
       setPosts((previous) =>
         previous.map((item) =>
@@ -437,10 +417,7 @@ function Community({ initialPrediction = null }) {
 
       alert("Community post link copied.");
     } catch (error) {
-      console.error(
-        "Unable to copy link:",
-        error
-      );
+      console.error("Unable to copy link:", error);
     }
   };
 
@@ -456,8 +433,7 @@ function Community({ initialPrediction = null }) {
   };
 
   const submitComment = (postId) => {
-    const text =
-      commentText[postId]?.trim();
+    const text = commentText[postId]?.trim();
 
     if (!text) return;
 
@@ -466,8 +442,7 @@ function Community({ initialPrediction = null }) {
         post.id === postId
           ? {
               ...post,
-              comments:
-                post.comments + 1,
+              comments: post.comments + 1,
             }
           : post
       )
@@ -486,16 +461,15 @@ function Community({ initialPrediction = null }) {
   const handleSharePrediction = (event) => {
     event.preventDefault();
 
-    if (
-      !shareForm.title.trim() ||
-      !shareForm.result.trim()
-    ) {
+    if (!shareForm.title.trim() || !shareForm.result.trim()) {
       return;
     }
 
     const newPost = {
       id: Date.now(),
+
       type: "prediction",
+
       user: "You",
       initials: "YU",
       time: "Just now",
@@ -508,8 +482,7 @@ function Community({ initialPrediction = null }) {
 
       model: shareForm.model,
 
-      predictionType:
-        shareForm.predictionType,
+      predictionType: shareForm.predictionType,
 
       result: shareForm.result,
 
@@ -528,10 +501,7 @@ function Community({ initialPrediction = null }) {
       bookmarked: false,
     };
 
-    setPosts((previous) => [
-      newPost,
-      ...previous,
-    ]);
+    setPosts((previous) => [newPost, ...previous]);
 
     setShareForm({
       predictionType: "Placement Prediction",
@@ -552,10 +522,7 @@ function Community({ initialPrediction = null }) {
   const handleAskQuestion = (event) => {
     event.preventDefault();
 
-    if (
-      !questionForm.title.trim() ||
-      !questionForm.details.trim()
-    ) {
+    if (!questionForm.title.trim() || !questionForm.details.trim()) {
       return;
     }
 
@@ -590,10 +557,7 @@ function Community({ initialPrediction = null }) {
       bookmarked: false,
     };
 
-    setPosts((previous) => [
-      newPost,
-      ...previous,
-    ]);
+    setPosts((previous) => [newPost, ...previous]);
 
     setQuestionForm({
       title: "",
@@ -606,7 +570,7 @@ function Community({ initialPrediction = null }) {
   };
 
   /* ============================================================
-     LOADING
+     LOADING SCREEN
   ============================================================ */
 
   if (loading) {
@@ -638,6 +602,8 @@ function Community({ initialPrediction = null }) {
 
   return (
     <div className="flex min-h-screen bg-[#0d1422] text-white">
+      {/* SIDEBAR */}
+
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         isMobileMenuOpen={isMobileMenuOpen}
@@ -646,19 +612,20 @@ function Community({ initialPrediction = null }) {
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* HEADER / NAVBAR */}
+
         <Navbar onMenuClick={toggleMobileMenu} />
 
-        <main className="flex-1 overflow-x-hidden bg-[#0f1726]">
-          <div className="px-4 py-6 sm:px-6 lg:px-8">
+        {/* CHANGED: footer-safe page structure */}
+        <main className="flex flex-1 flex-col overflow-x-hidden bg-[#0f1726]">
+          <div className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-7xl">
-
               {/* ==================================================
                   HEADER
               ================================================== */}
 
               <section className="mb-6">
                 <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-
                   <div>
                     <div className="mb-3 flex items-center gap-2">
                       <Users className="h-5 w-5 text-blue-400" />
@@ -673,13 +640,13 @@ function Community({ initialPrediction = null }) {
                     </h1>
 
                     <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-                      Share predictions, discuss ML models,
-                      ask questions, and learn from the
-                      community.
+                      Share predictions, discuss ML models, ask questions, and
+                      learn from the community.
                     </p>
                   </div>
 
                   <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
+                    {/* SEARCH */}
 
                     <div className="relative flex-1 sm:w-64">
                       <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
@@ -687,79 +654,29 @@ function Community({ initialPrediction = null }) {
                       <input
                         type="text"
                         value={searchQuery}
-                        onChange={(event) =>
-                          setSearchQuery(
-                            event.target.value
-                          )
-                        }
+                        onChange={(event) => setSearchQuery(event.target.value)}
                         placeholder="Search community..."
-                        className="
-                          h-11
-                          w-full
-                          rounded-xl
-                          border
-                          border-slate-700
-                          bg-slate-800/70
-                          pl-10
-                          pr-4
-                          text-sm
-                          text-slate-200
-                          outline-none
-                          placeholder:text-slate-500
-                          focus:border-blue-500/50
-                          focus:ring-2
-                          focus:ring-blue-500/10
-                        "
+                        className="h-11 w-full rounded-xl border border-slate-700 bg-slate-800/70 pl-10 pr-4 text-sm text-slate-200 outline-none placeholder:text-slate-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10"
                       />
                     </div>
 
+                    {/* SHARE */}
+
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowShareModal(true)
-                      }
-                      className="
-                        inline-flex
-                        h-11
-                        items-center
-                        justify-center
-                        gap-2
-                        rounded-xl
-                        bg-blue-600
-                        px-4
-                        text-sm
-                        font-bold
-                        text-white
-                        transition
-                        hover:bg-blue-500
-                      "
+                      onClick={() => setShowShareModal(true)}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white transition hover:bg-blue-500"
                     >
                       <Plus className="h-4 w-4" />
                       Share Prediction
                     </button>
 
+                    {/* QUESTION */}
+
                     <button
                       type="button"
-                      onClick={() =>
-                        setShowQuestionModal(true)
-                      }
-                      className="
-                        inline-flex
-                        h-11
-                        items-center
-                        justify-center
-                        gap-2
-                        rounded-xl
-                        border
-                        border-slate-700
-                        bg-slate-800/70
-                        px-4
-                        text-sm
-                        font-bold
-                        text-slate-300
-                        transition
-                        hover:bg-slate-700
-                      "
+                      onClick={() => setShowQuestionModal(true)}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/70 px-4 text-sm font-bold text-slate-300 transition hover:bg-slate-700"
                     >
                       <HelpCircle className="h-4 w-4 text-cyan-400" />
                       Ask Question
@@ -774,32 +691,20 @@ function Community({ initialPrediction = null }) {
 
               <div className="mb-6 overflow-x-auto">
                 <div className="flex min-w-max gap-2">
-
                   {categories.map((category) => (
                     <button
                       key={category}
                       type="button"
-                      onClick={() =>
-                        setActiveCategory(category)
-                      }
-                      className={`
-                        rounded-xl
-                        px-4
-                        py-2.5
-                        text-sm
-                        font-semibold
-                        transition
-                        ${
-                          activeCategory === category
-                            ? "bg-blue-600 text-white"
-                            : "border border-slate-700 bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
-                        }
-                      `}
+                      onClick={() => setActiveCategory(category)}
+                      className={`rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                        activeCategory === category
+                          ? "bg-blue-600 text-white"
+                          : "border border-slate-700 bg-slate-800/50 text-slate-400 hover:bg-slate-700 hover:text-slate-200"
+                      }`}
                     >
                       {category}
                     </button>
                   ))}
-
                 </div>
               </div>
 
@@ -808,7 +713,6 @@ function Community({ initialPrediction = null }) {
               ================================================== */}
 
               <section className="mb-7">
-
                 <div className="mb-3 flex items-center gap-2">
                   <Flame className="h-5 w-5 text-orange-400" />
 
@@ -818,28 +722,12 @@ function Community({ initialPrediction = null }) {
                 </div>
 
                 <div className="flex gap-3 overflow-x-auto pb-2">
-
                   {trendingTopics.map((topic) => (
                     <button
                       key={topic.name}
                       type="button"
-                      onClick={() =>
-                        setSearchQuery(
-                          topic.name
-                        )
-                      }
-                      className="
-                        min-w-[190px]
-                        rounded-xl
-                        border
-                        border-slate-700
-                        bg-slate-800/60
-                        p-4
-                        text-left
-                        transition
-                        hover:border-blue-500/40
-                        hover:bg-slate-800
-                      "
+                      onClick={() => setSearchQuery(topic.name)}
+                      className="min-w-[190px] rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-left transition hover:border-blue-500/40 hover:bg-slate-800"
                     >
                       <p className="truncate text-sm font-bold text-blue-300">
                         #{topic.name}
@@ -850,7 +738,6 @@ function Community({ initialPrediction = null }) {
                       </p>
                     </button>
                   ))}
-
                 </div>
               </section>
 
@@ -859,13 +746,11 @@ function Community({ initialPrediction = null }) {
               ================================================== */}
 
               <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
-
                 {/* ==================================================
                     FEED
                 ================================================== */}
 
                 <section className="min-w-0">
-
                   <div className="mb-4 flex items-center justify-between">
                     <div>
                       <h2 className="text-xl font-bold text-slate-100">
@@ -873,8 +758,7 @@ function Community({ initialPrediction = null }) {
                       </h2>
 
                       <p className="mt-1 text-xs text-slate-500">
-                        Useful predictions, discussions and
-                        ML questions.
+                        Useful predictions, discussions and ML questions.
                       </p>
                     </div>
 
@@ -892,25 +776,12 @@ function Community({ initialPrediction = null }) {
                           onLike={handleLike}
                           onBookmark={handleBookmark}
                           onShare={handleShare}
-                          onToggleComments={
-                            toggleComments
-                          }
-                          expanded={
-                            !!expandedComments[
-                              post.id
-                            ]
-                          }
-                          commentText={
-                            commentText[
-                              post.id
-                            ] || ""
-                          }
-                          setCommentText={
-                            setCommentText
-                          }
-                          submitComment={
-                            submitComment
-                          }
+                          onToggleComments={toggleComments}
+                          expanded={!!expandedComments[post.id]}
+                          commentText={commentText[post.id] || ""}
+                          setCommentText={setCommentText}
+                          submitComment={submitComment}
+                          setSearchQuery={setSearchQuery}
                         />
                       ))}
                     </div>
@@ -920,9 +791,7 @@ function Community({ initialPrediction = null }) {
                       title="No posts found"
                       description="Try another search or be the first person to contribute."
                       buttonText="Share Prediction"
-                      onClick={() =>
-                        setShowShareModal(true)
-                      }
+                      onClick={() => setShowShareModal(true)}
                     />
                   )}
                 </section>
@@ -932,7 +801,6 @@ function Community({ initialPrediction = null }) {
                 ================================================== */}
 
                 <aside className="space-y-5 xl:sticky xl:top-24">
-
                   {/* POPULAR MODELS */}
 
                   <SideCard
@@ -941,7 +809,6 @@ function Community({ initialPrediction = null }) {
                     title="Popular Models"
                   >
                     <div className="space-y-2">
-
                       {popularModels.map((model) => {
                         const Icon = model.icon;
 
@@ -949,17 +816,8 @@ function Community({ initialPrediction = null }) {
                           <button
                             key={model.name}
                             type="button"
-                            className="
-                              flex
-                              w-full
-                              items-center
-                              gap-3
-                              rounded-xl
-                              p-2
-                              text-left
-                              transition
-                              hover:bg-slate-700/40
-                            "
+                            onClick={() => setSearchQuery(model.name)}
+                            className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-slate-700/40"
                           >
                             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-purple-500/10">
                               <Icon className="h-4 w-4 text-purple-400" />
@@ -979,7 +837,6 @@ function Community({ initialPrediction = null }) {
                           </button>
                         );
                       })}
-
                     </div>
                   </SideCard>
 
@@ -991,54 +848,36 @@ function Community({ initialPrediction = null }) {
                     title="Top Contributors"
                   >
                     <div className="space-y-4">
+                      {contributors.map((contributor) => (
+                        <div
+                          key={contributor.rank}
+                          className="flex items-center gap-3"
+                        >
+                          <span className="w-4 text-xs font-bold text-slate-600">
+                            {contributor.rank}
+                          </span>
 
-                      {contributors.map(
-                        (contributor) => (
-                          <div
-                            key={
-                              contributor.rank
-                            }
-                            className="flex items-center gap-3"
-                          >
-                            <span className="w-4 text-xs font-bold text-slate-600">
-                              {contributor.rank}
-                            </span>
+                          <Avatar initials={contributor.initials} size="small" />
 
-                            <Avatar
-                              initials={
-                                contributor.initials
-                              }
-                              size="small"
-                            />
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-semibold text-slate-300">
+                              {contributor.name}
+                            </p>
 
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-slate-300">
-                                {
-                                  contributor.name
-                                }
-                              </p>
-
-                              <p className="text-xs text-slate-500">
-                                {
-                                  contributor.answers
-                                }{" "}
-                                helpful answers
-                              </p>
-                            </div>
-
-                            <span className="text-xs font-bold text-yellow-400">
-                              {
-                                contributor.points
-                              }
-                            </span>
+                            <p className="text-xs text-slate-500">
+                              {contributor.answers} helpful answers
+                            </p>
                           </div>
-                        )
-                      )}
 
+                          <span className="text-xs font-bold text-yellow-400">
+                            {contributor.points}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </SideCard>
 
-                  {/* QUICK STATS */}
+                  {/* COMMUNITY STATS */}
 
                   <SideCard
                     icon={BarChart3}
@@ -1046,34 +885,16 @@ function Community({ initialPrediction = null }) {
                     title="Community Stats"
                   >
                     <div className="grid grid-cols-2 gap-2">
-
-                      <MiniStat
-                        label="Predictions"
-                        value="12.8K"
-                      />
-
-                      <MiniStat
-                        label="Discussions"
-                        value="4.2K"
-                      />
-
-                      <MiniStat
-                        label="Questions"
-                        value="1.8K"
-                      />
-
-                      <MiniStat
-                        label="Members"
-                        value="8.6K"
-                      />
-
+                      <MiniStat label="Predictions" value="12.8K" />
+                      <MiniStat label="Discussions" value="4.2K" />
+                      <MiniStat label="Questions" value="1.8K" />
+                      <MiniStat label="Members" value="8.6K" />
                     </div>
                   </SideCard>
 
                   {/* GUIDELINE */}
 
                   <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-5">
-
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10">
                       <Sparkles className="h-4 w-4 text-blue-400" />
                     </div>
@@ -1083,19 +904,17 @@ function Community({ initialPrediction = null }) {
                     </h3>
 
                     <p className="mt-2 text-xs leading-5 text-slate-500">
-                      Share useful prediction results,
-                      explain your approach and help
-                      other ML learners.
+                      Share useful prediction results, explain your approach and
+                      help other ML learners.
                     </p>
-
                   </div>
-
                 </aside>
               </div>
             </div>
-
-            <Footer />
           </div>
+
+          {/* FOOTER */}
+          <Footer />
         </main>
       </div>
 
@@ -1108,52 +927,26 @@ function Community({ initialPrediction = null }) {
           title="Share Prediction"
           subtitle="Share your prediction result with the community."
           icon={Target}
-          onClose={() =>
-            setShowShareModal(false)
-          }
+          onClose={() => setShowShareModal(false)}
         >
-          <form
-            onSubmit={handleSharePrediction}
-            className="space-y-5"
-          >
-
+          <form onSubmit={handleSharePrediction} className="space-y-5">
             <div className="grid gap-4 sm:grid-cols-2">
-
               <FormField label="Prediction Type">
                 <select
-                  value={
-                    shareForm.predictionType
-                  }
+                  value={shareForm.predictionType}
                   onChange={(event) =>
-                    setShareForm(
-                      (previous) => ({
-                        ...previous,
-                        predictionType:
-                          event.target.value,
-                      })
-                    )
+                    setShareForm((previous) => ({
+                      ...previous,
+                      predictionType: event.target.value,
+                    }))
                   }
-                  className="form-input"
+                  className={inputClasses}
                 >
-                  <option>
-                    Placement Prediction
-                  </option>
-
-                  <option>
-                    House Price Prediction
-                  </option>
-
-                  <option>
-                    Student Performance
-                  </option>
-
-                  <option>
-                    Disease Prediction
-                  </option>
-
-                  <option>
-                    Stock Price Prediction
-                  </option>
+                  <option>Placement Prediction</option>
+                  <option>House Price Prediction</option>
+                  <option>Student Performance</option>
+                  <option>Disease Prediction</option>
+                  <option>Stock Price Prediction</option>
                 </select>
               </FormField>
 
@@ -1161,38 +954,20 @@ function Community({ initialPrediction = null }) {
                 <select
                   value={shareForm.model}
                   onChange={(event) =>
-                    setShareForm(
-                      (previous) => ({
-                        ...previous,
-                        model:
-                          event.target.value,
-                      })
-                    )
+                    setShareForm((previous) => ({
+                      ...previous,
+                      model: event.target.value,
+                    }))
                   }
-                  className="form-input"
+                  className={inputClasses}
                 >
-                  <option>
-                    Random Forest
-                  </option>
-
-                  <option>
-                    XGBoost
-                  </option>
-
-                  <option>
-                    Logistic Regression
-                  </option>
-
-                  <option>
-                    Neural Network
-                  </option>
-
-                  <option>
-                    Decision Tree
-                  </option>
+                  <option>Random Forest</option>
+                  <option>XGBoost</option>
+                  <option>Logistic Regression</option>
+                  <option>Neural Network</option>
+                  <option>Decision Tree</option>
                 </select>
               </FormField>
-
             </div>
 
             <FormField label="Prediction Result">
@@ -1200,16 +975,13 @@ function Community({ initialPrediction = null }) {
                 type="text"
                 value={shareForm.result}
                 onChange={(event) =>
-                  setShareForm(
-                    (previous) => ({
-                      ...previous,
-                      result:
-                        event.target.value,
-                    })
-                  )
+                  setShareForm((previous) => ({
+                    ...previous,
+                    result: event.target.value,
+                  }))
                 }
                 placeholder="e.g. 87% Placement Probability"
-                className="form-input"
+                className={inputClasses}
               />
             </FormField>
 
@@ -1218,36 +990,28 @@ function Community({ initialPrediction = null }) {
                 type="text"
                 value={shareForm.title}
                 onChange={(event) =>
-                  setShareForm(
-                    (previous) => ({
-                      ...previous,
-                      title:
-                        event.target.value,
-                    })
-                  )
+                  setShareForm((previous) => ({
+                    ...previous,
+                    title: event.target.value,
+                  }))
                 }
                 placeholder="Give your prediction a title"
-                className="form-input"
+                className={inputClasses}
               />
             </FormField>
 
             <FormField label="Description">
               <textarea
                 rows={4}
-                value={
-                  shareForm.description
-                }
+                value={shareForm.description}
                 onChange={(event) =>
-                  setShareForm(
-                    (previous) => ({
-                      ...previous,
-                      description:
-                        event.target.value,
-                    })
-                  )
+                  setShareForm((previous) => ({
+                    ...previous,
+                    description: event.target.value,
+                  }))
                 }
                 placeholder="Explain your prediction..."
-                className="form-input resize-none"
+                className={`${inputClasses} resize-none`}
               />
             </FormField>
 
@@ -1256,64 +1020,32 @@ function Community({ initialPrediction = null }) {
                 type="text"
                 value={shareForm.tags}
                 onChange={(event) =>
-                  setShareForm(
-                    (previous) => ({
-                      ...previous,
-                      tags:
-                        event.target.value,
-                    })
-                  )
+                  setShareForm((previous) => ({
+                    ...previous,
+                    tags: event.target.value,
+                  }))
                 }
                 placeholder="MachineLearning, RandomForest"
-                className="form-input"
+                className={inputClasses}
               />
             </FormField>
 
             <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
-
               <button
                 type="button"
-                onClick={() =>
-                  setShowShareModal(false)
-                }
-                className="
-                  rounded-xl
-                  border
-                  border-slate-700
-                  px-5
-                  py-3
-                  text-sm
-                  font-bold
-                  text-slate-300
-                  transition
-                  hover:bg-slate-800
-                "
+                onClick={() => setShowShareModal(false)}
+                className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 transition hover:bg-slate-800"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="
-                  inline-flex
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-blue-600
-                  px-5
-                  py-3
-                  text-sm
-                  font-bold
-                  text-white
-                  transition
-                  hover:bg-blue-500
-                "
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
               >
                 <Share2 className="h-4 w-4" />
                 Share Prediction
               </button>
-
             </div>
           </form>
         </Modal>
@@ -1328,30 +1060,21 @@ function Community({ initialPrediction = null }) {
           title="Ask a Question"
           subtitle="Ask the community and get help with your ML problem."
           icon={HelpCircle}
-          onClose={() =>
-            setShowQuestionModal(false)
-          }
+          onClose={() => setShowQuestionModal(false)}
         >
-          <form
-            onSubmit={handleAskQuestion}
-            className="space-y-5"
-          >
-
+          <form onSubmit={handleAskQuestion} className="space-y-5">
             <FormField label="Question Title">
               <input
                 type="text"
                 value={questionForm.title}
                 onChange={(event) =>
-                  setQuestionForm(
-                    (previous) => ({
-                      ...previous,
-                      title:
-                        event.target.value,
-                    })
-                  )
+                  setQuestionForm((previous) => ({
+                    ...previous,
+                    title: event.target.value,
+                  }))
                 }
                 placeholder="What do you want to know?"
-                className="form-input"
+                className={inputClasses}
               />
             </FormField>
 
@@ -1360,64 +1083,35 @@ function Community({ initialPrediction = null }) {
                 rows={6}
                 value={questionForm.details}
                 onChange={(event) =>
-                  setQuestionForm(
-                    (previous) => ({
-                      ...previous,
-                      details:
-                        event.target.value,
-                    })
-                  )
+                  setQuestionForm((previous) => ({
+                    ...previous,
+                    details: event.target.value,
+                  }))
                 }
                 placeholder="Explain your model, dataset, error or approach..."
-                className="form-input resize-none"
+                className={`${inputClasses} resize-none`}
               />
             </FormField>
 
             <div className="grid gap-4 sm:grid-cols-2">
-
               <FormField label="Category">
                 <select
-                  value={
-                    questionForm.category
-                  }
+                  value={questionForm.category}
                   onChange={(event) =>
-                    setQuestionForm(
-                      (previous) => ({
-                        ...previous,
-                        category:
-                          event.target.value,
-                      })
-                    )
+                    setQuestionForm((previous) => ({
+                      ...previous,
+                      category: event.target.value,
+                    }))
                   }
-                  className="form-input"
+                  className={inputClasses}
                 >
-                  <option>
-                    Machine Learning
-                  </option>
-
-                  <option>
-                    Deep Learning
-                  </option>
-
-                  <option>
-                    Prediction
-                  </option>
-
-                  <option>
-                    Model Accuracy
-                  </option>
-
-                  <option>
-                    Data Processing
-                  </option>
-
-                  <option>
-                    Python
-                  </option>
-
-                  <option>
-                    General
-                  </option>
+                  <option>Machine Learning</option>
+                  <option>Deep Learning</option>
+                  <option>Prediction</option>
+                  <option>Model Accuracy</option>
+                  <option>Data Processing</option>
+                  <option>Python</option>
+                  <option>General</option>
                 </select>
               </FormField>
 
@@ -1426,66 +1120,33 @@ function Community({ initialPrediction = null }) {
                   type="text"
                   value={questionForm.tags}
                   onChange={(event) =>
-                    setQuestionForm(
-                      (previous) => ({
-                        ...previous,
-                        tags:
-                          event.target.value,
-                      })
-                    )
+                    setQuestionForm((previous) => ({
+                      ...previous,
+                      tags: event.target.value,
+                    }))
                   }
                   placeholder="Python, ML, Accuracy"
-                  className="form-input"
+                  className={inputClasses}
                 />
               </FormField>
-
             </div>
 
             <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
-
               <button
                 type="button"
-                onClick={() =>
-                  setShowQuestionModal(false)
-                }
-                className="
-                  rounded-xl
-                  border
-                  border-slate-700
-                  px-5
-                  py-3
-                  text-sm
-                  font-bold
-                  text-slate-300
-                  transition
-                  hover:bg-slate-800
-                "
+                onClick={() => setShowQuestionModal(false)}
+                className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-bold text-slate-300 transition hover:bg-slate-800"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="
-                  inline-flex
-                  items-center
-                  justify-center
-                  gap-2
-                  rounded-xl
-                  bg-blue-600
-                  px-5
-                  py-3
-                  text-sm
-                  font-bold
-                  text-white
-                  transition
-                  hover:bg-blue-500
-                "
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-500"
               >
                 <Send className="h-4 w-4" />
                 Post Question
               </button>
-
             </div>
           </form>
         </Modal>
@@ -1508,103 +1169,61 @@ function CommunityPost({
   commentText,
   setCommentText,
   submitComment,
+  setSearchQuery,
 }) {
   const TypeIcon = getPostTypeIcon(post.type);
 
   return (
-    <article className="
-      overflow-hidden
-      rounded-2xl
-      border
-      border-slate-700/70
-      bg-slate-800/50
-      transition
-      hover:border-slate-600
-    ">
-
+    <article className="overflow-hidden rounded-2xl border border-slate-700/70 bg-slate-800/50 transition hover:border-slate-600">
       <div className="p-5 sm:p-6">
-
         {/* USER */}
 
         <div className="flex items-center gap-3">
-
           <Avatar initials={post.initials} />
 
           <div className="min-w-0 flex-1">
-
             <div className="flex flex-wrap items-center gap-2">
+              <p className="text-sm font-bold text-slate-200">{post.user}</p>
 
-              <p className="text-sm font-bold text-slate-200">
-                {post.user}
-              </p>
+              <span className="text-xs text-slate-600">•</span>
 
-              <span className="text-xs text-slate-600">
-                •
-              </span>
-
-              <span className="text-xs text-slate-500">
-                {post.time}
-              </span>
-
+              <span className="text-xs text-slate-500">{post.time}</span>
             </div>
 
             <div className="mt-1 flex items-center gap-1.5">
-
               <TypeIcon className="h-3.5 w-3.5 text-blue-400" />
 
               <span className="text-xs font-semibold text-blue-400">
                 {getPostTypeLabel(post.type)}
               </span>
-
             </div>
           </div>
 
           <button
             type="button"
-            className="
-              rounded-lg
-              p-2
-              text-slate-500
-              transition
-              hover:bg-slate-700
-              hover:text-slate-300
-            "
+            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-700 hover:text-slate-300"
+            aria-label="More options"
           >
             <MoreHorizontal className="h-5 w-5" />
           </button>
-
         </div>
 
         {/* CONTENT */}
 
         <div className="mt-5">
-
-          <h3 className="text-lg font-bold text-slate-100">
-            {post.title}
-          </h3>
+          <h3 className="text-lg font-bold text-slate-100">{post.title}</h3>
 
           <p className="mt-2 text-sm leading-6 text-slate-400">
             {post.description}
           </p>
-
         </div>
 
         {/* PREDICTION */}
 
         {post.type === "prediction" && (
-          <div className="
-            mt-5
-            rounded-xl
-            border
-            border-blue-500/20
-            bg-blue-500/5
-            p-4
-          ">
-
+          <div className="mt-5 rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-
               <div>
-
                 <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
                   Prediction Result
                 </p>
@@ -1612,18 +1231,9 @@ function CommunityPost({
                 <p className="mt-1 text-lg font-extrabold text-blue-300">
                   {post.result}
                 </p>
-
               </div>
 
-              <div className="
-                rounded-lg
-                border
-                border-slate-700
-                bg-slate-800/70
-                px-3
-                py-2
-              ">
-
+              <div className="rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-2">
                 <p className="text-[10px] uppercase tracking-wider text-slate-600">
                   Model
                 </p>
@@ -1631,59 +1241,30 @@ function CommunityPost({
                 <p className="mt-1 text-xs font-bold text-slate-300">
                   {post.model}
                 </p>
-
               </div>
-
             </div>
 
             {post.inputs?.length > 0 && (
-              <div className="
-                mt-4
-                grid
-                grid-cols-2
-                gap-3
-                border-t
-                border-slate-700/60
-                pt-4
-                sm:grid-cols-3
-              ">
+              <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-700/60 pt-4 sm:grid-cols-3">
+                {post.inputs.map(([label, value]) => (
+                  <div key={label}>
+                    <p className="text-[10px] text-slate-600">{label}</p>
 
-                {post.inputs.map(
-                  ([label, value]) => (
-                    <div key={label}>
-
-                      <p className="text-[10px] text-slate-600">
-                        {label}
-                      </p>
-
-                      <p className="mt-1 truncate text-xs font-bold text-slate-300">
-                        {value}
-                      </p>
-
-                    </div>
-                  )
-                )}
-
+                    <p className="mt-1 truncate text-xs font-bold text-slate-300">
+                      {value}
+                    </p>
+                  </div>
+                ))}
               </div>
             )}
 
             <button
               type="button"
-              className="
-                mt-4
-                inline-flex
-                items-center
-                gap-1
-                text-xs
-                font-bold
-                text-blue-400
-                hover:text-blue-300
-              "
+              className="mt-4 inline-flex items-center gap-1 text-xs font-bold text-blue-400 hover:text-blue-300"
             >
               View Prediction
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
-
           </div>
         )}
 
@@ -1691,18 +1272,7 @@ function CommunityPost({
 
         {post.type === "question" && (
           <div className="mt-5 flex flex-wrap items-center gap-3">
-
-            <div className="
-              inline-flex
-              items-center
-              gap-2
-              rounded-lg
-              border
-              border-slate-700
-              bg-slate-800
-              px-3
-              py-2
-            ">
+            <div className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800 px-3 py-2">
               <MessageCircle className="h-4 w-4 text-cyan-400" />
 
               <span className="text-xs font-semibold text-slate-300">
@@ -1711,17 +1281,7 @@ function CommunityPost({
             </div>
 
             {post.accepted && (
-              <div className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-lg
-                border
-                border-emerald-500/20
-                bg-emerald-500/5
-                px-3
-                py-2
-              ">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />
 
                 <span className="text-xs font-semibold text-emerald-400">
@@ -1732,21 +1292,10 @@ function CommunityPost({
 
             <button
               type="button"
-              className="
-                rounded-lg
-                bg-blue-600
-                px-4
-                py-2
-                text-xs
-                font-bold
-                text-white
-                transition
-                hover:bg-blue-500
-              "
+              className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-blue-500"
             >
               Answer
             </button>
-
           </div>
         )}
 
@@ -1754,92 +1303,50 @@ function CommunityPost({
 
         {post.tags?.length > 0 && (
           <div className="mt-5 flex flex-wrap gap-2">
-
             {post.tags.map((tag) => (
               <button
                 key={tag}
                 type="button"
-                onClick={() =>
-                  setCommentText((previous) => ({
-                    ...previous,
-                  }))
-                }
-                className="
-                  rounded-full
-                  border
-                  border-slate-700
-                  bg-slate-800
-                  px-2.5
-                  py-1
-                  text-[11px]
-                  font-semibold
-                  text-slate-500
-                  transition
-                  hover:border-blue-500/30
-                  hover:text-blue-400
-                "
+                onClick={() => setSearchQuery(tag)}
+                className="rounded-full border border-slate-700 bg-slate-800 px-2.5 py-1 text-[11px] font-semibold text-slate-500 transition hover:border-blue-500/30 hover:text-blue-400"
               >
                 #{tag}
               </button>
             ))}
-
           </div>
         )}
 
         {/* ACTIONS */}
 
-        <div className="
-          mt-5
-          flex
-          items-center
-          gap-1
-          border-t
-          border-slate-700/60
-          pt-4
-        ">
-
+        <div className="mt-5 flex items-center gap-1 border-t border-slate-700/60 pt-4">
           <PostAction
             icon={Heart}
             label={`${post.likes}`}
             active={post.liked}
             activeClass="text-rose-400"
-            onClick={() =>
-              onLike(post.id)
-            }
+            onClick={() => onLike(post.id)}
           />
 
           <PostAction
             icon={MessageCircle}
             label={`${post.comments}`}
-            onClick={() =>
-              onToggleComments(post.id)
-            }
+            onClick={() => onToggleComments(post.id)}
           />
 
           <PostAction
             icon={Share2}
             label={`${post.shares}`}
-            onClick={() =>
-              onShare(post.id)
-            }
+            onClick={() => onShare(post.id)}
           />
 
           <button
             type="button"
-            onClick={() =>
-              onBookmark(post.id)
-            }
-            className={`
-              ml-auto
-              rounded-lg
-              p-2
-              transition
-              ${
-                post.bookmarked
-                  ? "bg-blue-500/10 text-blue-400"
-                  : "text-slate-500 hover:bg-slate-700 hover:text-slate-300"
-              }
-            `}
+            onClick={() => onBookmark(post.id)}
+            className={`ml-auto rounded-lg p-2 transition ${
+              post.bookmarked
+                ? "bg-blue-500/10 text-blue-400"
+                : "text-slate-500 hover:bg-slate-700 hover:text-slate-300"
+            }`}
             title="Bookmark"
           >
             {post.bookmarked ? (
@@ -1851,112 +1358,53 @@ function CommunityPost({
 
           <button
             type="button"
-            className="
-              rounded-lg
-              p-2
-              text-slate-500
-              transition
-              hover:bg-slate-700
-              hover:text-slate-300
-            "
+            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-700 hover:text-slate-300"
             title="Report"
           >
             <Flag className="h-4 w-4" />
           </button>
-
         </div>
       </div>
 
       {/* COMMENTS */}
 
       {expanded && (
-        <div className="
-          border-t
-          border-slate-700/60
-          bg-slate-900/30
-          px-5
-          py-5
-          sm:px-6
-        ">
-
+        <div className="border-t border-slate-700/60 bg-slate-900/30 px-5 py-5 sm:px-6">
           <div className="mb-4 flex items-center justify-between">
+            <h4 className="text-sm font-bold text-slate-300">Comments</h4>
 
-            <h4 className="text-sm font-bold text-slate-300">
-              Comments
-            </h4>
-
-            <span className="text-xs text-slate-600">
-              Join the discussion
-            </span>
-
+            <span className="text-xs text-slate-600">Join the discussion</span>
           </div>
 
-          <div className="
-            rounded-xl
-            border
-            border-slate-700
-            bg-slate-800/70
-            p-3
-          ">
+          {/* COMMENT INPUT */}
 
+          <div className="rounded-xl border border-slate-700 bg-slate-800/70 p-3">
             <div className="flex gap-3">
-
-              <Avatar
-                initials="YU"
-                size="small"
-              />
+              <Avatar initials="YU" size="small" />
 
               <div className="min-w-0 flex-1">
-
                 <textarea
                   rows={2}
                   value={commentText}
                   onChange={(event) =>
-                    setCommentText(
-                      (previous) => ({
-                        ...previous,
-                        [post.id]:
-                          event.target.value,
-                      })
-                    )
+                    setCommentText((previous) => ({
+                      ...previous,
+                      [post.id]: event.target.value,
+                    }))
                   }
                   placeholder="Add a useful comment..."
-                  className="
-                    w-full
-                    resize-none
-                    bg-transparent
-                    text-sm
-                    text-slate-300
-                    outline-none
-                    placeholder:text-slate-600
-                  "
+                  className="w-full resize-none bg-transparent text-sm text-slate-300 outline-none placeholder:text-slate-600"
                 />
 
                 <div className="flex justify-end">
-
                   <button
                     type="button"
-                    onClick={() =>
-                      submitComment(post.id)
-                    }
-                    className="
-                      inline-flex
-                      items-center
-                      gap-1.5
-                      rounded-lg
-                      bg-blue-600
-                      px-3
-                      py-2
-                      text-xs
-                      font-bold
-                      text-white
-                      hover:bg-blue-500
-                    "
+                    onClick={() => submitComment(post.id)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-xs font-bold text-white transition hover:bg-blue-500"
                   >
                     <Send className="h-3.5 w-3.5" />
                     Comment
                   </button>
-
                 </div>
               </div>
             </div>
@@ -1965,37 +1413,23 @@ function CommunityPost({
           {/* SAMPLE COMMENT */}
 
           <div className="mt-4 flex gap-3">
-
-            <Avatar
-              initials="AK"
-              size="small"
-            />
+            <Avatar initials="AK" size="small" />
 
             <div className="min-w-0 flex-1">
-
               <div className="rounded-xl bg-slate-800/70 p-3">
-
                 <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-slate-300">Amit Kumar</p>
 
-                  <p className="text-xs font-bold text-slate-300">
-                    Amit Kumar
-                  </p>
-
-                  <span className="text-[10px] text-slate-600">
-                    18 min ago
-                  </span>
-
+                  <span className="text-[10px] text-slate-600">18 min ago</span>
                 </div>
 
                 <p className="mt-2 text-xs leading-5 text-slate-500">
-                  Great result. I also got similar
-                  performance using Random Forest.
+                  Great result. I also got similar performance using Random
+                  Forest.
                 </p>
-
               </div>
 
               <div className="mt-1 flex gap-3 px-2">
-
                 <button
                   type="button"
                   className="text-[11px] font-semibold text-slate-500 hover:text-slate-300"
@@ -2009,9 +1443,7 @@ function CommunityPost({
                 >
                   Reply
                 </button>
-
               </div>
-
             </div>
           </div>
         </div>
@@ -2024,39 +1456,18 @@ function CommunityPost({
    POST ACTION
 ============================================================ */
 
-function PostAction({
-  icon: Icon,
-  label,
-  active,
-  activeClass = "",
-  onClick,
-}) {
+function PostAction({ icon: Icon, label, active, activeClass = "", onClick }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`
-        inline-flex
-        items-center
-        gap-1.5
-        rounded-lg
-        px-3
-        py-2
-        text-xs
-        font-semibold
-        transition
-        ${
-          active
-            ? `${activeClass} bg-slate-700/50`
-            : "text-slate-500 hover:bg-slate-700/50 hover:text-slate-300"
-        }
-      `}
+      className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
+        active
+          ? `${activeClass} bg-slate-700/50`
+          : "text-slate-500 hover:bg-slate-700/50 hover:text-slate-300"
+      }`}
     >
-      <Icon
-        className={`h-4 w-4 ${
-          active ? "fill-current" : ""
-        }`}
-      />
+      <Icon className={`h-4 w-4 ${active ? "fill-current" : ""}`} />
 
       {label}
     </button>
@@ -2067,29 +1478,12 @@ function PostAction({
    AVATAR
 ============================================================ */
 
-function Avatar({
-  initials,
-  size = "normal",
-}) {
+function Avatar({ initials, size = "normal" }) {
   return (
     <div
-      className={`
-        flex
-        shrink-0
-        items-center
-        justify-center
-        rounded-xl
-        border
-        border-blue-500/20
-        bg-blue-500/10
-        font-bold
-        text-blue-300
-        ${
-          size === "small"
-            ? "h-8 w-8 text-[10px]"
-            : "h-10 w-10 text-xs"
-        }
-      `}
+      className={`flex shrink-0 items-center justify-center rounded-xl border border-blue-500/20 bg-blue-500/10 font-bold text-blue-300 ${
+        size === "small" ? "h-8 w-8 text-[10px]" : "h-10 w-10 text-xs"
+      }`}
     >
       {initials}
     </div>
@@ -2100,41 +1494,15 @@ function Avatar({
    SIDE CARD
 ============================================================ */
 
-function SideCard({
-  icon: Icon,
-  iconClass,
-  title,
-  children,
-}) {
+function SideCard({ icon: Icon, iconClass, title, children }) {
   return (
-    <section className="
-      rounded-2xl
-      border
-      border-slate-700/70
-      bg-slate-800/50
-      p-5
-    ">
-
+    <section className="rounded-2xl border border-slate-700/70 bg-slate-800/50 p-5">
       <div className="mb-5 flex items-center gap-3">
-
-        <div className="
-          flex
-          h-9
-          w-9
-          items-center
-          justify-center
-          rounded-lg
-          bg-slate-700/50
-        ">
-          <Icon
-            className={`h-4 w-4 ${iconClass}`}
-          />
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-700/50">
+          <Icon className={`h-4 w-4 ${iconClass}`} />
         </div>
 
-        <h3 className="text-sm font-bold text-slate-200">
-          {title}
-        </h3>
-
+        <h3 className="text-sm font-bold text-slate-200">{title}</h3>
       </div>
 
       {children}
@@ -2146,27 +1514,12 @@ function SideCard({
    MINI STAT
 ============================================================ */
 
-function MiniStat({
-  label,
-  value,
-}) {
+function MiniStat({ label, value }) {
   return (
-    <div className="
-      rounded-xl
-      border
-      border-slate-700/70
-      bg-slate-900/30
-      p-3
-    ">
+    <div className="rounded-xl border border-slate-700/70 bg-slate-900/30 p-3">
+      <p className="text-sm font-bold text-slate-200">{value}</p>
 
-      <p className="text-sm font-bold text-slate-200">
-        {value}
-      </p>
-
-      <p className="mt-1 text-[10px] text-slate-600">
-        {label}
-      </p>
-
+      <p className="mt-1 text-[10px] text-slate-600">{label}</p>
     </div>
   );
 }
@@ -2175,25 +1528,14 @@ function MiniStat({
    FORM FIELD
 ============================================================ */
 
-function FormField({
-  label,
-  children,
-}) {
+function FormField({ label, children }) {
   return (
     <div>
-
-      <label className="
-        mb-2
-        block
-        text-xs
-        font-bold
-        text-slate-400
-      ">
+      <label className="mb-2 block text-xs font-bold text-slate-400">
         {label}
       </label>
 
       {children}
-
     </div>
   );
 }
@@ -2202,108 +1544,43 @@ function FormField({
    MODAL
 ============================================================ */
 
-function Modal({
-  title,
-  subtitle,
-  icon: Icon,
-  onClose,
-  children,
-}) {
+function Modal({ title, subtitle, icon: Icon, onClose, children }) {
   return (
     <div
-      className="
-        fixed
-        inset-0
-        z-[100]
-        flex
-        items-center
-        justify-center
-        bg-black/70
-        p-4
-        backdrop-blur-sm
-      "
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
-        if (
-          event.target ===
-          event.currentTarget
-        ) {
+        if (event.target === event.currentTarget) {
           onClose();
         }
       }}
     >
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-700 bg-[#111a2b] shadow-2xl">
+        {/* MODAL HEADER */}
 
-      <div className="
-        max-h-[90vh]
-        w-full
-        max-w-2xl
-        overflow-y-auto
-        rounded-2xl
-        border
-        border-slate-700
-        bg-[#111a2b]
-        shadow-2xl
-      ">
-
-        <div className="
-          sticky
-          top-0
-          z-10
-          flex
-          items-start
-          gap-4
-          border-b
-          border-slate-700/70
-          bg-[#111a2b]
-          px-5
-          py-5
-          sm:px-6
-        ">
-
-          <div className="
-            flex
-            h-10
-            w-10
-            shrink-0
-            items-center
-            justify-center
-            rounded-xl
-            bg-blue-500/10
-          ">
+        <div className="sticky top-0 z-10 flex items-start gap-4 border-b border-slate-700/70 bg-[#111a2b] px-5 py-5 sm:px-6">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-500/10">
             <Icon className="h-5 w-5 text-blue-400" />
           </div>
 
           <div className="min-w-0 flex-1">
+            <h2 className="text-lg font-bold text-slate-100">{title}</h2>
 
-            <h2 className="text-lg font-bold text-slate-100">
-              {title}
-            </h2>
-
-            <p className="mt-1 text-xs leading-5 text-slate-500">
-              {subtitle}
-            </p>
-
+            <p className="mt-1 text-xs leading-5 text-slate-500">{subtitle}</p>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="
-              rounded-lg
-              p-2
-              text-slate-500
-              hover:bg-slate-800
-              hover:text-slate-300
-            "
+            className="rounded-lg p-2 text-slate-500 transition hover:bg-slate-800 hover:text-slate-300"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
-
         </div>
 
-        <div className="p-5 sm:p-6">
-          {children}
-        </div>
+        {/* MODAL CONTENT */}
 
+        <div className="p-5 sm:p-6">{children}</div>
       </div>
     </div>
   );
@@ -2313,75 +1590,27 @@ function Modal({
    EMPTY STATE
 ============================================================ */
 
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  buttonText,
-  onClick,
-}) {
+function EmptyState({ icon: Icon, title, description, buttonText, onClick }) {
   return (
-    <div className="
-      rounded-2xl
-      border
-      border-dashed
-      border-slate-700
-      bg-slate-800/30
-      px-6
-      py-14
-      text-center
-    ">
-
-      <div className="
-        mx-auto
-        flex
-        h-14
-        w-14
-        items-center
-        justify-center
-        rounded-2xl
-        bg-slate-800
-      ">
+    <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-800/30 px-6 py-14 text-center">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-800">
         <Icon className="h-6 w-6 text-slate-500" />
       </div>
 
-      <h3 className="mt-5 text-base font-bold text-slate-300">
-        {title}
-      </h3>
+      <h3 className="mt-5 text-base font-bold text-slate-300">{title}</h3>
 
-      <p className="
-        mx-auto
-        mt-2
-        max-w-md
-        text-sm
-        leading-6
-        text-slate-500
-      ">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
         {description}
       </p>
 
       <button
         type="button"
         onClick={onClick}
-        className="
-          mt-5
-          inline-flex
-          items-center
-          gap-2
-          rounded-xl
-          bg-blue-600
-          px-4
-          py-2.5
-          text-sm
-          font-bold
-          text-white
-          hover:bg-blue-500
-        "
+        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-blue-500"
       >
         <Plus className="h-4 w-4" />
         {buttonText}
       </button>
-
     </div>
   );
 }
@@ -2393,7 +1622,6 @@ function EmptyState({
 function CommunitySkeleton() {
   return (
     <div className="animate-pulse">
-
       <div className="h-4 w-28 rounded bg-slate-800" />
 
       <div className="mt-4 h-10 w-72 rounded-lg bg-slate-800" />
@@ -2404,52 +1632,22 @@ function CommunitySkeleton() {
         {[1, 2, 3, 4].map((item) => (
           <div
             key={item}
-            className="
-              h-20
-              min-w-[180px]
-              rounded-xl
-              bg-slate-800
-            "
+            className="h-20 min-w-[180px] rounded-xl bg-slate-800"
           />
         ))}
       </div>
 
-      <div className="
-        mt-7
-        grid
-        gap-6
-        xl:grid-cols-[minmax(0,1fr)_300px]
-      ">
-
+      <div className="mt-7 grid gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="space-y-4">
           {[1, 2, 3].map((item) => (
-            <div
-              key={item}
-              className="
-                h-56
-                rounded-2xl
-                bg-slate-800
-              "
-            />
+            <div key={item} className="h-56 rounded-2xl bg-slate-800" />
           ))}
         </div>
 
         <div className="space-y-5">
-
-          <div className="
-            h-72
-            rounded-2xl
-            bg-slate-800
-          " />
-
-          <div className="
-            h-64
-            rounded-2xl
-            bg-slate-800
-          " />
-
+          <div className="h-72 rounded-2xl bg-slate-800" />
+          <div className="h-64 rounded-2xl bg-slate-800" />
         </div>
-
       </div>
     </div>
   );
