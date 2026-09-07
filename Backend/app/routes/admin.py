@@ -382,6 +382,40 @@ async def get_predictions(user=Depends(get_current_user)):
     }
 
 
+@router.get("/community/posts")
+async def get_community_posts(user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+
+    posts = await db.community_posts.find().sort("created_at", -1).limit(200).to_list(length=200)
+    for post in posts:
+        post["id"] = str(post.pop("_id"))
+        created_at = post.get("created_at")
+        post["created_at"] = created_at.isoformat() if hasattr(created_at, "isoformat") else None
+
+    return {
+        "total": await db.community_posts.count_documents({}),
+        "posts": posts,
+    }
+
+
+@router.delete("/community/posts/{post_id}")
+async def admin_delete_community_post(post_id: str, user=Depends(get_current_user)):
+    if user.get("role", "").lower() != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+    if not ObjectId.is_valid(post_id):
+        raise HTTPException(status_code=404, detail="Community post not found.")
+
+    object_id = ObjectId(post_id)
+    result = await db.community_posts.delete_one({"_id": object_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Community post not found.")
+
+    await db.community_comments.delete_many({"post_id": object_id})
+    await db.community_reactions.delete_many({"post_id": object_id})
+    return {"message": "Community post deleted successfully."}
+
+
 @router.get("/dashboard")
 async def get_dashboard(user=Depends(get_current_user)):
     if user.get("role", "").lower() != "admin":
