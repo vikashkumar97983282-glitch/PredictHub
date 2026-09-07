@@ -3,6 +3,7 @@ import { AlertCircle, ArrowLeft, Brain, CheckCircle, Sparkles } from "lucide-rea
 import { useNavigate, useParams } from "react-router-dom";
 import Commet from "react-loading-indicators/Commet";
 import { API_BASE_URL, getStoredToken } from "../lib/api";
+import Footer from "../components/footer";
 
 const inputClassName = "box-border block w-full rounded-xl border border-slate-800 bg-[#070b14] px-4 py-3.5 text-white outline-none transition placeholder:text-slate-600 focus:border-purple-500/50 focus:ring-4 focus:ring-purple-500/10 disabled:cursor-not-allowed disabled:opacity-60";
 const createInitialFormData = (fields = []) => fields.reduce((data, field) => ({ ...data, [field.name]: field.type === "checkbox" ? false : "" }), {});
@@ -126,7 +127,6 @@ function Form() {
   return <div className="fixed inset-0 z-50 w-full overflow-y-auto overflow-x-hidden bg-[#070b14] text-white">
     <div className="pointer-events-none fixed inset-0 overflow-hidden"><div className="absolute -right-32 -top-32 h-80 w-80 rounded-full bg-blue-600/10 blur-[100px]" /><div className="absolute -bottom-32 -left-32 h-80 w-80 rounded-full bg-purple-600/10 blur-[100px]" /><div className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-size-[40px_40px]" /></div>
     <main className="relative z-10 min-h-screen w-full"><div className="mx-auto flex min-h-screen w-full max-w-4xl flex-col px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-      <div><button type="button" onClick={() => navigate("/prediction")} className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-[#101827] px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:border-slate-700 hover:bg-[#151f31] hover:text-white"><ArrowLeft size={17} />Back to Models</button></div>
       <section className="mt-8 text-center sm:mt-10"><div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-purple-500/20 bg-purple-500/10 text-purple-400 shadow-lg shadow-purple-500/10 sm:h-16 sm:w-16"><Brain size={30} /></div><div className="mx-auto mt-5 inline-flex items-center gap-2 rounded-full border border-purple-500/20 bg-purple-500/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-purple-400"><Sparkles size={13} />Machine Learning</div><h1 className="mt-5 text-3xl font-bold text-white sm:text-4xl lg:text-5xl">{selectedModel?.model_name || "Prediction"}</h1><p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-slate-400 sm:text-base">{selectedModel?.description || "Select a model and enter its required information to generate a prediction."}</p></section>
       <section className="mx-auto mt-8 w-full max-w-2xl rounded-3xl border border-slate-800 bg-[#101827]/95 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl sm:mt-10 sm:p-8"><form onSubmit={handleSubmit}>
         {modelsLoading && <div className="mb-5 text-center text-sm text-slate-400">Loading model form...</div>}
@@ -135,7 +135,12 @@ function Form() {
         <button type="submit" disabled={loading || modelsLoading || !selectedModel} className="flex w-full items-center justify-center gap-2 rounded-xl bg-purple-600 px-6 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:bg-purple-500 hover:shadow-purple-500/30 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60">{loading ? <Commet color="#32cd32" size="small" text="Loading" textColor="" /> : <><Brain size={19} />Predict</>}</button>
       </form>
       {prediction !== null && <div className="mt-8 overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5 sm:p-6"><div className="flex items-center gap-3"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400"><CheckCircle size={21} /></div><div><p className="text-sm text-slate-400">Prediction Result</p><h2 className="text-lg font-bold text-white sm:text-xl">{successMessage}</h2></div></div><div className="mt-5 rounded-xl border border-slate-800 bg-[#070b14] p-5 text-center"><p className="text-xs uppercase tracking-wider text-slate-500">Model Output</p><p className="mt-3 text-4xl font-bold text-emerald-400">{predictionText}</p></div><div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"><div className="rounded-xl border border-slate-800 bg-[#070b14] p-3"><p className="text-xs text-slate-500">Model</p><p className="mt-1 text-sm font-medium text-slate-200">{predictionInfo?.modelName}</p></div><div className="rounded-xl border border-slate-800 bg-[#070b14] p-3"><p className="text-xs text-slate-500">Status</p><p className="mt-1 text-sm font-medium text-emerald-400">{predictionInfo?.status}</p></div>{predictionInfo?.predictionId && <div className="rounded-xl border border-slate-800 bg-[#070b14] p-3 sm:col-span-2"><p className="text-xs text-slate-500">Prediction ID</p><p className="mt-1 break-all text-xs font-medium text-slate-400">{predictionInfo.predictionId}</p></div>}</div></div>}
-      </section><div className="h-20" /></div></main>
+      </section>
+      <div className="mt-8 flex justify-center">
+        <button type="button" onClick={() => navigate("/prediction")} className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-[#101827] px-4 py-2.5 text-sm font-medium text-slate-400 transition hover:border-slate-700 hover:bg-[#151f31] hover:text-white"><ArrowLeft size={17} />Back to Models</button>
+      </div>
+      <div className="h-20" /></div></main>
+    <Footer />
   </div>;
 }
 
