@@ -1,5 +1,264 @@
 {
   "models": {
+    "house-price": {
+      "model_name": "House Price Prediction",
+      "description": "Predict the estimated price of a house based on its property details.",
+      "endpoint": "/prediction/house-price",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "area",
+          "label": "Area",
+          "type": "number",
+          "placeholder": "Enter house area in sq ft",
+          "required": true,
+          "min": 100,
+          "max": 100000,
+          "step": 1
+        },
+        {
+          "name": "bedrooms",
+          "label": "Bedrooms",
+          "type": "number",
+          "placeholder": "Enter number of bedrooms",
+          "required": true,
+          "min": 1,
+          "max": 20,
+          "step": 1
+        },
+        {
+          "name": "bathrooms",
+          "label": "Bathrooms",
+          "type": "number",
+          "placeholder": "Enter number of bathrooms",
+          "required": true,
+          "min": 1,
+          "max": 20,
+          "step": 1
+        },
+        {
+          "name": "stories",
+          "label": "Stories",
+          "type": "number",
+          "placeholder": "Enter number of stories",
+          "required": true,
+          "min": 1,
+          "max": 10,
+          "step": 1
+        },
+        {
+          "name": "parking",
+          "label": "Parking Spaces",
+          "type": "number",
+          "placeholder": "Enter number of parking spaces",
+          "required": true,
+          "min": 0,
+          "max": 10,
+          "step": 1
+        }
+      ]
+    },
+
+    "student-performance": {
+      "model_name": "Student Performance",
+      "description": "Predict a student's academic performance based on their study and academic information.",
+      "endpoint": "/prediction/student-performance",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "study_hours",
+          "label": "Study Hours",
+          "type": "number",
+          "placeholder": "Enter average study hours per day",
+          "required": true,
+          "min": 0,
+          "max": 24,
+          "step": 0.1
+        },
+        {
+          "name": "attendance",
+          "label": "Attendance",
+          "type": "number",
+          "placeholder": "Enter attendance percentage",
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 0.1
+        },
+        {
+          "name": "previous_score",
+          "label": "Previous Score",
+          "type": "number",
+          "placeholder": "Enter previous academic score",
+          "required": true,
+          "min": 0,
+          "max": 100,
+          "step": 0.1
+        }
+      ]
+    },
+
+    "disease": {
+      "model_name": "Disease Prediction",
+      "description": "Predict the possibility of a disease based on the provided health-related information.",
+      "endpoint": "/prediction/disease",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "age",
+          "label": "Age",
+          "type": "number",
+          "placeholder": "Enter your age",
+          "required": true,
+          "min": 1,
+          "max": 120,
+          "step": 1
+        },
+        {
+          "name": "gender",
+          "label": "Gender",
+          "type": "select",
+          "placeholder": "Select gender",
+          "required": true,
+          "options": [
+            {
+              "label": "Male",
+              "value": 1
+            },
+            {
+              "label": "Female",
+              "value": 0
+            }
+          ]
+        },
+        {
+          "name": "blood_pressure",
+          "label": "Blood Pressure",
+          "type": "number",
+          "placeholder": "Enter blood pressure",
+          "required": true,
+          "min": 50,
+          "max": 250,
+          "step": 1
+        },
+        {
+          "name": "cholesterol",
+          "label": "Cholesterol",
+          "type": "number",
+          "placeholder": "Enter cholesterol level",
+          "required": true,
+          "min": 50,
+          "max": 500,
+          "step": 1
+        },
+        {
+          "name": "glucose",
+          "label": "Glucose",
+          "type": "number",
+          "placeholder": "Enter glucose level",
+          "required": true,
+          "min": 40,
+          "max": 500,
+          "step": 1
+        }
+      ]
+    },
+
+    "stock-price": {
+      "model_name": "Stock Price Prediction",
+      "description": "Predict the future stock price based on historical market information.",
+      "endpoint": "/prediction/stock-price",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "open",
+          "label": "Open Price",
+          "type": "number",
+          "placeholder": "Enter opening price",
+          "required": true,
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "name": "high",
+          "label": "High Price",
+          "type": "number",
+          "placeholder": "Enter highest price",
+          "required": true,
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "name": "low",
+          "label": "Low Price",
+          "type": "number",
+          "placeholder": "Enter lowest price",
+          "required": true,
+          "min": 0,
+          "step": 0.01
+        },
+        {
+          "name": "volume",
+          "label": "Volume",
+          "type": "number",
+          "placeholder": "Enter trading volume",
+          "required": true,
+          "min": 0,
+          "step": 1
+        }
+      ]
+    },
+
+    "image-classification": {
+      "model_name": "Image Classification",
+      "description": "Classify an uploaded image using a trained machine learning model.",
+      "endpoint": "/prediction/image-classification",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "image",
+          "label": "Upload Image",
+          "type": "file",
+          "placeholder": "Choose an image",
+          "required": true,
+          "accept": "image/*"
+        }
+      ]
+    },
+
+    "data-analytics": {
+      "model_name": "Data Analytics Prediction",
+      "description": "Analyze provided data and generate a prediction based on the selected features.",
+      "endpoint": "/prediction/data-analytics",
+      "method": "POST",
+      "fields": [
+        {
+          "name": "feature_1",
+          "label": "Feature 1",
+          "type": "number",
+          "placeholder": "Enter feature 1 value",
+          "required": true,
+          "step": 0.01
+        },
+        {
+          "name": "feature_2",
+          "label": "Feature 2",
+          "type": "number",
+          "placeholder": "Enter feature 2 value",
+          "required": true,
+          "step": 0.01
+        },
+        {
+          "name": "feature_3",
+          "label": "Feature 3",
+          "type": "number",
+          "placeholder": "Enter feature 3 value",
+          "required": true,
+          "step": 0.01
+        }
+      ]
+    },
+
     "placement": {
       "model_name": "Placement Prediction",
       "description": "Predict whether a student is likely to be placed.",
