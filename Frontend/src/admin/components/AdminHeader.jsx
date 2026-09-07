@@ -168,7 +168,7 @@ const AdminHeader = ({ setSidebarOpen }) => {
             <button type="button" aria-label="Open admin profile" onClick={() => setActivePanel(activePanel === "profile" ? null : "profile")} className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-slate-800">
 
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-400 text-sm font-semibold text-slate-950">
-              A
+              V
             </div>
 
             <div className="hidden text-left sm:block">

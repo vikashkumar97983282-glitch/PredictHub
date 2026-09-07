@@ -230,7 +230,7 @@ const AdminSidebar = ({
 
           {/* Avatar */}
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 text-sm font-semibold text-cyan-300">
-            A
+            V
           </div>
 
 
