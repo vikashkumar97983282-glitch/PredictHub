@@ -30,6 +30,8 @@ import Sidebar from "../components/sidebar";
 import Navbar from "../components/header";
 import Footer from "../components/footer";
 import { useSidebar } from "../contexts/use-sidebar";
+import { useNavigate } from "react-router-dom";
+import { getStoredToken, requestJson } from "../lib/api";
 
 /* ============================================================
    MOCK DATA
@@ -237,11 +239,21 @@ function getPostTypeIcon(type) {
   return MessageCircle;
 }
 
+function formatPost(post) {
+  const createdAt = post.created_at ? new Date(post.created_at) : null;
+  const minutes = createdAt
+    ? Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 60000))
+    : 0;
+  const time = minutes < 1 ? "Just now" : minutes < 60 ? `${minutes} min ago` : minutes < 1440 ? `${Math.floor(minutes / 60)} hour${Math.floor(minutes / 60) === 1 ? "" : "s"} ago` : `${Math.floor(minutes / 1440)} day${Math.floor(minutes / 1440) === 1 ? "" : "s"} ago`;
+  return { ...post, time };
+}
+
 /* ============================================================
    MAIN COMPONENT
 ============================================================ */
 
 function Community({ initialPrediction = null }) {
+  const navigate = useNavigate();
   const {
     isSidebarOpen,
     isMobileMenuOpen,
@@ -250,13 +262,19 @@ function Community({ initialPrediction = null }) {
     closeMobileMenu,
   } = useSidebar();
 
-  const [posts, setPosts] = useState(initialPosts);
+  const [posts, setPosts] = useState([]);
+  const [insights, setInsights] = useState({
+    trending_topics: [],
+    popular_models: [],
+    contributors: [],
+  });
 
   const [activeCategory, setActiveCategory] = useState("All");
 
   const [searchQuery, setSearchQuery] = useState("");
 
   const [loading, setLoading] = useState(true);
+  const [feedError, setFeedError] = useState("");
 
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -282,16 +300,54 @@ function Community({ initialPrediction = null }) {
     tags: "",
   });
 
+  const requireAuthentication = () => {
+    if (getStoredToken()) return true;
+    navigate("/login", { state: { from: "/community" } });
+    return false;
+  };
+
+  const openShareForm = () => {
+    if (requireAuthentication()) setShowShareModal(true);
+  };
+
+  const openQuestionForm = () => {
+    if (requireAuthentication()) setShowQuestionModal(true);
+  };
+
   /* ============================================================
      LOADING
   ============================================================ */
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 700);
+    let active = true;
 
-    return () => clearTimeout(timer);
+    const loadCommunity = async () => {
+      try {
+        const postsResponse = await requestJson("/community/posts");
+        if (active) {
+          setPosts((postsResponse.data || []).map(formatPost));
+          setFeedError("");
+        }
+      } catch (error) {
+        console.error("Unable to load community data:", error);
+        if (active) {
+          setFeedError("Unable to load community posts. Please refresh and try again.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+
+      try {
+        const insightsResponse = await requestJson("/community/insights");
+        if (active) setInsights(insightsResponse || {});
+      } catch (error) {
+        // Sidebar analytics are optional and must not hide the community feed.
+        console.error("Unable to load community insights:", error);
+      }
+    };
+
+    loadCommunity();
+    return () => { active = false; };
   }, []);
 
   /* ============================================================
@@ -300,6 +356,11 @@ function Community({ initialPrediction = null }) {
 
   useEffect(() => {
     if (!initialPrediction) return;
+
+    if (!getStoredToken()) {
+      navigate("/login", { state: { from: "/community" } });
+      return;
+    }
 
     setShareForm((previous) => ({
       ...previous,
@@ -319,7 +380,7 @@ function Community({ initialPrediction = null }) {
     }));
 
     setShowShareModal(true);
-  }, [initialPrediction]);
+  }, [initialPrediction, navigate]);
 
   /* ============================================================
      FILTER POSTS
@@ -361,35 +422,26 @@ function Community({ initialPrediction = null }) {
      LIKE
   ============================================================ */
 
-  const handleLike = (postId) => {
-    setPosts((previous) =>
-      previous.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              liked: !post.liked,
-              likes: post.likes + (post.liked ? -1 : 1),
-            }
-          : post
-      )
-    );
+  const handleLike = async (postId) => {
+    try {
+      const result = await requestJson(`/community/posts/${postId}/like`, { method: "POST" });
+      setPosts((previous) => previous.map((post) => post.id === postId ? { ...post, liked: result.liked, likes: result.likes } : post));
+    } catch (error) {
+      console.error("Unable to update like:", error);
+    }
   };
 
   /* ============================================================
      BOOKMARK
   ============================================================ */
 
-  const handleBookmark = (postId) => {
-    setPosts((previous) =>
-      previous.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              bookmarked: !post.bookmarked,
-            }
-          : post
-      )
-    );
+  const handleBookmark = async (postId) => {
+    try {
+      const result = await requestJson(`/community/posts/${postId}/bookmark`, { method: "POST" });
+      setPosts((previous) => previous.map((post) => post.id === postId ? { ...post, bookmarked: result.bookmarked } : post));
+    } catch (error) {
+      console.error("Unable to update bookmark:", error);
+    }
   };
 
   /* ============================================================
@@ -402,18 +454,9 @@ function Community({ initialPrediction = null }) {
     if (!post) return;
 
     try {
-      await navigator.clipboard.writeText(window.location.href);
-
-      setPosts((previous) =>
-        previous.map((item) =>
-          item.id === postId
-            ? {
-                ...item,
-                shares: item.shares + 1,
-              }
-            : item
-        )
-      );
+      const result = await requestJson(`/community/posts/${postId}/share`, { method: "POST" });
+      setPosts((previous) => previous.map((item) => item.id === postId ? { ...item, shares: result.shares } : item));
+      await navigator.clipboard?.writeText(window.location.href);
 
       alert("Community post link copied.");
     } catch (error) {
@@ -432,76 +475,40 @@ function Community({ initialPrediction = null }) {
     }));
   };
 
-  const submitComment = (postId) => {
+  const submitComment = async (postId) => {
     const text = commentText[postId]?.trim();
 
     if (!text) return;
 
-    setPosts((previous) =>
-      previous.map((post) =>
-        post.id === postId
-          ? {
-              ...post,
-              comments: post.comments + 1,
-            }
-          : post
-      )
-    );
-
-    setCommentText((previous) => ({
-      ...previous,
-      [postId]: "",
-    }));
+    try {
+      await requestJson(`/community/posts/${postId}/comments`, { method: "POST", body: JSON.stringify({ content: text }) });
+      setPosts((previous) => previous.map((post) => post.id === postId ? { ...post, comments: post.comments + 1 } : post));
+      setCommentText((previous) => ({ ...previous, [postId]: "" }));
+    } catch (error) {
+      console.error("Unable to add comment:", error);
+    }
   };
 
   /* ============================================================
      SHARE PREDICTION
   ============================================================ */
 
-  const handleSharePrediction = (event) => {
+  const handleSharePrediction = async (event) => {
     event.preventDefault();
+
+    if (!requireAuthentication()) return;
 
     if (!shareForm.title.trim() || !shareForm.result.trim()) {
       return;
     }
 
-    const newPost = {
-      id: Date.now(),
-
-      type: "prediction",
-
-      user: "You",
-      initials: "YU",
-      time: "Just now",
-
-      title: shareForm.title,
-
-      description:
-        shareForm.description ||
-        "Shared a prediction with the PredictHub community.",
-
-      model: shareForm.model,
-
-      predictionType: shareForm.predictionType,
-
-      result: shareForm.result,
-
-      inputs: [],
-
-      tags: shareForm.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-
-      likes: 0,
-      comments: 0,
-      shares: 0,
-
-      liked: false,
-      bookmarked: false,
-    };
-
-    setPosts((previous) => [newPost, ...previous]);
+    try {
+      const response = await requestJson("/community/posts", { method: "POST", body: JSON.stringify({ type: "prediction", title: shareForm.title, description: shareForm.description || "Shared a prediction with the PredictHub community.", model: shareForm.model, prediction_type: shareForm.predictionType, result: shareForm.result, inputs: [], tags: shareForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }) });
+      setPosts((previous) => [formatPost(response.data), ...previous]);
+    } catch (error) {
+      console.error("Unable to share prediction:", error);
+      return;
+    }
 
     setShareForm({
       predictionType: "Placement Prediction",
@@ -519,45 +526,22 @@ function Community({ initialPrediction = null }) {
      ASK QUESTION
   ============================================================ */
 
-  const handleAskQuestion = (event) => {
+  const handleAskQuestion = async (event) => {
     event.preventDefault();
+
+    if (!requireAuthentication()) return;
 
     if (!questionForm.title.trim() || !questionForm.details.trim()) {
       return;
     }
 
-    const newPost = {
-      id: Date.now(),
-
-      type: "question",
-
-      user: "You",
-      initials: "YU",
-      time: "Just now",
-
-      title: questionForm.title,
-
-      description: questionForm.details,
-
-      category: questionForm.category,
-
-      answers: 0,
-      accepted: false,
-
-      tags: questionForm.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-
-      likes: 0,
-      comments: 0,
-      shares: 0,
-
-      liked: false,
-      bookmarked: false,
-    };
-
-    setPosts((previous) => [newPost, ...previous]);
+    try {
+      const response = await requestJson("/community/posts", { method: "POST", body: JSON.stringify({ type: "question", title: questionForm.title, description: questionForm.details, category: questionForm.category, tags: questionForm.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }) });
+      setPosts((previous) => [formatPost(response.data), ...previous]);
+    } catch (error) {
+      console.error("Unable to post question:", error);
+      return;
+    }
 
     setQuestionForm({
       title: "",
@@ -664,7 +648,7 @@ function Community({ initialPrediction = null }) {
 
                     <button
                       type="button"
-                      onClick={() => setShowShareModal(true)}
+                      onClick={openShareForm}
                       className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 text-sm font-bold text-white transition hover:bg-blue-500"
                     >
                       <Plus className="h-4 w-4" />
@@ -675,7 +659,7 @@ function Community({ initialPrediction = null }) {
 
                     <button
                       type="button"
-                      onClick={() => setShowQuestionModal(true)}
+                      onClick={openQuestionForm}
                       className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/70 px-4 text-sm font-bold text-slate-300 transition hover:bg-slate-700"
                     >
                       <HelpCircle className="h-4 w-4 text-cyan-400" />
@@ -722,7 +706,7 @@ function Community({ initialPrediction = null }) {
                 </div>
 
                 <div className="flex gap-3 overflow-x-auto pb-2">
-                  {trendingTopics.map((topic) => (
+                  {(insights.trending_topics || []).map((topic) => (
                     <button
                       key={topic.name}
                       type="button"
@@ -788,10 +772,10 @@ function Community({ initialPrediction = null }) {
                   ) : (
                     <EmptyState
                       icon={MessageCircle}
-                      title="No posts found"
-                      description="Try another search or be the first person to contribute."
+                      title={feedError ? "Community feed unavailable" : "No posts found"}
+                      description={feedError || "Try another search or be the first person to contribute."}
                       buttonText="Share Prediction"
-                      onClick={() => setShowShareModal(true)}
+                      onClick={openShareForm}
                     />
                   )}
                 </section>
@@ -809,8 +793,8 @@ function Community({ initialPrediction = null }) {
                     title="Popular Models"
                   >
                     <div className="space-y-2">
-                      {popularModels.map((model) => {
-                        const Icon = model.icon;
+                      {(insights.popular_models || []).map((model) => {
+                        const Icon = Brain;
 
                         return (
                           <button
@@ -848,7 +832,7 @@ function Community({ initialPrediction = null }) {
                     title="Top Contributors"
                   >
                     <div className="space-y-4">
-                      {contributors.map((contributor) => (
+                      {(insights.contributors || []).map((contributor) => (
                         <div
                           key={contributor.rank}
                           className="flex items-center gap-3"
