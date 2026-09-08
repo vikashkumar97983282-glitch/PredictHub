@@ -306,50 +306,7 @@ function Sidebar({
         {/* ================= SETTINGS ================= */}
 
         <div className="mt-auto px-3 pb-4">
-          {/* Contact */}
-
-          <Link
-            to="/contact"
-            onClick={() => {
-              if (window.innerWidth < 1024) {
-                onCloseMobileMenu();
-              }
-            }}
-            title={!isExpanded ? "Contact" : ""}
-            className={`
-              mb-1
-              flex
-              h-10
-              w-full
-              items-center
-              rounded-md
-              text-sm
-              transition
-
-              ${
-                !isExpanded
-                  ? "justify-center px-0"
-                  : "gap-3 px-3"
-              }
-
-              ${
-                location.pathname === "/contact"
-                  ? "bg-[#1b2637] text-white"
-                  : "text-[#aebbd0] hover:bg-[#172235] hover:text-white"
-              }
-            `}
-          >
-            <Mail
-              size={18}
-              strokeWidth={1.8}
-              className="shrink-0"
-            />
-
-            {isExpanded && (
-              <span>Contact</span>
-            )}
-          </Link>
-
+          
           {/* Settings */}
 
           <Link
