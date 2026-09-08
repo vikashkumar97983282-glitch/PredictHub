@@ -133,7 +133,7 @@ function About() {
                 {/* RIGHT - CARD */}
                 <div className="relative">
 
-                  <div className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-blue-600/20 to-purple-600/20 blur-2xl" />
+                  <div className="absolute -inset-4 rounded-3xl bg-linear-to-r from-blue-600/20 to-purple-600/20 blur-2xl" />
 
                   <div className="relative rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-2xl sm:p-9">
 

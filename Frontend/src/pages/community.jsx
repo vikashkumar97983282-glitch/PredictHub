@@ -711,7 +711,7 @@ function Community({ initialPrediction = null }) {
                       key={topic.name}
                       type="button"
                       onClick={() => setSearchQuery(topic.name)}
-                      className="min-w-[190px] rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-left transition hover:border-blue-500/40 hover:bg-slate-800"
+                      className="min-w-47.5 rounded-xl border border-slate-700 bg-slate-800/60 p-4 text-left transition hover:border-blue-500/40 hover:bg-slate-800"
                     >
                       <p className="truncate text-sm font-bold text-blue-300">
                         #{topic.name}
@@ -1531,7 +1531,7 @@ function FormField({ label, children }) {
 function Modal({ title, subtitle, icon: Icon, onClose, children }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) {
           onClose();
@@ -1616,7 +1616,7 @@ function CommunitySkeleton() {
         {[1, 2, 3, 4].map((item) => (
           <div
             key={item}
-            className="h-20 min-w-[180px] rounded-xl bg-slate-800"
+            className="h-20 min-w-45 rounded-xl bg-slate-800"
           />
         ))}
       </div>

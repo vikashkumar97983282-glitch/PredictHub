@@ -249,6 +249,7 @@ function Trending() {
   const categories =
     trendingData?.categories || [];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const activityChart =
     trendingData?.activity_chart || [];
 
@@ -462,9 +463,9 @@ function Trending() {
 
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
 
-        <div className="absolute left-[20%] top-[-200px] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[150px]" />
+        <div className="absolute left-[20%] -top-50 h-125 w-125 rounded-full bg-blue-600/10 blur-[150px]" />
 
-        <div className="absolute right-[-150px] top-[200px] h-[600px] w-[600px] rounded-full bg-purple-600/10 blur-[180px]" />
+        <div className="absolute -right-37.5 top-50 h-150 w-150 rounded-full bg-purple-600/10 blur-[180px]" />
 
       </div>
 
@@ -526,7 +527,7 @@ function Trending() {
 
                       Trending{" "}
 
-                      <span className="bg-gradient-to-r from-orange-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                      <span className="bg-linear-to-r from-orange-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
 
                         Predictions
 
@@ -1405,7 +1406,7 @@ function Trending() {
                                   className="
                                     w-full
                                     rounded-t-md
-                                    bg-gradient-to-t
+                                    bg-linear-to-t
                                     from-orange-600
                                     via-orange-500
                                     to-yellow-400
@@ -1465,9 +1466,9 @@ function Trending() {
                   COMMUNITY INSIGHT
               ================================================== */}
 
-              <div className="relative mt-6 overflow-hidden rounded-2xl border border-orange-500/20 bg-gradient-to-r from-orange-500/10 via-pink-500/5 to-purple-500/10 p-6 backdrop-blur-xl">
+              <div className="relative mt-6 overflow-hidden rounded-2xl border border-orange-500/20 bg-linear-to-r from-orange-500/10 via-pink-500/5 to-purple-500/10 p-6 backdrop-blur-xl">
 
-                <div className="absolute right-[-50px] top-[-50px] h-40 w-40 rounded-full bg-orange-500/10 blur-3xl" />
+                <div className="absolute -right-12.5 -top-12.5 h-40 w-40 rounded-full bg-orange-500/10 blur-3xl" />
 
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start">
 

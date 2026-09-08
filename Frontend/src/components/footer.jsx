@@ -29,7 +29,7 @@ function Footer() {
         {/* =========================
             TOP CTA
         ========================== */}
-        <div className="mb-7 overflow-hidden rounded-xl border border-blue-500/20 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10">
+        <div className="mb-7 overflow-hidden rounded-xl border border-blue-500/20 bg-linear-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10">
           <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="flex items-center gap-2">
@@ -273,7 +273,7 @@ function Footer() {
         </div>
 
         {/* Divider */}
-        <div className="my-7 h-px bg-gradient-to-r from-transparent via-slate-700 to-transparent" />
+        <div className="my-7 h-px bg-linear-to-r from-transparent via-slate-700 to-transparent" />
 
         {/* =========================
             BOTTOM FOOTER

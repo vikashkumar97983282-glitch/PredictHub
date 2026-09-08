@@ -193,7 +193,7 @@ function AnalyticsLoader() {
     <div
       className="
         flex
-        min-h-[420px]
+        min-h-105
         w-full
         items-center
         justify-center
@@ -522,12 +522,14 @@ function Analytics() {
      DATA
   ============================================================ */
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const modelPerformance =
     analytics?.model_performance || [];
 
   const recentActivity =
     analytics?.recent_activity || [];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const chartData =
     analytics?.chart_data || [];
 
@@ -1545,7 +1547,7 @@ function Analytics() {
                       />
                     ) : (
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[800px]">
+                        <table className="w-full min-w-200">
                           <thead>
                             <tr
                               className="
