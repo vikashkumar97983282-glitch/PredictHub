@@ -1,3 +1,4 @@
+
 import {
   Home,
   Info,
@@ -7,6 +8,7 @@ import {
   PieChart,
   Settings,
   Menu,
+  Mail,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import predictHubImage from "../assets/predicthub-img.png";
@@ -21,18 +23,56 @@ function Sidebar({
   const isExpanded = isSidebarOpen || isMobileMenuOpen;
 
   const navItems = [
-    { name: "Dashboard", icon: Home, path: "/" },
-    { name: "About", icon: Info, path: "/about" },
-    { name: "Prediction", icon: TrendingUpDown, path: "/prediction" },
-    { name: "Analytics", icon: SquareText, path: "/analytics" },
-    { name: "Trending", icon: FileText, path: "/trending" },
-    { name: "Community", icon: PieChart, path: "/community" },
+    {
+      name: "Dashboard",
+      icon: Home,
+      path: "/",
+    },
+    {
+      name: "About",
+      icon: Info,
+      path: "/about",
+    },
+    {
+      name: "Prediction",
+      icon: TrendingUpDown,
+      path: "/prediction",
+    },
+    {
+      name: "Analytics",
+      icon: SquareText,
+      path: "/analytics",
+    },
+    {
+      name: "Trending",
+      icon: FileText,
+      path: "/trending",
+    },
+    {
+      name: "Community",
+      icon: PieChart,
+      path: "/community",
+    },
+    {
+      name: "Contact",
+      icon: Mail,
+      path: "/contact",
+    },
   ];
 
   const teams = [
-    { name: "Placement Prediction", letter: "P" },
-    { name: "Home Price", letter: "H" },
-    { name: "Study Hours", letter: "S" },
+    {
+      name: "Placement Prediction",
+      letter: "P",
+    },
+    {
+      name: "Home Price",
+      letter: "H",
+    },
+    {
+      name: "Study Hours",
+      letter: "S",
+    },
   ];
 
   return (
@@ -50,13 +90,20 @@ function Sidebar({
 
       <aside
         className={`
-          fixed left-0 top-0 z-50
-          flex h-screen
+          fixed
+          left-0
+          top-0
+          z-50
+          flex
+          h-screen
           flex-col
-          border-r border-[#263244]
+          border-r
+          border-[#263244]
           bg-[#0d1626]
           shadow-2xl
-          transition-all duration-300 ease-in-out
+          transition-all
+          duration-300
+          ease-in-out
 
           lg:sticky
           lg:top-0
@@ -69,7 +116,6 @@ function Sidebar({
           ${isSidebarOpen ? "lg:w-57.5" : "lg:w-16"}
         `}
       >
-
         {/* ================= HEADER ================= */}
 
         <div
@@ -86,7 +132,6 @@ function Sidebar({
             }
           `}
         >
-
           {/* Logo */}
 
           {isExpanded && (
@@ -99,13 +144,14 @@ function Sidebar({
                   className="w-14 max-w-none object-contain"
                 />
               </span>
+
               <span className="text-xl font-bold leading-none tracking-tight text-indigo-400">
                 PredictHub
               </span>
             </div>
           )}
 
-          {/* Menu */}
+          {/* Menu Button */}
 
           <button
             type="button"
@@ -118,10 +164,10 @@ function Sidebar({
               onToggleSidebar();
             }}
             className="
+              ml-2
               flex
               h-8
               w-8
-              ml-2
               shrink-0
               items-center
               justify-center
@@ -132,30 +178,30 @@ function Sidebar({
               hover:text-white
             "
             aria-label={
-              !isSidebarOpen
-                ? "Show sidebar"
-                : "Hide sidebar"
+              !isSidebarOpen ? "Show sidebar" : "Hide sidebar"
             }
             title={
-              !isExpanded
-                ? "Show sidebar"
-                : "Hide sidebar"
+              !isExpanded ? "Show sidebar" : "Hide sidebar"
             }
           >
-            <Menu size={20} strokeWidth={3} />
+            <Menu
+              size={20}
+              strokeWidth={3}
+            />
           </button>
-
         </div>
 
         {/* ================= NAVIGATION ================= */}
 
         <nav className="px-3 pt-4">
-
           {navItems.map((item) => {
             const Icon = item.icon;
 
-            // Check current page
-            const isActive = location.pathname === item.path;
+            const isActive =
+              item.path === "/"
+                ? location.pathname === "/"
+                : location.pathname === item.path ||
+                  location.pathname.startsWith(`${item.path}/`);
 
             return (
               <Link
@@ -191,7 +237,6 @@ function Sidebar({
                   }
                 `}
               >
-
                 <Icon
                   size={18}
                   strokeWidth={1.8}
@@ -199,28 +244,22 @@ function Sidebar({
                 />
 
                 {isExpanded && (
-                  <span>
-                    {item.name}
-                  </span>
+                  <span>{item.name}</span>
                 )}
-
               </Link>
             );
           })}
-
         </nav>
 
         {/* ================= MY ACTIVITY ================= */}
 
         {isExpanded && (
           <div className="mt-7 px-5">
-
             <p className="mb-3 text-[11px] font-medium uppercase tracking-wide text-[#8b9ab1]">
               My Activity
             </p>
 
             <div className="space-y-3">
-
               {teams.map((team) => (
                 <button
                   key={team.name}
@@ -237,7 +276,6 @@ function Sidebar({
                     hover:text-white
                   "
                 >
-
                   <span
                     className="
                       flex
@@ -259,21 +297,62 @@ function Sidebar({
                   <span className="truncate">
                     {team.name}
                   </span>
-
                 </button>
               ))}
-
             </div>
-
           </div>
         )}
 
         {/* ================= SETTINGS ================= */}
 
         <div className="mt-auto px-3 pb-4">
+          {/* Contact */}
 
           <Link
-            type="button"
+            to="/contact"
+            onClick={() => {
+              if (window.innerWidth < 1024) {
+                onCloseMobileMenu();
+              }
+            }}
+            title={!isExpanded ? "Contact" : ""}
+            className={`
+              mb-1
+              flex
+              h-10
+              w-full
+              items-center
+              rounded-md
+              text-sm
+              transition
+
+              ${
+                !isExpanded
+                  ? "justify-center px-0"
+                  : "gap-3 px-3"
+              }
+
+              ${
+                location.pathname === "/contact"
+                  ? "bg-[#1b2637] text-white"
+                  : "text-[#aebbd0] hover:bg-[#172235] hover:text-white"
+              }
+            `}
+          >
+            <Mail
+              size={18}
+              strokeWidth={1.8}
+              className="shrink-0"
+            />
+
+            {isExpanded && (
+              <span>Contact</span>
+            )}
+          </Link>
+
+          {/* Settings */}
+
+          <Link
             to="/profile"
             onClick={() => {
               if (window.innerWidth < 1024) {
@@ -288,19 +367,21 @@ function Sidebar({
               items-center
               rounded-md
               text-sm
-              text-[#aebbd0]
               transition
-              hover:bg-[#172235]
-              hover:text-white
 
               ${
                 !isExpanded
                   ? "justify-center px-0"
                   : "gap-3 px-3"
               }
+
+              ${
+                location.pathname === "/profile"
+                  ? "bg-[#1b2637] text-white"
+                  : "text-[#aebbd0] hover:bg-[#172235] hover:text-white"
+              }
             `}
           >
-
             <Settings
               size={18}
               strokeWidth={1.8}
@@ -308,18 +389,14 @@ function Sidebar({
             />
 
             {isExpanded && (
-              <span>
-                Settings
-              </span>
+              <span>Settings</span>
             )}
-
           </Link>
-
         </div>
-
       </aside>
     </>
   );
 }
 
 export default Sidebar;
+
