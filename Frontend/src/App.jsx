@@ -16,6 +16,7 @@ import Community from "./pages/community";
 import Profile from "./pages/profile";
 import Login from "./pages/login";
 import CreateUser from "./pages/CreateUser";
+import Contact from "./pages/contact";
 
 // =========================
 // CONTEXT
@@ -151,6 +152,12 @@ function App() {
         <Route
           path="/profile"
           element={<Profile />}
+        />
+
+        {/* Contact */}
+        <Route
+          path="/contact"
+          element={<Contact />}
         />
 
         {/* =====================================================
