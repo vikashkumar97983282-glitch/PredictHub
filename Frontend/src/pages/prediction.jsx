@@ -800,7 +800,7 @@ function Prediction() {
                           activeStatus ===
                           "All"
                             ? "border-blue-500/30 bg-blue-500/10"
-                            : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
+                            : "border-transparent hover:border-slate-800 hover:bg-blue-900/50"
                         }
                       `}
                     >
@@ -847,7 +847,7 @@ function Prediction() {
                           activeStatus ===
                           "Active"
                             ? "border-emerald-500/30 bg-emerald-500/10"
-                            : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
+                            : "border-transparent hover:border-slate-800 hover:bg-green-900/50"
                         }
                       `}
                     >
@@ -894,7 +894,7 @@ function Prediction() {
                           activeStatus ===
                           "Maintenance"
                             ? "border-amber-500/30 bg-amber-500/10"
-                            : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
+                            : "border-transparent hover:border-slate-800 hover:bg-amber-900/50"
                         }
                       `}
                     >
@@ -941,7 +941,7 @@ function Prediction() {
                           activeStatus ===
                           "Coming Soon"
                             ? "border-purple-500/30 bg-purple-500/10"
-                            : "border-transparent hover:border-slate-800 hover:bg-slate-900/50"
+                            : "border-transparent hover:border-slate-800 hover:bg-purple-900/50"
                         }
                       `}
                     >
