@@ -96,7 +96,7 @@ async def verify_otp(data: VerifyOTPRequest):
 
     expires_at = record["expires_at"]
 
-    if expires_at.tzinfo is None:
+    if expires_at.tzinfo is None:git 
         expires_at = expires_at.replace(tzinfo=timezone.utc)
 
     if now > expires_at:
