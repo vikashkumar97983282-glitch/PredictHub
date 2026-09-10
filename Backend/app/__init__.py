@@ -83,6 +83,7 @@ def create_app() -> FastAPI:
     from app.routes.logout import router as logout_router
     from app.routes.prediction import router as prediction_router
     from app.routes.community import router as community_router
+    from app.routes.contact import router as contact_router
 
     # ========================================================
     # LOGIN
@@ -134,6 +135,12 @@ def create_app() -> FastAPI:
         community_router,
         prefix="/community",
         tags=["Community"],
+    )
+
+    app.include_router(
+        contact_router,
+        prefix="/contact",
+        tags=["Contact"]
     )
 
     # ========================================================
