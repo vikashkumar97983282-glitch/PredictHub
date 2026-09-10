@@ -1,17 +1,23 @@
 from datetime import datetime, timedelta, timezone
+
 import random
 
 from fastapi import APIRouter, HTTPException
 
 from app.schemas.security_schema import UserRegisterSchema
-from app.schemas.otp_schema import SendOTPRequest, VerifyOTPRequest
+
+from app.schemas.otp_schema import (
+    SendOTPRequest,
+    VerifyOTPRequest,
+)
 
 from app.database.db_connection import db
 
 from app.services.hash_password import hash_password
-from app.services.jwt_services import create_access_token
-from app.services.email_services import send_otp_email
 
+from app.services.jwt_services import create_access_token
+
+from app.services.email_services import send_otp_email
 
 
 router = APIRouter()
@@ -46,21 +52,27 @@ async def about():
 # ============================================================
 
 @router.post("/send-otp")
-async def send_otp(data: SendOTPRequest):
+async def send_otp(
+    data: SendOTPRequest
+):
 
     # --------------------------------------------------------
     # NORMALIZE EMAIL
     # --------------------------------------------------------
 
-    email = str(data.email).strip().lower()
+    email = str(
+        data.email
+    ).strip().lower()
+
 
     # --------------------------------------------------------
-    # CHECK IF USER ALREADY EXISTS
+    # CHECK EXISTING USER
     # --------------------------------------------------------
 
     existing_user = await db.users.find_one({
         "email": email
     })
+
 
     if existing_user:
 
@@ -69,11 +81,18 @@ async def send_otp(data: SendOTPRequest):
             detail="This email is already registered."
         )
 
+
     # --------------------------------------------------------
     # GENERATE OTP
     # --------------------------------------------------------
 
-    otp = str(random.randint(100000, 999999))
+    otp = str(
+        random.randint(
+            100000,
+            999999
+        )
+    )
+
 
     # --------------------------------------------------------
     # OTP EXPIRATION
@@ -84,28 +103,38 @@ async def send_otp(data: SendOTPRequest):
         + timedelta(minutes=5)
     )
 
+
     # --------------------------------------------------------
-    # DELETE OLD OTP
+    # DELETE PREVIOUS OTP
     # --------------------------------------------------------
 
     await db.email_otps.delete_many({
         "email": email
     })
 
+
     # --------------------------------------------------------
-    # SAVE OTP
+    # STORE OTP
     # --------------------------------------------------------
 
     await db.email_otps.insert_one({
+
         "email": email,
+
         "otp": otp,
+
         "expires_at": expires_at,
+
         "verified": False,
-        "created_at": datetime.now(timezone.utc),
+
+        "created_at":
+            datetime.now(timezone.utc),
+
     })
 
+
     # --------------------------------------------------------
-    # SEND OTP EMAIL
+    # SEND EMAIL
     # --------------------------------------------------------
 
     try:
@@ -115,27 +144,38 @@ async def send_otp(data: SendOTPRequest):
             otp
         )
 
-    except Exception as e:
+    except Exception as error:
 
-        # Remove OTP if email sending fails
+        print(
+            "OTP email error:",
+            repr(error)
+        )
+
+
+        # Delete OTP if sending failed
+
         await db.email_otps.delete_many({
             "email": email
         })
 
-        print("Email sending error:", e)
 
         raise HTTPException(
             status_code=500,
             detail="Unable to send verification email."
         )
 
+
     # --------------------------------------------------------
     # RESPONSE
     # --------------------------------------------------------
 
     return {
+
         "success": True,
-        "message": "OTP sent successfully."
+
+        "message":
+            "OTP sent successfully.",
+
     }
 
 
@@ -144,18 +184,26 @@ async def send_otp(data: SendOTPRequest):
 # ============================================================
 
 @router.post("/verify-otp")
-async def verify_otp(data: VerifyOTPRequest):
+async def verify_otp(
+    data: VerifyOTPRequest
+):
 
     # --------------------------------------------------------
-    # NORMALIZE EMAIL
+    # NORMALIZE
     # --------------------------------------------------------
 
-    email = str(data.email).strip().lower()
+    email = str(
+        data.email
+    ).strip().lower()
 
-    otp = str(data.otp).strip()
+
+    otp = str(
+        data.otp
+    ).strip()
+
 
     # --------------------------------------------------------
-    # CHECK OTP FORMAT
+    # OTP FORMAT
     # --------------------------------------------------------
 
     if not otp.isdigit() or len(otp) != 6:
@@ -165,14 +213,19 @@ async def verify_otp(data: VerifyOTPRequest):
             detail="OTP must be a 6-digit number."
         )
 
+
     # --------------------------------------------------------
     # FIND OTP
     # --------------------------------------------------------
 
     record = await db.email_otps.find_one({
+
         "email": email,
+
         "otp": otp,
+
     })
+
 
     if not record:
 
@@ -181,44 +234,48 @@ async def verify_otp(data: VerifyOTPRequest):
             detail="Invalid OTP."
         )
 
-    # --------------------------------------------------------
-    # CHECK IF ALREADY VERIFIED
-    # --------------------------------------------------------
-
-    if record.get("verified") is True:
-
-        return {
-            "success": True,
-            "verified": True,
-            "message": "Email is already verified."
-        }
 
     # --------------------------------------------------------
     # CHECK EXPIRATION
     # --------------------------------------------------------
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(
+        timezone.utc
+    )
 
-    expires_at = record.get("expires_at")
 
-    if expires_at is None:
+    expires_at = record.get(
+        "expires_at"
+    )
+
+
+    if not expires_at:
 
         await db.email_otps.delete_one({
             "_id": record["_id"]
         })
 
+
         raise HTTPException(
             status_code=400,
-            detail="OTP is invalid."
+            detail="Invalid OTP."
         )
 
-    # MongoDB may return a naive datetime depending
-    # on configuration, so make it UTC-aware.
+
+    # --------------------------------------------------------
+    # HANDLE NAIVE DATETIME
+    # --------------------------------------------------------
+
     if expires_at.tzinfo is None:
 
         expires_at = expires_at.replace(
             tzinfo=timezone.utc
         )
+
+
+    # --------------------------------------------------------
+    # EXPIRED
+    # --------------------------------------------------------
 
     if now > expires_at:
 
@@ -226,35 +283,53 @@ async def verify_otp(data: VerifyOTPRequest):
             "_id": record["_id"]
         })
 
+
         raise HTTPException(
             status_code=400,
             detail="OTP has expired. Please request a new OTP."
         )
 
+
     # --------------------------------------------------------
-    # MARK EMAIL AS VERIFIED
+    # MARK VERIFIED
     # --------------------------------------------------------
 
     await db.email_otps.update_one(
+
         {
-            "_id": record["_id"]
+            "_id":
+                record["_id"]
         },
+
         {
             "$set": {
-                "verified": True,
-                "verified_at": datetime.now(timezone.utc),
+
+                "verified":
+                    True,
+
+                "verified_at":
+                    datetime.now(
+                        timezone.utc
+                    ),
+
             }
         }
     )
+
 
     # --------------------------------------------------------
     # RESPONSE
     # --------------------------------------------------------
 
     return {
+
         "success": True,
+
         "verified": True,
-        "message": "Email verified successfully."
+
+        "message":
+            "Email verified successfully."
+
     }
 
 
@@ -271,15 +346,21 @@ async def register(
     # NORMALIZE EMAIL
     # --------------------------------------------------------
 
-    email = str(data.email).strip().lower()
+    email = str(
+        data.email
+    ).strip().lower()
+
 
     # --------------------------------------------------------
     # CHECK EXISTING USER
     # --------------------------------------------------------
 
     existing_user = await db.users.find_one({
+
         "email": email
+
     })
+
 
     if existing_user:
 
@@ -288,32 +369,63 @@ async def register(
             detail="User already exists."
         )
 
+
     # --------------------------------------------------------
     # CHECK EMAIL VERIFICATION
     # --------------------------------------------------------
 
     verified_email = await db.email_otps.find_one({
+
         "email": email,
+
         "verified": True,
+
     })
+
 
     if not verified_email:
 
         raise HTTPException(
             status_code=400,
-            detail="Please verify your email before registering."
+            detail=(
+                "Please verify your email "
+                "before registering."
+            )
         )
+
 
     # --------------------------------------------------------
     # CHECK PASSWORD
     # --------------------------------------------------------
 
-    if data.password != data.confirm_password:
+    if (
+        data.password
+        != data.confirm_password
+    ):
 
         raise HTTPException(
             status_code=400,
-            detail="Password and confirm password do not match."
+            detail=(
+                "Password and confirm password "
+                "do not match."
+            )
         )
+
+
+    # --------------------------------------------------------
+    # PASSWORD LENGTH
+    # --------------------------------------------------------
+
+    if len(data.password) < 8:
+
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "Password must contain "
+                "at least 8 characters."
+            )
+        )
+
 
     # --------------------------------------------------------
     # HASH PASSWORD
@@ -323,17 +435,22 @@ async def register(
         data.password
     )
 
-    # --------------------------------------------------------
-    # NORMALIZE ROLE
-    # --------------------------------------------------------
-
-    role = str(data.role).strip().lower()
 
     # --------------------------------------------------------
-    # USER STATUS
+    # ROLE
+    # --------------------------------------------------------
+
+    role = str(
+        data.role
+    ).strip().lower()
+
+
+    # --------------------------------------------------------
+    # ACTIVE
     # --------------------------------------------------------
 
     active = True
+
 
     # --------------------------------------------------------
     # USER DATA
@@ -341,66 +458,90 @@ async def register(
 
     user_data = {
 
-        "name": data.name,
+        "name":
+            data.name,
 
-        "email": email,
+        "email":
+            email,
 
-        "age": data.age,
+        "age":
+            data.age,
 
-        "address": data.address,
+        "address":
+            data.address,
 
-        "nationality": data.nationality,
+        "nationality":
+            data.nationality,
 
-        "password": password_hashed,
+        "password":
+            password_hashed,
 
-        "role": role,
+        "role":
+            role,
 
-        "active": active,
+        "active":
+            active,
 
-        "email_verified": True,
+        "email_verified":
+            True,
 
-        "created_at": datetime.now(
-            timezone.utc
-        ),
+        "created_at":
+            datetime.now(
+                timezone.utc
+            ),
+
     }
 
+
     # --------------------------------------------------------
-    # INSERT USER
+    # INSERT
     # --------------------------------------------------------
 
     result = await db.users.insert_one(
         user_data
     )
 
+
     # --------------------------------------------------------
-    # RESPONSE USER
+    # USER RESPONSE
     # --------------------------------------------------------
 
     user = {
 
-        "id": str(
-            result.inserted_id
-        ),
+        "id":
+            str(
+                result.inserted_id
+            ),
 
-        "name": data.name,
+        "name":
+            data.name,
 
-        "email": email,
+        "email":
+            email,
 
-        "age": data.age,
+        "age":
+            data.age,
 
-        "address": data.address,
+        "address":
+            data.address,
 
-        "nationality": data.nationality,
+        "nationality":
+            data.nationality,
 
-        "role": role,
+        "role":
+            role,
 
-        "active": active,
+        "active":
+            active,
 
-        "email_verified": True,
+        "email_verified":
+            True,
+
     }
 
+
     # --------------------------------------------------------
-    # CREATE JWT
+    # JWT
     # --------------------------------------------------------
 
     token = create_access_token(
@@ -410,15 +551,20 @@ async def register(
         email=user["email"],
 
         role=user["role"],
+
     )
+
 
     # --------------------------------------------------------
     # DELETE USED OTP
     # --------------------------------------------------------
 
     await db.email_otps.delete_many({
+
         "email": email
+
     })
+
 
     # --------------------------------------------------------
     # RESPONSE
@@ -426,11 +572,15 @@ async def register(
 
     return {
 
-        "message": "User registered successfully.",
+        "message":
+            "User registered successfully.",
 
-        "token": token,
+        "token":
+            token,
 
-        "user": user,
+        "user":
+            user,
+
     }
 
 
@@ -442,5 +592,8 @@ async def register(
 async def update_user():
 
     return {
-        "message": "Update user endpoint"
+
+        "message":
+            "Update user endpoint"
+
     }
