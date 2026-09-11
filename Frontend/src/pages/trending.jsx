@@ -1322,7 +1322,7 @@ function Trending() {
 
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/10">
 
-                          <BarChart3 className="h-5 w-5 text-orange-400" />
+                          <BarChart3 className="h-5 w-5 text-green-400" />
 
                         </div>
 
@@ -1407,9 +1407,9 @@ function Trending() {
                                     w-full
                                     rounded-t-md
                                     bg-linear-to-t
-                                    from-orange-600
-                                    via-orange-500
-                                    to-yellow-400
+                                    from-red-600
+                                    via-orange-400
+                                    to-green-400
                                     opacity-80
                                     transition-all
                                     duration-300
